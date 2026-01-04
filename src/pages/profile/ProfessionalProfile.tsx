@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
 import { 
   User, 
@@ -77,11 +78,12 @@ const ProfessionalProfile = () => {
   const navigate = useNavigate();
   const { user, userRole, signOut, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -203,6 +205,49 @@ const ProfessionalProfile = () => {
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    setIsUploadingAvatar(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${user.id}/avatar_${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(fileName);
+
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: publicUrl })
+        .eq("user_id", user.id);
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: "Avatar updated",
+        description: "Your profile picture has been changed.",
+      });
+
+      fetchProfileData();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Upload failed",
+        description: error.message,
+      });
+    } finally {
+      setIsUploadingAvatar(false);
     }
   };
 
@@ -333,7 +378,15 @@ const ProfessionalProfile = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader type="professional" onSignOut={handleSignOut} />
+      <DashboardHeader type="professional" onSignOut={handleSignOut} avatarUrl={profile?.avatar_url} name={profile?.full_name} />
+      
+      <input
+        ref={avatarInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleAvatarUpload}
+      />
 
       <main className="container mx-auto px-4 py-6 max-w-4xl">
         {/* Back button */}
@@ -354,11 +407,22 @@ const ProfessionalProfile = () => {
           <div className="flex items-start gap-6 flex-wrap">
             {/* Avatar */}
             <div className="relative">
-              <div className="w-24 h-24 rounded-2xl gradient-primary flex items-center justify-center">
-                <User className="w-12 h-12 text-primary-foreground" />
-              </div>
-              <button className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-card border border-border shadow-md flex items-center justify-center hover:bg-secondary transition-colors">
-                <Camera className="w-4 h-4 text-muted-foreground" />
+              <Avatar className="w-24 h-24 rounded-2xl">
+                <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || "User"} className="object-cover" />
+                <AvatarFallback className="w-24 h-24 rounded-2xl gradient-primary text-primary-foreground text-2xl font-semibold">
+                  {profile?.full_name?.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "PR"}
+                </AvatarFallback>
+              </Avatar>
+              <button 
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={isUploadingAvatar}
+                className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-card border border-border shadow-md flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-50"
+              >
+                {isUploadingAvatar ? (
+                  <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
+                ) : (
+                  <Camera className="w-4 h-4 text-muted-foreground" />
+                )}
               </button>
             </div>
 

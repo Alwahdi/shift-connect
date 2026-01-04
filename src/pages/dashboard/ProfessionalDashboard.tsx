@@ -47,6 +47,7 @@ interface Profile {
   rating_avg: number;
   verification_status: string;
   onboarding_completed: boolean;
+  avatar_url: string | null;
 }
 
 interface Document {
@@ -84,7 +85,7 @@ const ProfessionalDashboard = () => {
         // Fetch profile
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("id, full_name, rating_avg, verification_status, onboarding_completed")
+          .select("id, full_name, rating_avg, verification_status, onboarding_completed, avatar_url")
           .eq("user_id", user.id)
           .single();
 
@@ -160,7 +161,7 @@ const ProfessionalDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader type="professional" onSignOut={handleSignOut} />
+      <DashboardHeader type="professional" onSignOut={handleSignOut} avatarUrl={profile?.avatar_url} name={profile?.full_name} />
 
       <main className="container mx-auto px-4 py-6">
         {/* Welcome */}

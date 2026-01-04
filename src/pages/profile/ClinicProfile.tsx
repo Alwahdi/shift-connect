@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
 import { 
   Building2, 
@@ -73,10 +74,12 @@ const ClinicProfile = () => {
   const navigate = useNavigate();
   const { user, userRole, signOut, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [clinic, setClinic] = useState<Clinic | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -195,6 +198,49 @@ const ClinicProfile = () => {
     }
   };
 
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    setIsUploadingLogo(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${user.id}/logo_${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(fileName);
+
+      const { error: updateError } = await supabase
+        .from("clinics")
+        .update({ logo_url: publicUrl })
+        .eq("user_id", user.id);
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: "Logo updated",
+        description: "Your clinic logo has been changed.",
+      });
+
+      fetchClinicData();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Upload failed",
+        description: error.message,
+      });
+    } finally {
+      setIsUploadingLogo(false);
+    }
+  };
+
   const handleFileSelect = (index: number, file: File) => {
     const newDocs = [...documentUploads];
     newDocs[index] = { ...newDocs[index], file, uploaded: false };
@@ -294,7 +340,15 @@ const ClinicProfile = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader type="clinic" onSignOut={handleSignOut} />
+      <DashboardHeader type="clinic" onSignOut={handleSignOut} avatarUrl={clinic?.logo_url} name={clinic?.name} />
+      
+      <input
+        ref={avatarInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleLogoUpload}
+      />
 
       <main className="container mx-auto px-4 py-6 max-w-4xl">
         {/* Back button */}
@@ -315,11 +369,22 @@ const ClinicProfile = () => {
           <div className="flex items-start gap-6 flex-wrap">
             {/* Logo */}
             <div className="relative">
-              <div className="w-24 h-24 rounded-2xl gradient-accent flex items-center justify-center">
-                <Building2 className="w-12 h-12 text-accent-foreground" />
-              </div>
-              <button className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-card border border-border shadow-md flex items-center justify-center hover:bg-secondary transition-colors">
-                <Camera className="w-4 h-4 text-muted-foreground" />
+              <Avatar className="w-24 h-24 rounded-2xl">
+                <AvatarImage src={clinic?.logo_url || undefined} alt={clinic?.name || "Clinic"} className="object-cover" />
+                <AvatarFallback className="w-24 h-24 rounded-2xl gradient-accent text-accent-foreground text-2xl font-semibold">
+                  {clinic?.name?.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "CL"}
+                </AvatarFallback>
+              </Avatar>
+              <button 
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={isUploadingLogo}
+                className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-card border border-border shadow-md flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-50"
+              >
+                {isUploadingLogo ? (
+                  <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
+                ) : (
+                  <Camera className="w-4 h-4 text-muted-foreground" />
+                )}
               </button>
             </div>
 

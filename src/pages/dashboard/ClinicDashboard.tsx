@@ -24,6 +24,7 @@ import { supabase } from "@/integrations/supabase/client";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsGrid from "@/components/dashboard/StatsGrid";
 import OnboardingBanner from "@/components/dashboard/OnboardingBanner";
+import CreateShiftModal from "@/components/clinic/CreateShiftModal";
 
 interface Shift {
   id: string;
@@ -43,6 +44,7 @@ interface Clinic {
   rating_avg: number;
   verification_status: string;
   onboarding_completed: boolean;
+  logo_url: string | null;
 }
 
 interface Document {
@@ -55,8 +57,23 @@ const ClinicDashboard = () => {
   const [clinic, setClinic] = useState<Clinic | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCreateShift, setShowCreateShift] = useState(false);
   const { user, userRole, signOut, isLoading: authLoading, isOnboardingComplete } = useAuth();
   const navigate = useNavigate();
+
+  const fetchShifts = async () => {
+    if (!clinic?.id) return;
+    const { data: shiftsData } = await supabase
+      .from("shifts")
+      .select("*")
+      .eq("clinic_id", clinic.id)
+      .order("shift_date", { ascending: true })
+      .limit(10);
+
+    if (shiftsData) {
+      setShifts(shiftsData);
+    }
+  };
 
   useEffect(() => {
     if (!authLoading) {
@@ -79,7 +96,7 @@ const ClinicDashboard = () => {
         // Fetch clinic
         const { data: clinicData } = await supabase
           .from("clinics")
-          .select("id, name, rating_avg, verification_status, onboarding_completed")
+          .select("id, name, rating_avg, verification_status, onboarding_completed, logo_url")
           .eq("user_id", user.id)
           .single();
 
@@ -146,7 +163,7 @@ const ClinicDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader type="clinic" onSignOut={handleSignOut} />
+      <DashboardHeader type="clinic" onSignOut={handleSignOut} avatarUrl={clinic?.logo_url} name={clinic?.name} />
 
       <main className="container mx-auto px-4 py-6">
         {/* Welcome */}
@@ -170,6 +187,7 @@ const ClinicDashboard = () => {
               variant="default" 
               size="lg"
               disabled={!canPostShifts}
+              onClick={() => setShowCreateShift(true)}
               className="bg-accent hover:bg-accent/90"
             >
               <Plus className="w-5 h-5 mr-2" />
@@ -233,7 +251,7 @@ const ClinicDashboard = () => {
                   : "Upload your business documents to start posting shifts."}
               </p>
               {canPostShifts ? (
-                <Button className="bg-accent hover:bg-accent/90">
+                <Button className="bg-accent hover:bg-accent/90" onClick={() => setShowCreateShift(true)}>
                   <Plus className="w-4 h-4 mr-2" />
                   Post Your First Shift
                 </Button>
@@ -296,6 +314,16 @@ const ClinicDashboard = () => {
           )}
         </motion.div>
       </main>
+
+      {/* Create Shift Modal */}
+      {clinic && (
+        <CreateShiftModal
+          open={showCreateShift}
+          onOpenChange={setShowCreateShift}
+          clinicId={clinic.id}
+          onSuccess={fetchShifts}
+        />
+      )}
     </div>
   );
 };
