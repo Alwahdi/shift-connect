@@ -3,10 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { 
-  Heart, 
-  Bell, 
-  User, 
-  MapPin, 
   Calendar, 
   Clock, 
   DollarSign,
@@ -14,15 +10,19 @@ import {
   Filter,
   Search,
   ChevronRight,
-  CheckCircle2,
   Building2,
-  LogOut,
-  Loader2
+  Loader2,
+  MapPin,
+  FileText,
+  Upload
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import StatsGrid from "@/components/dashboard/StatsGrid";
+import OnboardingBanner from "@/components/dashboard/OnboardingBanner";
 
 interface Shift {
   id: string;
@@ -44,21 +44,35 @@ interface Profile {
   full_name: string;
   rating_avg: number;
   verification_status: string;
+  onboarding_completed: boolean;
+}
+
+interface Document {
+  id: string;
+  status: string;
 }
 
 const ProfessionalDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { user, userRole, signOut, isLoading: authLoading } = useAuth();
+  const { user, userRole, signOut, isLoading: authLoading, isOnboardingComplete } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!authLoading && (!user || userRole !== "professional")) {
-      navigate("/auth");
+    if (!authLoading) {
+      if (!user || userRole !== "professional") {
+        navigate("/auth");
+        return;
+      }
+      if (!isOnboardingComplete) {
+        navigate("/onboarding/professional");
+        return;
+      }
     }
-  }, [user, userRole, authLoading, navigate]);
+  }, [user, userRole, authLoading, isOnboardingComplete, navigate]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -68,12 +82,22 @@ const ProfessionalDashboard = () => {
         // Fetch profile
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("id, full_name, rating_avg, verification_status")
+          .select("id, full_name, rating_avg, verification_status, onboarding_completed")
           .eq("user_id", user.id)
           .single();
 
         if (profileData) {
           setProfile(profileData);
+        }
+
+        // Fetch user documents
+        const { data: docsData } = await supabase
+          .from("documents")
+          .select("id, status")
+          .eq("user_id", user.id);
+
+        if (docsData) {
+          setDocuments(docsData);
         }
 
         // Fetch available shifts
@@ -104,8 +128,10 @@ const ProfessionalDashboard = () => {
       }
     };
 
-    fetchData();
-  }, [user]);
+    if (user && isOnboardingComplete) {
+      fetchData();
+    }
+  }, [user, isOnboardingComplete]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -114,50 +140,32 @@ const ProfessionalDashboard = () => {
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
+  const pendingDocs = documents.filter(d => d.status === "pending").length;
+  const totalDocs = documents.length;
+
+  const stats = [
+    { label: "This Month", value: "$0", icon: DollarSign },
+    { label: "Shifts Completed", value: "0", icon: Calendar },
+    { label: "Avg Rating", value: profile?.rating_avg ? `${profile.rating_avg}★` : "N/A", icon: Star },
+    { label: "Documents", value: `${totalDocs}`, icon: FileText },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-                <Heart className="w-4 h-4 text-primary-foreground" />
-              </div>
-              <span className="font-bold text-lg text-foreground">SyndeoCare</span>
-            </Link>
-
-            <div className="flex items-center gap-3">
-              <button className="relative p-2 rounded-lg hover:bg-secondary">
-                <Bell className="w-5 h-5 text-muted-foreground" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full" />
-              </button>
-              <button 
-                onClick={handleSignOut}
-                className="flex items-center gap-2 p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground"
-              >
-                <LogOut className="w-5 h-5" />
-              </button>
-              <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center">
-                <User className="w-4 h-4 text-primary-foreground" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <DashboardHeader type="professional" onSignOut={handleSignOut} />
 
       <main className="container mx-auto px-4 py-6">
         {/* Welcome */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-6"
         >
           <h1 className="text-2xl font-bold text-foreground mb-1">
             Welcome back, {profile?.full_name?.split(" ")[0] || "Professional"}!
@@ -165,55 +173,40 @@ const ProfessionalDashboard = () => {
           <p className="text-muted-foreground">Find your next shift or check your upcoming bookings.</p>
         </motion.div>
 
-        {/* Verification Banner */}
-        {profile?.verification_status === "pending" && (
+        {/* Onboarding/Verification Banner */}
+        <OnboardingBanner
+          type="professional"
+          onboardingComplete={profile?.onboarding_completed || false}
+          verificationStatus={profile?.verification_status || "pending"}
+          pendingDocuments={pendingDocs}
+          totalDocuments={totalDocs}
+        />
+
+        {/* Quick Actions */}
+        {totalDocs === 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="mb-6 p-4 rounded-xl bg-warning/10 border border-warning/20"
+            className="mb-6 p-6 rounded-xl bg-card border border-border shadow-card"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5 text-warning" />
-              </div>
+            <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
-                <h3 className="font-medium text-foreground">Complete Your Verification</h3>
-                <p className="text-sm text-muted-foreground">Upload your documents to start receiving shift invites.</p>
+                <h3 className="font-semibold text-foreground mb-1">Get Verified to Apply for Shifts</h3>
+                <p className="text-sm text-muted-foreground">Upload your credentials to start receiving shift opportunities.</p>
               </div>
-              <Button variant="outline" size="sm" className="ml-auto">
-                Upload Documents
+              <Button asChild>
+                <Link to="/onboarding/professional">
+                  <Upload className="w-4 h-4 mr-2" />
+                  Upload Documents
+                </Link>
               </Button>
             </div>
           </motion.div>
         )}
 
         {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
-        >
-          {[
-            { label: "This Month", value: "$0", icon: DollarSign },
-            { label: "Shifts Completed", value: "0", icon: Calendar },
-            { label: "Avg Rating", value: profile?.rating_avg ? `${profile.rating_avg}★` : "N/A", icon: Star },
-            { label: "Profile Views", value: "0", icon: User },
-          ].map((stat) => (
-            <div key={stat.label} className="bg-card rounded-xl border border-border p-4 shadow-card">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <stat.icon className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground">{stat.label}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </motion.div>
+        <StatsGrid stats={stats} variant="primary" />
 
         {/* Available Shifts */}
         <motion.div
@@ -243,21 +236,27 @@ const ProfessionalDashboard = () => {
 
           {/* Shift Cards */}
           {shifts.length === 0 ? (
-            <div className="bg-card rounded-xl border border-border p-8 text-center">
+            <div className="bg-card rounded-xl border border-border p-8 text-center shadow-card">
               <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-medium text-foreground mb-2">No shifts available</h3>
               <p className="text-sm text-muted-foreground">
-                Check back soon for new opportunities in your area.
+                {profile?.verification_status !== "verified" 
+                  ? "Complete your verification to see available shifts."
+                  : "Check back soon for new opportunities in your area."}
               </p>
             </div>
           ) : (
             <div className="space-y-3">
-              {shifts.map((shift, index) => (
+              {shifts.filter(shift => 
+                shift.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                shift.role_required?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                shift.clinic?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+              ).map((shift, index) => (
                 <motion.div
                   key={shift.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 + index * 0.1 }}
+                  transition={{ delay: 0.4 + index * 0.05 }}
                   className="bg-card rounded-xl border border-border p-4 shadow-card hover:shadow-card-hover hover:border-primary/20 transition-all cursor-pointer"
                 >
                   <div className="flex items-start justify-between gap-4">

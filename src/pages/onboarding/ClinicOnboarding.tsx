@@ -13,35 +13,41 @@ import {
   CheckCircle2, 
   ArrowRight, 
   ArrowLeft,
-  Upload,
   Loader2,
   Phone,
   Mail,
-  Globe
+  Globe,
+  Sparkles
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import OnboardingProgress from "@/components/onboarding/OnboardingProgress";
+import DocumentUploadCard from "@/components/onboarding/DocumentUploadCard";
 
 type Step = "organization" | "location" | "documents" | "complete";
 
 interface DocumentUpload {
   type: "business_license" | "insurance";
   name: string;
+  description: string;
+  required: boolean;
   file: File | null;
   uploading: boolean;
   uploaded: boolean;
-  url?: string;
+  status?: "pending" | "verified" | "rejected";
+  rejectionReason?: string;
 }
 
 const ClinicOnboarding = () => {
   const navigate = useNavigate();
-  const { user, userRole, isLoading: authLoading } = useAuth();
+  const { user, userRole, isLoading: authLoading, refreshOnboardingStatus } = useAuth();
   const { toast } = useToast();
   
   const [currentStep, setCurrentStep] = useState<Step>("organization");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [clinicId, setClinicId] = useState<string | null>(null);
+  const [existingDocs, setExistingDocs] = useState<any[]>([]);
   
   const [orgData, setOrgData] = useState({
     name: "",
@@ -57,8 +63,8 @@ const ClinicOnboarding = () => {
   });
   
   const [documents, setDocuments] = useState<DocumentUpload[]>([
-    { type: "business_license", name: "Business License", file: null, uploading: false, uploaded: false },
-    { type: "insurance", name: "Liability Insurance", file: null, uploading: false, uploaded: false },
+    { type: "business_license", name: "Business License", description: "Your healthcare facility license", required: true, file: null, uploading: false, uploaded: false },
+    { type: "insurance", name: "Liability Insurance", description: "Professional liability insurance certificate", required: true, file: null, uploading: false, uploaded: false },
   ]);
 
   const steps: { key: Step; label: string; icon: React.ElementType }[] = [
@@ -101,6 +107,29 @@ const ClinicOnboarding = () => {
           navigate("/dashboard/clinic");
         }
       }
+
+      // Fetch existing documents
+      const { data: docs } = await supabase
+        .from("documents")
+        .select("*")
+        .eq("user_id", user.id);
+
+      if (docs) {
+        setExistingDocs(docs);
+        // Update document state with existing uploads
+        setDocuments(prev => prev.map(doc => {
+          const existing = docs.find(d => d.document_type === doc.type);
+          if (existing) {
+            return {
+              ...doc,
+              uploaded: true,
+              status: existing.status as "pending" | "verified" | "rejected",
+              rejectionReason: existing.rejection_reason || undefined,
+            };
+          }
+          return doc;
+        }));
+      }
     };
 
     fetchClinic();
@@ -130,20 +159,38 @@ const ClinicOnboarding = () => {
 
       if (uploadError) throw uploadError;
 
-      // Create document record
-      const { error: dbError } = await supabase
-        .from("documents")
-        .insert({
-          user_id: user.id,
-          document_type: doc.type,
-          name: doc.name,
-          file_url: fileName,
-          status: "pending",
-        });
+      // Check if document of this type already exists
+      const existingDoc = existingDocs.find(d => d.document_type === doc.type);
+      
+      if (existingDoc) {
+        // Update existing document
+        const { error: dbError } = await supabase
+          .from("documents")
+          .update({
+            file_url: fileName,
+            status: "pending",
+            rejection_reason: null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", existingDoc.id);
 
-      if (dbError) throw dbError;
+        if (dbError) throw dbError;
+      } else {
+        // Create new document record
+        const { error: dbError } = await supabase
+          .from("documents")
+          .insert({
+            user_id: user.id,
+            document_type: doc.type,
+            name: doc.name,
+            file_url: fileName,
+            status: "pending",
+          });
 
-      newDocs[index] = { ...newDocs[index], uploading: false, uploaded: true };
+        if (dbError) throw dbError;
+      }
+
+      newDocs[index] = { ...newDocs[index], uploading: false, uploaded: true, status: "pending", file: null };
       setDocuments(newDocs);
 
       toast({
@@ -162,18 +209,25 @@ const ClinicOnboarding = () => {
   };
 
   const saveOrganization = async () => {
-    if (!user) return;
+    if (!user || !orgData.name.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Name required",
+        description: "Please enter your organization name.",
+      });
+      return;
+    }
     
     setIsSubmitting(true);
     try {
       const { error } = await supabase
         .from("clinics")
         .update({
-          name: orgData.name,
-          email: orgData.email,
-          phone: orgData.phone,
-          description: orgData.description,
-          tax_id: orgData.tax_id,
+          name: orgData.name.trim(),
+          email: orgData.email.trim(),
+          phone: orgData.phone.trim(),
+          description: orgData.description.trim(),
+          tax_id: orgData.tax_id.trim(),
         })
         .eq("user_id", user.id);
 
@@ -198,8 +252,8 @@ const ClinicOnboarding = () => {
       const { error } = await supabase
         .from("clinics")
         .update({
-          address: locationData.address,
-          settings: { website: locationData.website },
+          address: locationData.address.trim(),
+          settings: { website: locationData.website.trim() },
         })
         .eq("user_id", user.id);
 
@@ -219,6 +273,19 @@ const ClinicOnboarding = () => {
   const completeOnboarding = async () => {
     if (!user) return;
     
+    // Check required documents
+    const requiredDocs = documents.filter(d => d.required);
+    const uploadedRequired = requiredDocs.filter(d => d.uploaded);
+    
+    if (uploadedRequired.length < requiredDocs.length) {
+      toast({
+        variant: "destructive",
+        title: "Required documents missing",
+        description: "Please upload all required documents before completing.",
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
       const { error } = await supabase
@@ -227,6 +294,8 @@ const ClinicOnboarding = () => {
         .eq("user_id", user.id);
 
       if (error) throw error;
+      
+      await refreshOnboardingStatus();
       setCurrentStep("complete");
     } catch (error: any) {
       toast({
@@ -241,11 +310,14 @@ const ClinicOnboarding = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-accent" />
       </div>
     );
   }
+
+  const requiredDocsUploaded = documents.filter(d => d.required && d.uploaded).length;
+  const totalRequiredDocs = documents.filter(d => d.required).length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -264,48 +336,7 @@ const ClinicOnboarding = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8 max-w-2xl">
-        {/* Progress Steps */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            {steps.map((step, index) => (
-              <div key={step.key} className="flex items-center">
-                <div
-                  className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors ${
-                    currentStep === step.key
-                      ? "border-accent bg-accent text-accent-foreground"
-                      : steps.findIndex(s => s.key === currentStep) > index
-                      ? "border-success bg-success text-success-foreground"
-                      : "border-border bg-background text-muted-foreground"
-                  }`}
-                >
-                  <step.icon className="w-5 h-5" />
-                </div>
-                {index < steps.length - 1 && (
-                  <div
-                    className={`w-full h-0.5 mx-2 transition-colors ${
-                      steps.findIndex(s => s.key === currentStep) > index
-                        ? "bg-success"
-                        : "bg-border"
-                    }`}
-                    style={{ width: "60px" }}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="flex justify-between mt-2">
-            {steps.map((step) => (
-              <span
-                key={step.key}
-                className={`text-xs ${
-                  currentStep === step.key ? "text-accent font-medium" : "text-muted-foreground"
-                }`}
-              >
-                {step.label}
-              </span>
-            ))}
-          </div>
-        </div>
+        <OnboardingProgress steps={steps} currentStep={currentStep} />
 
         {/* Step Content */}
         <AnimatePresence mode="wait">
@@ -322,7 +353,7 @@ const ClinicOnboarding = () => {
 
               <div className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Organization Name</Label>
+                  <Label htmlFor="name">Organization Name *</Label>
                   <div className="relative">
                     <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
@@ -388,11 +419,10 @@ const ClinicOnboarding = () => {
                 </div>
 
                 <Button
-                  variant="accent"
-                  className="w-full"
+                  className="w-full bg-accent hover:bg-accent/90"
                   size="lg"
                   onClick={saveOrganization}
-                  disabled={isSubmitting || !orgData.name}
+                  disabled={isSubmitting || !orgData.name.trim()}
                 >
                   {isSubmitting ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -458,8 +488,7 @@ const ClinicOnboarding = () => {
                     Back
                   </Button>
                   <Button
-                    variant="accent"
-                    className="flex-1"
+                    className="flex-1 bg-accent hover:bg-accent/90"
                     size="lg"
                     onClick={saveLocation}
                     disabled={isSubmitting}
@@ -491,103 +520,61 @@ const ClinicOnboarding = () => {
                 Upload your business credentials for verification.
               </p>
 
-              <div className="space-y-4">
+              <div className="space-y-4 mb-6">
                 {documents.map((doc, index) => (
-                  <div
+                  <DocumentUploadCard
                     key={doc.type}
-                    className={`p-4 rounded-xl border-2 border-dashed transition-colors ${
-                      doc.uploaded
-                        ? "border-success bg-success/5"
-                        : "border-border hover:border-accent/50"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                            doc.uploaded ? "bg-success/10" : "bg-accent/10"
-                          }`}
-                        >
-                          {doc.uploaded ? (
-                            <CheckCircle2 className="w-5 h-5 text-success" />
-                          ) : (
-                            <FileText className="w-5 h-5 text-accent" />
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-medium text-foreground">{doc.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {doc.file ? doc.file.name : "PDF, JPG, or PNG"}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      {doc.uploaded ? (
-                        <span className="text-sm text-success font-medium">Uploaded</span>
-                      ) : doc.file ? (
-                        <Button
-                          size="sm"
-                          variant="accent"
-                          onClick={() => uploadDocument(index)}
-                          disabled={doc.uploading}
-                        >
-                          {doc.uploading ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <>
-                              <Upload className="w-4 h-4 mr-1" />
-                              Upload
-                            </>
-                          )}
-                        </Button>
-                      ) : (
-                        <label className="cursor-pointer">
-                          <input
-                            type="file"
-                            className="hidden"
-                            accept=".pdf,.jpg,.jpeg,.png,.webp"
-                            onChange={(e) => e.target.files?.[0] && handleFileSelect(index, e.target.files[0])}
-                          />
-                          <span className="text-sm text-accent font-medium hover:underline">
-                            Select file
-                          </span>
-                        </label>
-                      )}
-                    </div>
-                  </div>
+                    type={doc.type}
+                    name={doc.name}
+                    description={doc.description}
+                    required={doc.required}
+                    file={doc.file}
+                    uploading={doc.uploading}
+                    uploaded={doc.uploaded}
+                    status={doc.status}
+                    rejectionReason={doc.rejectionReason}
+                    onFileSelect={(file) => handleFileSelect(index, file)}
+                    onUpload={() => uploadDocument(index)}
+                    onRemove={() => {
+                      const newDocs = [...documents];
+                      newDocs[index] = { ...newDocs[index], file: null };
+                      setDocuments(newDocs);
+                    }}
+                  />
                 ))}
+              </div>
 
-                <p className="text-sm text-muted-foreground text-center">
-                  You can skip document upload for now and add them later.
+              <div className="p-4 rounded-lg bg-secondary mb-6">
+                <p className="text-sm text-muted-foreground">
+                  <strong>Progress:</strong> {requiredDocsUploaded}/{totalRequiredDocs} required documents uploaded
                 </p>
+              </div>
 
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    size="lg"
-                    onClick={() => setCurrentStep("location")}
-                  >
-                    <ArrowLeft className="w-5 h-5 mr-2" />
-                    Back
-                  </Button>
-                  <Button
-                    variant="accent"
-                    className="flex-1"
-                    size="lg"
-                    onClick={completeOnboarding}
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <>
-                        Complete Setup
-                        <ArrowRight className="w-5 h-5 ml-2" />
-                      </>
-                    )}
-                  </Button>
-                </div>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  size="lg"
+                  onClick={() => setCurrentStep("location")}
+                >
+                  <ArrowLeft className="w-5 h-5 mr-2" />
+                  Back
+                </Button>
+                <Button
+                  className="flex-1 bg-accent hover:bg-accent/90"
+                  size="lg"
+                  onClick={completeOnboarding}
+                  disabled={isSubmitting || requiredDocsUploaded < totalRequiredDocs}
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      Complete Setup
+                      <CheckCircle2 className="w-5 h-5 ml-2" />
+                    </>
+                  )}
+                </Button>
               </div>
             </motion.div>
           )}
@@ -599,18 +586,32 @@ const ClinicOnboarding = () => {
               animate={{ opacity: 1, scale: 1 }}
               className="bg-card rounded-2xl border border-border p-8 shadow-card text-center"
             >
-              <div className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 className="w-10 h-10 text-success" />
-              </div>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", delay: 0.2 }}
+                className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-6"
+              >
+                <Sparkles className="w-10 h-10 text-success" />
+              </motion.div>
+
               <h2 className="text-2xl font-bold text-foreground mb-2">You're All Set!</h2>
               <p className="text-muted-foreground mb-6">
-                Your clinic profile is complete. Our team will review your documents and verify your account.
-                You can start posting shifts right away!
+                Your clinic profile is complete and your documents are under review. 
+                Once verified, you'll be able to post shifts.
               </p>
+
+              <div className="p-4 rounded-lg bg-warning/10 border border-warning/20 mb-6">
+                <p className="text-sm text-warning">
+                  <strong>Note:</strong> Document verification usually takes 1-2 business days. 
+                  We'll notify you once your clinic is fully verified.
+                </p>
+              </div>
+
               <Button
-                variant="accent"
                 size="lg"
                 onClick={() => navigate("/dashboard/clinic")}
+                className="w-full bg-accent hover:bg-accent/90"
               >
                 Go to Dashboard
                 <ArrowRight className="w-5 h-5 ml-2" />

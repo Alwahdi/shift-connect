@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { 
-  Heart, 
   Users, 
   Building2, 
   FileText, 
@@ -14,15 +13,17 @@ import {
   Clock,
   Search,
   Eye,
-  Shield,
-  LogOut,
   Loader2,
-  AlertTriangle
+  AlertTriangle,
+  RefreshCw,
+  Filter
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import StatsGrid from "@/components/dashboard/StatsGrid";
 import DocumentViewer from "@/components/admin/DocumentViewer";
 import UserDetailsModal from "@/components/admin/UserDetailsModal";
 
@@ -71,7 +72,9 @@ const AdminDashboard = () => {
 
   const [activeTab, setActiveTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   const [professionals, setProfessionals] = useState<Profile[]>([]);
   const [clinics, setClinics] = useState<Clinic[]>([]);
@@ -93,7 +96,9 @@ const AdminDashboard = () => {
       return;
     }
 
-    fetchData();
+    if (user && userRole === "admin") {
+      fetchData();
+    }
   }, [user, userRole, authLoading, navigate]);
 
   const fetchData = async () => {
@@ -165,7 +170,13 @@ const AdminDashboard = () => {
       });
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
+  };
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    fetchData();
   };
 
   const handleVerifyUser = async (type: "professional" | "clinic", userId: string, status: "verified" | "rejected") => {
@@ -245,84 +256,100 @@ const AdminDashboard = () => {
     }
   };
 
-  const filteredProfessionals = professionals.filter(p =>
-    p.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filterByStatus = <T extends { verification_status?: string; status?: string }>(items: T[], query: string, nameField: keyof T, emailField?: keyof T) => {
+    let filtered = items;
+    
+    // Filter by search
+    if (query) {
+      filtered = filtered.filter(item => {
+        const name = String(item[nameField] || '').toLowerCase();
+        const email = emailField ? String(item[emailField] || '').toLowerCase() : '';
+        return name.includes(query.toLowerCase()) || email.includes(query.toLowerCase());
+      });
+    }
+    
+    // Filter by status
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(item => {
+        const status = item.verification_status || item.status;
+        return status === statusFilter;
+      });
+    }
+    
+    return filtered;
+  };
 
-  const filteredClinics = clinics.filter(c =>
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProfessionals = filterByStatus(professionals, searchQuery, 'full_name', 'email');
+  const filteredClinics = filterByStatus(clinics, searchQuery, 'name', 'email');
+  const filteredDocuments = documents.filter(d => {
+    const matchesSearch = d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      d.user_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || d.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   const pendingDocuments = documents.filter(d => d.status === "pending");
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
+  const adminStats = [
+    { label: "Professionals", value: stats.totalProfessionals.toString(), icon: Users },
+    { label: "Clinics", value: stats.totalClinics.toString(), icon: Building2 },
+    { label: "Pending Verifications", value: stats.pendingVerifications.toString(), icon: Clock },
+    { label: "Pending Documents", value: stats.pendingDocuments.toString(), icon: FileText },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center">
-                <Shield className="w-4 h-4 text-background" />
-              </div>
-              <span className="font-bold text-lg text-foreground">Admin Dashboard</span>
-            </Link>
-
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={handleSignOut}
-                className="flex items-center gap-2 p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground"
-              >
-                <LogOut className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <DashboardHeader type="admin" onSignOut={handleSignOut} />
 
       <main className="container mx-auto px-4 py-6">
+        {/* Title and Refresh */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
+            <p className="text-muted-foreground">Manage users, documents, and verifications.</p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+        </div>
+
         {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
-        >
-          {[
-            { label: "Professionals", value: stats.totalProfessionals, icon: Users, color: "primary" },
-            { label: "Clinics", value: stats.totalClinics, icon: Building2, color: "accent" },
-            { label: "Pending Verifications", value: stats.pendingVerifications, icon: Clock, color: "warning" },
-            { label: "Pending Documents", value: stats.pendingDocuments, icon: FileText, color: "destructive" },
-          ].map((stat) => (
-            <div key={stat.label} className="bg-card rounded-xl border border-border p-4 shadow-card">
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-lg bg-${stat.color}/10 flex items-center justify-center`}>
-                  <stat.icon className={`w-5 h-5 text-${stat.color}`} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground">{stat.label}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </motion.div>
+        <StatsGrid stats={adminStats} variant="primary" />
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="professionals">Professionals</TabsTrigger>
-            <TabsTrigger value="clinics">Clinics</TabsTrigger>
+            <TabsTrigger value="professionals">
+              Professionals
+              {professionals.filter(p => p.verification_status === "pending").length > 0 && (
+                <span className="ml-2 px-1.5 py-0.5 text-xs bg-warning text-warning-foreground rounded-full">
+                  {professionals.filter(p => p.verification_status === "pending").length}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="clinics">
+              Clinics
+              {clinics.filter(c => c.verification_status === "pending").length > 0 && (
+                <span className="ml-2 px-1.5 py-0.5 text-xs bg-warning text-warning-foreground rounded-full">
+                  {clinics.filter(c => c.verification_status === "pending").length}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="documents">
               Documents
               {stats.pendingDocuments > 0 && (
@@ -368,12 +395,12 @@ const AdminDashboard = () => {
                   {professionals.slice(0, 5).map((prof) => (
                     <div
                       key={prof.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary cursor-pointer"
+                      className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary cursor-pointer transition-colors"
                       onClick={() => setSelectedUser({ type: "professional", data: prof })}
                     >
-                      <div>
-                        <p className="font-medium text-foreground">{prof.full_name}</p>
-                        <p className="text-sm text-muted-foreground">{prof.email}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-foreground truncate">{prof.full_name}</p>
+                        <p className="text-sm text-muted-foreground truncate">{prof.email}</p>
                       </div>
                       {getStatusBadge(prof.verification_status)}
                     </div>
@@ -393,12 +420,12 @@ const AdminDashboard = () => {
                   {clinics.slice(0, 5).map((clinic) => (
                     <div
                       key={clinic.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary cursor-pointer"
+                      className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary cursor-pointer transition-colors"
                       onClick={() => setSelectedUser({ type: "clinic", data: clinic })}
                     >
-                      <div>
-                        <p className="font-medium text-foreground">{clinic.name}</p>
-                        <p className="text-sm text-muted-foreground">{clinic.email}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-foreground truncate">{clinic.name}</p>
+                        <p className="text-sm text-muted-foreground truncate">{clinic.email}</p>
                       </div>
                       {getStatusBadge(clinic.verification_status)}
                     </div>
@@ -421,7 +448,7 @@ const AdminDashboard = () => {
                   {pendingDocuments.slice(0, 5).map((doc) => (
                     <div
                       key={doc.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary cursor-pointer"
+                      className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary cursor-pointer transition-colors"
                       onClick={() => setSelectedDocument(doc)}
                     >
                       <div className="flex items-center gap-3">
@@ -458,6 +485,16 @@ const AdminDashboard = () => {
                   className="pl-9"
                 />
               </div>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 py-2 rounded-md border border-input bg-background text-sm"
+              >
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="verified">Verified</option>
+                <option value="rejected">Rejected</option>
+              </select>
             </div>
 
             <div className="bg-card rounded-xl border border-border shadow-card overflow-hidden">
@@ -474,8 +511,10 @@ const AdminDashboard = () => {
                   </thead>
                   <tbody>
                     {filteredProfessionals.map((prof) => (
-                      <tr key={prof.id} className="border-t border-border hover:bg-secondary/30">
-                        <td className="p-4 font-medium text-foreground">{prof.full_name}</td>
+                      <tr key={prof.id} className="border-t border-border hover:bg-secondary/30 transition-colors">
+                        <td className="p-4">
+                          <p className="font-medium text-foreground">{prof.full_name}</p>
+                        </td>
                         <td className="p-4 text-muted-foreground">{prof.email}</td>
                         <td className="p-4">{getStatusBadge(prof.verification_status)}</td>
                         <td className="p-4">
@@ -488,7 +527,7 @@ const AdminDashboard = () => {
                         <td className="p-4">
                           <Button
                             size="sm"
-                            variant="ghost"
+                            variant="outline"
                             onClick={() => setSelectedUser({ type: "professional", data: prof })}
                           >
                             <Eye className="w-4 h-4 mr-1" />
@@ -497,13 +536,15 @@ const AdminDashboard = () => {
                         </td>
                       </tr>
                     ))}
+                    {filteredProfessionals.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                          No professionals found
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
-                {filteredProfessionals.length === 0 && (
-                  <div className="p-8 text-center text-muted-foreground">
-                    No professionals found
-                  </div>
-                )}
               </div>
             </div>
           </TabsContent>
@@ -520,6 +561,16 @@ const AdminDashboard = () => {
                   className="pl-9"
                 />
               </div>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 py-2 rounded-md border border-input bg-background text-sm"
+              >
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="verified">Verified</option>
+                <option value="rejected">Rejected</option>
+              </select>
             </div>
 
             <div className="bg-card rounded-xl border border-border shadow-card overflow-hidden">
@@ -536,8 +587,10 @@ const AdminDashboard = () => {
                   </thead>
                   <tbody>
                     {filteredClinics.map((clinic) => (
-                      <tr key={clinic.id} className="border-t border-border hover:bg-secondary/30">
-                        <td className="p-4 font-medium text-foreground">{clinic.name}</td>
+                      <tr key={clinic.id} className="border-t border-border hover:bg-secondary/30 transition-colors">
+                        <td className="p-4">
+                          <p className="font-medium text-foreground">{clinic.name}</p>
+                        </td>
                         <td className="p-4 text-muted-foreground">{clinic.email}</td>
                         <td className="p-4">{getStatusBadge(clinic.verification_status)}</td>
                         <td className="p-4">
@@ -550,7 +603,7 @@ const AdminDashboard = () => {
                         <td className="p-4">
                           <Button
                             size="sm"
-                            variant="ghost"
+                            variant="outline"
                             onClick={() => setSelectedUser({ type: "clinic", data: clinic })}
                           >
                             <Eye className="w-4 h-4 mr-1" />
@@ -559,19 +612,43 @@ const AdminDashboard = () => {
                         </td>
                       </tr>
                     ))}
+                    {filteredClinics.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                          No clinics found
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
-                {filteredClinics.length === 0 && (
-                  <div className="p-8 text-center text-muted-foreground">
-                    No clinics found
-                  </div>
-                )}
               </div>
             </div>
           </TabsContent>
 
           {/* Documents Tab */}
           <TabsContent value="documents" className="space-y-4">
+            <div className="flex gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search documents..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 py-2 rounded-md border border-input bg-background text-sm"
+              >
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="verified">Verified</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+
             <div className="bg-card rounded-xl border border-border shadow-card overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -581,19 +658,24 @@ const AdminDashboard = () => {
                       <th className="text-left p-4 font-medium text-muted-foreground">User</th>
                       <th className="text-left p-4 font-medium text-muted-foreground">Type</th>
                       <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Submitted</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Uploaded</th>
                       <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {documents.map((doc) => (
-                      <tr key={doc.id} className="border-t border-border hover:bg-secondary/30">
-                        <td className="p-4 font-medium text-foreground">{doc.name}</td>
+                    {filteredDocuments.map((doc) => (
+                      <tr key={doc.id} className="border-t border-border hover:bg-secondary/30 transition-colors">
                         <td className="p-4">
-                          <div>
-                            <p className="text-foreground">{doc.user_name}</p>
-                            <p className="text-xs text-muted-foreground capitalize">{doc.user_role}</p>
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                              <FileText className="w-5 h-5 text-muted-foreground" />
+                            </div>
+                            <p className="font-medium text-foreground">{doc.name}</p>
                           </div>
+                        </td>
+                        <td className="p-4">
+                          <p className="text-foreground">{doc.user_name}</p>
+                          <p className="text-xs text-muted-foreground capitalize">{doc.user_role}</p>
                         </td>
                         <td className="p-4 text-muted-foreground capitalize">{doc.document_type.replace("_", " ")}</td>
                         <td className="p-4">{getStatusBadge(doc.status)}</td>
@@ -603,22 +685,24 @@ const AdminDashboard = () => {
                         <td className="p-4">
                           <Button
                             size="sm"
-                            variant="ghost"
+                            variant={doc.status === "pending" ? "default" : "outline"}
                             onClick={() => setSelectedDocument(doc)}
                           >
                             <Eye className="w-4 h-4 mr-1" />
-                            Review
+                            {doc.status === "pending" ? "Review" : "View"}
                           </Button>
                         </td>
                       </tr>
                     ))}
+                    {filteredDocuments.length === 0 && (
+                      <tr>
+                        <td colSpan={6} className="p-8 text-center text-muted-foreground">
+                          No documents found
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
-                {documents.length === 0 && (
-                  <div className="p-8 text-center text-muted-foreground">
-                    No documents uploaded yet
-                  </div>
-                )}
               </div>
             </div>
           </TabsContent>

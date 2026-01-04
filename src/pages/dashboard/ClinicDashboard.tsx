@@ -3,8 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { 
-  Heart, 
-  Bell, 
   Calendar, 
   Clock, 
   DollarSign,
@@ -14,13 +12,16 @@ import {
   CheckCircle2,
   AlertCircle,
   ChevronRight,
-  Building2,
-  LogOut,
-  Loader2
+  Loader2,
+  FileText,
+  Upload
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import StatsGrid from "@/components/dashboard/StatsGrid";
+import OnboardingBanner from "@/components/dashboard/OnboardingBanner";
 
 interface Shift {
   id: string;
@@ -39,20 +40,34 @@ interface Clinic {
   name: string;
   rating_avg: number;
   verification_status: string;
+  onboarding_completed: boolean;
+}
+
+interface Document {
+  id: string;
+  status: string;
 }
 
 const ClinicDashboard = () => {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [clinic, setClinic] = useState<Clinic | null>(null);
+  const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { user, userRole, signOut, isLoading: authLoading } = useAuth();
+  const { user, userRole, signOut, isLoading: authLoading, isOnboardingComplete } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!authLoading && (!user || userRole !== "clinic")) {
-      navigate("/auth");
+    if (!authLoading) {
+      if (!user || userRole !== "clinic") {
+        navigate("/auth");
+        return;
+      }
+      if (!isOnboardingComplete) {
+        navigate("/onboarding/clinic");
+        return;
+      }
     }
-  }, [user, userRole, authLoading, navigate]);
+  }, [user, userRole, authLoading, isOnboardingComplete, navigate]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,7 +77,7 @@ const ClinicDashboard = () => {
         // Fetch clinic
         const { data: clinicData } = await supabase
           .from("clinics")
-          .select("id, name, rating_avg, verification_status")
+          .select("id, name, rating_avg, verification_status, onboarding_completed")
           .eq("user_id", user.id)
           .single();
 
@@ -81,13 +96,25 @@ const ClinicDashboard = () => {
             setShifts(shiftsData);
           }
         }
+
+        // Fetch clinic documents
+        const { data: docsData } = await supabase
+          .from("documents")
+          .select("id, status")
+          .eq("user_id", user.id);
+
+        if (docsData) {
+          setDocuments(docsData);
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData();
-  }, [user]);
+    if (user && isOnboardingComplete) {
+      fetchData();
+    }
+  }, [user, isOnboardingComplete]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -96,110 +123,85 @@ const ClinicDashboard = () => {
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-accent" />
       </div>
     );
   }
 
+  const pendingDocs = documents.filter(d => d.status === "pending").length;
+  const totalDocs = documents.length;
+  const activeShifts = shifts.filter(s => !s.is_filled).length;
+
+  const stats = [
+    { label: "Active Shifts", value: activeShifts.toString(), icon: Calendar },
+    { label: "This Month Spend", value: "$0", icon: DollarSign },
+    { label: "Staff Rating", value: clinic?.rating_avg ? `${clinic.rating_avg}★` : "N/A", icon: Star },
+    { label: "Fill Rate", value: shifts.length > 0 ? `${Math.round((shifts.filter(s => s.is_filled).length / shifts.length) * 100)}%` : "0%", icon: Users },
+  ];
+
+  const canPostShifts = clinic?.verification_status === "verified" || totalDocs > 0;
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg gradient-accent flex items-center justify-center">
-                <Heart className="w-4 h-4 text-accent-foreground" />
-              </div>
-              <span className="font-bold text-lg text-foreground">SyndeoCare</span>
-            </Link>
-
-            <div className="flex items-center gap-3">
-              <button className="relative p-2 rounded-lg hover:bg-secondary">
-                <Bell className="w-5 h-5 text-muted-foreground" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full" />
-              </button>
-              <button 
-                onClick={handleSignOut}
-                className="flex items-center gap-2 p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground"
-              >
-                <LogOut className="w-5 h-5" />
-              </button>
-              <div className="w-8 h-8 rounded-full gradient-accent flex items-center justify-center">
-                <Building2 className="w-4 h-4 text-accent-foreground" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <DashboardHeader type="clinic" onSignOut={handleSignOut} />
 
       <main className="container mx-auto px-4 py-6">
         {/* Welcome */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-8"
+          className="flex items-center justify-between mb-6 flex-wrap gap-4"
         >
           <div>
             <h1 className="text-2xl font-bold text-foreground mb-1">{clinic?.name || "Your Clinic"}</h1>
             <p className="text-muted-foreground">Manage your shifts and staff needs.</p>
           </div>
-          <Button variant="accent" size="lg">
+          <Button 
+            variant="default" 
+            size="lg"
+            disabled={!canPostShifts}
+            className="bg-accent hover:bg-accent/90"
+          >
             <Plus className="w-5 h-5 mr-2" />
             Post New Shift
           </Button>
         </motion.div>
 
-        {/* Verification Banner */}
-        {clinic?.verification_status === "pending" && (
+        {/* Onboarding/Verification Banner */}
+        <OnboardingBanner
+          type="clinic"
+          onboardingComplete={clinic?.onboarding_completed || false}
+          verificationStatus={clinic?.verification_status || "pending"}
+          pendingDocuments={pendingDocs}
+          totalDocuments={totalDocs}
+        />
+
+        {/* Quick Actions */}
+        {totalDocs === 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="mb-6 p-4 rounded-xl bg-warning/10 border border-warning/20"
+            className="mb-6 p-6 rounded-xl bg-card border border-border shadow-card"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5 text-warning" />
-              </div>
+            <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
-                <h3 className="font-medium text-foreground">Complete Your Verification</h3>
-                <p className="text-sm text-muted-foreground">Verify your clinic to start posting shifts.</p>
+                <h3 className="font-semibold text-foreground mb-1">Get Verified to Post Shifts</h3>
+                <p className="text-sm text-muted-foreground">Upload your business documents to start posting shifts.</p>
               </div>
-              <Button variant="outline" size="sm" className="ml-auto">
-                Upload Documents
+              <Button asChild className="bg-accent hover:bg-accent/90">
+                <Link to="/onboarding/clinic">
+                  <Upload className="w-4 h-4 mr-2" />
+                  Upload Documents
+                </Link>
               </Button>
             </div>
           </motion.div>
         )}
 
         {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
-        >
-          {[
-            { label: "Active Shifts", value: shifts.filter(s => !s.is_filled).length.toString(), icon: Calendar },
-            { label: "This Month Spend", value: "$0", icon: DollarSign },
-            { label: "Staff Rating", value: clinic?.rating_avg ? `${clinic.rating_avg}★` : "N/A", icon: Star },
-            { label: "Fill Rate", value: "0%", icon: Users },
-          ].map((stat) => (
-            <div key={stat.label} className="bg-card rounded-xl border border-border p-4 shadow-card">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-                  <stat.icon className="w-5 h-5 text-accent" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground">{stat.label}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </motion.div>
+        <StatsGrid stats={stats} variant="accent" />
 
         {/* Active Shifts */}
         <motion.div
@@ -212,16 +214,27 @@ const ClinicDashboard = () => {
           </div>
 
           {shifts.length === 0 ? (
-            <div className="bg-card rounded-xl border border-border p-8 text-center">
+            <div className="bg-card rounded-xl border border-border p-8 text-center shadow-card">
               <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-medium text-foreground mb-2">No shifts posted yet</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Post your first shift to start finding verified professionals.
+                {canPostShifts 
+                  ? "Post your first shift to start finding verified professionals."
+                  : "Upload your business documents to start posting shifts."}
               </p>
-              <Button variant="accent">
-                <Plus className="w-4 h-4 mr-2" />
-                Post Your First Shift
-              </Button>
+              {canPostShifts ? (
+                <Button className="bg-accent hover:bg-accent/90">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Post Your First Shift
+                </Button>
+              ) : (
+                <Button asChild className="bg-accent hover:bg-accent/90">
+                  <Link to="/onboarding/clinic">
+                    <FileText className="w-4 h-4 mr-2" />
+                    Complete Verification
+                  </Link>
+                </Button>
+              )}
             </div>
           ) : (
             <div className="space-y-3">
@@ -230,8 +243,8 @@ const ClinicDashboard = () => {
                   key={shift.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 + index * 0.1 }}
-                  className="bg-card rounded-xl border border-border p-4 shadow-card hover:shadow-card-hover transition-shadow"
+                  transition={{ delay: 0.3 + index * 0.05 }}
+                  className="bg-card rounded-xl border border-border p-4 shadow-card hover:shadow-card-hover transition-shadow cursor-pointer"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
