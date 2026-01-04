@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Upload, FileText, Check, Loader2, AlertCircle, Eye, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface DocumentUploadCardProps {
   type: string;
@@ -32,6 +33,7 @@ const DocumentUploadCard = ({
   onUpload,
   onRemove,
 }: DocumentUploadCardProps) => {
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
 
@@ -106,7 +108,7 @@ const DocumentUploadCard = ({
           <div className="flex items-center gap-2 mb-1">
             <h4 className="font-medium text-foreground">{name}</h4>
             {required && (
-              <span className="text-xs px-1.5 py-0.5 rounded bg-destructive/10 text-destructive">Required</span>
+              <span className="text-xs px-1.5 py-0.5 rounded bg-destructive/10 text-destructive">{t("documents.required")}</span>
             )}
           </div>
           <p className="text-sm text-muted-foreground mb-3">{description}</p>
@@ -128,11 +130,11 @@ const DocumentUploadCard = ({
           )}
 
           {uploaded && status === "pending" && (
-            <p className="text-sm text-warning mb-3">Pending verification by admin</p>
+            <p className="text-sm text-warning mb-3">{t("documents.pendingVerification")}</p>
           )}
 
           {uploaded && status === "verified" && (
-            <p className="text-sm text-success mb-3">Verified and approved</p>
+            <p className="text-sm text-success mb-3">{t("documents.verifiedApproved")}</p>
           )}
 
           {!uploaded && (
@@ -143,8 +145,8 @@ const DocumentUploadCard = ({
                 onClick={() => fileInputRef.current?.click()}
                 className="flex-1"
               >
-                <Upload className="w-4 h-4 mr-2" />
-                {file ? "Change File" : "Select File"}
+                <Upload className="w-4 h-4 me-2" />
+                {file ? t("documents.changeFile") : t("documents.selectFile")}
               </Button>
               {file && (
                 <Button
@@ -157,8 +159,8 @@ const DocumentUploadCard = ({
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <>
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload
+                      <Upload className="w-4 h-4 me-2" />
+                      {t("documents.upload")}
                     </>
                   )}
                 </Button>
@@ -172,8 +174,8 @@ const DocumentUploadCard = ({
               size="sm"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Upload className="w-4 h-4 mr-2" />
-              Re-upload
+              <Upload className="w-4 h-4 me-2" />
+              {t("documents.reUpload")}
             </Button>
           )}
         </div>

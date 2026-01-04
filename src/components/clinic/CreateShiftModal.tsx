@@ -22,6 +22,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 interface CreateShiftModalProps {
   open: boolean;
@@ -57,6 +58,8 @@ const CERTIFICATION_OPTIONS = [
 ];
 
 const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShiftModalProps) => {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -80,8 +83,8 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
     if (!formData.shift_date || !formData.role_required || !formData.hourly_rate) {
       toast({
         variant: "destructive",
-        title: "Missing fields",
-        description: "Please fill in all required fields.",
+        title: t("common.error"),
+        description: t("shifts.fields.roleRequired"),
       });
       return;
     }
@@ -106,8 +109,8 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
       if (error) throw error;
 
       toast({
-        title: "Shift posted!",
-        description: "Your shift has been posted and is now visible to professionals.",
+        title: t("shifts.shiftPosted"),
+        description: t("shifts.shiftPostedDesc"),
       });
 
       // Reset form
@@ -130,7 +133,7 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error posting shift",
+        title: t("common.error"),
         description: error.message,
       });
     } finally {
@@ -149,11 +152,11 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir={isRTL ? "rtl" : "ltr"}>
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Post a New Shift</DialogTitle>
+          <DialogTitle className="text-xl font-bold">{t("shifts.postNew")}</DialogTitle>
           <DialogDescription>
-            Fill in the details below to find qualified healthcare professionals.
+            {t("shifts.postNewDesc")}
           </DialogDescription>
         </DialogHeader>
 
@@ -161,13 +164,13 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
           {/* Role & Title */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="role">Role Required *</Label>
+              <Label htmlFor="role">{t("shifts.fields.roleRequired")} *</Label>
               <Select
                 value={formData.role_required}
                 onValueChange={(value) => setFormData({ ...formData, role_required: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select role" />
+                  <SelectValue placeholder={t("shifts.fields.selectRole")} />
                 </SelectTrigger>
                 <SelectContent>
                   {ROLE_OPTIONS.map(role => (
@@ -178,10 +181,10 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="title">Shift Title (Optional)</Label>
+              <Label htmlFor="title">{t("shifts.fields.title")} ({t("common.optional")})</Label>
               <Input
                 id="title"
-                placeholder="e.g., Morning ICU Coverage"
+                placeholder={t("shifts.fields.titlePlaceholder")}
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               />
@@ -191,18 +194,18 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
           {/* Date & Time */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label>Shift Date *</Label>
+              <Label>{t("shifts.fields.shiftDate")} *</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal",
+                      "w-full justify-start text-start font-normal",
                       !formData.shift_date && "text-muted-foreground"
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.shift_date ? format(formData.shift_date, "PPP") : "Pick a date"}
+                    <CalendarIcon className="me-2 h-4 w-4" />
+                    {formData.shift_date ? format(formData.shift_date, "PPP") : t("shifts.fields.pickDate")}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -218,29 +221,29 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="start_time">Start Time *</Label>
+              <Label htmlFor="start_time">{t("shifts.fields.startTime")} *</Label>
               <div className="relative">
-                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Clock className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="start_time"
                   type="time"
                   value={formData.start_time}
                   onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
-                  className="pl-9"
+                  className="ps-9"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="end_time">End Time *</Label>
+              <Label htmlFor="end_time">{t("shifts.fields.endTime")} *</Label>
               <div className="relative">
-                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Clock className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="end_time"
                   type="time"
                   value={formData.end_time}
                   onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
-                  className="pl-9"
+                  className="ps-9"
                 />
               </div>
             </div>
@@ -249,9 +252,9 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
           {/* Hourly Rate & Location */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="hourly_rate">Hourly Rate ($) *</Label>
+              <Label htmlFor="hourly_rate">{t("shifts.fields.hourlyRate")} *</Label>
               <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <DollarSign className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="hourly_rate"
                   type="number"
@@ -260,13 +263,13 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
                   placeholder="45.00"
                   value={formData.hourly_rate}
                   onChange={(e) => setFormData({ ...formData, hourly_rate: e.target.value })}
-                  className="pl-9"
+                  className="ps-9"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="max_applicants">Max Applicants</Label>
+              <Label htmlFor="max_applicants">{t("shifts.fields.maxApplicants")}</Label>
               <Input
                 id="max_applicants"
                 type="number"
@@ -279,26 +282,26 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
 
           {/* Location */}
           <div className="space-y-2">
-            <Label htmlFor="location">Shift Location</Label>
+            <Label htmlFor="location">{t("shifts.fields.shiftLocation")}</Label>
             <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <MapPin className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 id="location"
-                placeholder="123 Medical Center Dr, San Francisco, CA"
+                placeholder={t("shifts.fields.locationPlaceholder")}
                 value={formData.location_address}
                 onChange={(e) => setFormData({ ...formData, location_address: e.target.value })}
-                className="pl-9"
+                className="ps-9"
               />
             </div>
-            <p className="text-xs text-muted-foreground">Leave blank to use your clinic's default address</p>
+            <p className="text-xs text-muted-foreground">{t("shifts.fields.locationHint")}</p>
           </div>
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t("shifts.description")}</Label>
             <Textarea
               id="description"
-              placeholder="Describe the shift responsibilities, department, and any special requirements..."
+              placeholder={t("shifts.fields.descriptionPlaceholder")}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={3}
@@ -307,7 +310,7 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
 
           {/* Required Certifications */}
           <div className="space-y-3">
-            <Label>Required Certifications</Label>
+            <Label>{t("shifts.fields.requiredCertifications")}</Label>
             <div className="flex flex-wrap gap-2">
               {CERTIFICATION_OPTIONS.map(cert => (
                 <button
@@ -323,7 +326,7 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
                 >
                   {cert}
                   {formData.required_certifications.includes(cert) && (
-                    <X className="w-3 h-3 ml-1 inline" />
+                    <X className="w-3 h-3 ms-1 inline" />
                   )}
                 </button>
               ))}
@@ -335,8 +338,8 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
             <div className="flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-destructive" />
               <div>
-                <p className="font-medium text-foreground">Mark as Urgent</p>
-                <p className="text-sm text-muted-foreground">Urgent shifts get highlighted and prioritized</p>
+                <p className="font-medium text-foreground">{t("shifts.fields.markUrgent")}</p>
+                <p className="text-sm text-muted-foreground">{t("shifts.fields.urgentDesc")}</p>
               </div>
             </div>
             <Switch
@@ -353,7 +356,7 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
               className="flex-1"
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               type="submit"
@@ -364,8 +367,8 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <>
-                  <Briefcase className="w-4 h-4 mr-2" />
-                  Post Shift
+                  <Briefcase className="w-4 h-4 me-2" />
+                  {t("shifts.create")}
                 </>
               )}
             </Button>

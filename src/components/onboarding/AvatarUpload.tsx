@@ -46,8 +46,8 @@ const AvatarUpload = ({
     if (!file.type.startsWith("image/")) {
       toast({
         variant: "destructive",
-        title: t("common.error") || "Error",
-        description: "Please select an image file",
+        title: t("common.error"),
+        description: t("profile.uploadPhoto"),
       });
       return;
     }
@@ -56,7 +56,7 @@ const AvatarUpload = ({
     if (file.size > 5 * 1024 * 1024) {
       toast({
         variant: "destructive",
-        title: t("common.error") || "Error",
+        title: t("common.error"),
         description: "Image must be less than 5MB",
       });
       return;
@@ -83,13 +83,13 @@ const AvatarUpload = ({
       onUpload(publicUrl);
 
       toast({
-        title: "Photo uploaded",
-        description: "Your profile photo has been updated.",
+        title: t("profile.photoUploaded"),
+        description: t("profile.photoUploadedDesc"),
       });
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Upload failed",
+        title: t("documents.uploadFailed"),
         description: error.message,
       });
       setPreviewUrl(null);
@@ -157,7 +157,7 @@ const AvatarUpload = ({
         className="gap-2"
       >
         <Camera className="w-4 h-4" />
-        {currentAvatarUrl || previewUrl ? "Change Photo" : "Upload Photo"}
+        {currentAvatarUrl || previewUrl ? t("profile.changePhoto") : t("profile.uploadPhoto")}
       </Button>
     </div>
   );
