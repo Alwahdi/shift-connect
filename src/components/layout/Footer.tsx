@@ -12,7 +12,7 @@ const Footer = () => {
               <div className="w-9 h-9 rounded-lg gradient-primary flex items-center justify-center">
                 <Heart className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="font-bold text-xl text-foreground">SyndeoCare</span>
+              <span className="font-bold text-xl text-foreground">SyndeoCare.ai</span>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
               Connecting healthcare professionals with clinics. 
@@ -70,7 +70,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="w-4 h-4" />
-                support@syndeocare.com
+                support@syndeocare.ai
               </li>
               <li className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Phone className="w-4 h-4" />
@@ -86,7 +86,7 @@ const Footer = () => {
 
         <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} SyndeoCare. All rights reserved.
+            © {new Date().getFullYear()} SyndeoCare.ai. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <Link to="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
