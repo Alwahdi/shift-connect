@@ -24,6 +24,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import OnboardingProgress from "@/components/onboarding/OnboardingProgress";
 import DocumentUploadCard from "@/components/onboarding/DocumentUploadCard";
+import AvatarUpload from "@/components/onboarding/AvatarUpload";
 
 type Step = "organization" | "location" | "documents" | "complete";
 
@@ -48,6 +49,7 @@ const ClinicOnboarding = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [clinicId, setClinicId] = useState<string | null>(null);
   const [existingDocs, setExistingDocs] = useState<any[]>([]);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   
   const [orgData, setOrgData] = useState({
     name: "",
@@ -91,6 +93,7 @@ const ClinicOnboarding = () => {
 
       if (data) {
         setClinicId(data.id);
+        setLogoUrl(data.logo_url);
         setOrgData({
           name: data.name || "",
           email: data.email || "",
@@ -208,6 +211,17 @@ const ClinicOnboarding = () => {
     }
   };
 
+  const handleLogoUpload = async (url: string) => {
+    if (!user) return;
+    setLogoUrl(url);
+    
+    // Save to database
+    await supabase
+      .from("clinics")
+      .update({ logo_url: url })
+      .eq("user_id", user.id);
+  };
+
   const saveOrganization = async () => {
     if (!user || !orgData.name.trim()) {
       toast({
@@ -228,6 +242,7 @@ const ClinicOnboarding = () => {
           phone: orgData.phone.trim(),
           description: orgData.description.trim(),
           tax_id: orgData.tax_id.trim(),
+          logo_url: logoUrl,
         })
         .eq("user_id", user.id);
 
@@ -352,6 +367,17 @@ const ClinicOnboarding = () => {
               <p className="text-muted-foreground mb-6">Tell us about your healthcare facility.</p>
 
               <div className="space-y-5">
+                {/* Logo Upload */}
+                <div className="flex justify-center pb-4">
+                  <AvatarUpload
+                    userId={user?.id || ""}
+                    currentAvatarUrl={logoUrl}
+                    onUpload={handleLogoUpload}
+                    name={orgData.name}
+                    size="lg"
+                  />
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="name">Organization Name *</Label>
                   <div className="relative">
