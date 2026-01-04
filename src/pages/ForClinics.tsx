@@ -9,52 +9,53 @@ import {
   Clock, 
   Shield, 
   TrendingUp,
-  CheckCircle2,
   ArrowRight,
   Zap,
-  FileCheck,
-  Star
+  FileCheck
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const ForClinics = () => {
+  const { t } = useTranslation();
+
   const benefits = [
     {
       icon: Users,
-      title: "Verified Professionals",
-      description: "Access a pool of pre-verified healthcare professionals with confirmed credentials."
+      title: t("clinics.benefits.verified"),
+      description: t("clinics.benefits.verifiedDesc")
     },
     {
       icon: Zap,
-      title: "Quick Fill Times",
-      description: "Fill open shifts faster with our smart matching system and instant notifications."
+      title: t("clinics.benefits.fast"),
+      description: t("clinics.benefits.fastDesc")
     },
     {
       icon: FileCheck,
-      title: "Simplified Compliance",
-      description: "All credentials are verified and stored. Stay compliant without the paperwork."
+      title: t("profile.documents"),
+      description: t("home.features.verification.desc")
     },
     {
       icon: Shield,
-      title: "Quality Assurance",
-      description: "Review ratings and history before booking. Ensure quality care for your patients."
+      title: t("about.values.quality"),
+      description: t("about.values.qualityDesc")
     },
     {
       icon: Clock,
-      title: "Reduce Admin Time",
-      description: "Streamlined booking, check-ins, and payments. Less admin, more care."
+      title: t("home.features.booking.title"),
+      description: t("home.features.booking.desc")
     },
     {
       icon: TrendingUp,
-      title: "Cost Effective",
-      description: "No agency fees. Pay fair rates directly to professionals and save."
+      title: t("clinics.benefits.flexible"),
+      description: t("clinics.benefits.flexibleDesc")
     }
   ];
 
   const steps = [
-    { number: "01", title: "Register Your Facility", description: "Create your clinic profile and get verified." },
-    { number: "02", title: "Post Your Shifts", description: "Add shifts with requirements, dates, and rates." },
-    { number: "03", title: "Get Matched", description: "We'll match you with qualified, verified professionals." },
-    { number: "04", title: "Staff & Manage", description: "Confirm bookings, track attendance, and rate performance." }
+    { number: "01", title: t("home.howItWorks.clinics.step1.title"), description: t("home.howItWorks.clinics.step1.desc") },
+    { number: "02", title: t("home.howItWorks.clinics.step2.title"), description: t("home.howItWorks.clinics.step2.desc") },
+    { number: "03", title: t("home.features.matching.title"), description: t("home.features.matching.desc") },
+    { number: "04", title: t("home.howItWorks.clinics.step3.title"), description: t("home.howItWorks.clinics.step3.desc") }
   ];
 
   return (
@@ -73,7 +74,7 @@ const ForClinics = () => {
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium mb-6"
               >
                 <Building2 className="w-4 h-4" />
-                For Healthcare Facilities
+                {t("nav.forClinics")}
               </motion.div>
 
               <motion.h1
@@ -82,8 +83,7 @@ const ForClinics = () => {
                 transition={{ delay: 0.1 }}
                 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6"
               >
-                Staff Your Facility{" "}
-                <span className="text-accent">With Confidence</span>
+                {t("clinics.hero.title")}
               </motion.h1>
 
               <motion.p
@@ -92,8 +92,7 @@ const ForClinics = () => {
                 transition={{ delay: 0.2 }}
                 className="text-xl text-muted-foreground mb-8"
               >
-                Connect with verified healthcare professionals instantly. 
-                Fill shifts quickly, ensure quality care, and reduce staffing headaches.
+                {t("clinics.hero.subtitle")}
               </motion.p>
 
               <motion.div
@@ -104,13 +103,13 @@ const ForClinics = () => {
               >
                 <Button asChild size="lg" className="bg-accent hover:bg-accent/90">
                   <Link to="/auth?mode=signup&role=clinic">
-                    Register Your Facility
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    {t("common.getStarted")}
+                    <ArrowRight className="w-5 h-5 ms-2 rtl-flip" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
                   <Link to="/auth">
-                    I Already Have an Account
+                    {t("auth.haveAccount")}
                   </Link>
                 </Button>
               </motion.div>
@@ -123,10 +122,10 @@ const ForClinics = () => {
           <div className="container mx-auto px-4">
             <div className="text-center max-w-2xl mx-auto mb-12">
               <h2 className="text-3xl font-bold text-foreground mb-4">
-                Why Clinics Choose SyndeoCare
+                {t("home.features.title")}
               </h2>
               <p className="text-muted-foreground">
-                We make healthcare staffing simple, reliable, and cost-effective.
+                {t("home.features.subtitle")}
               </p>
             </div>
 
@@ -156,10 +155,10 @@ const ForClinics = () => {
           <div className="container mx-auto px-4">
             <div className="text-center max-w-2xl mx-auto mb-12">
               <h2 className="text-3xl font-bold text-foreground mb-4">
-                How It Works
+                {t("home.howItWorks.title")}
               </h2>
               <p className="text-muted-foreground">
-                Start staffing your facility in minutes.
+                {t("home.howItWorks.subtitle")}
               </p>
             </div>
 
@@ -187,10 +186,10 @@ const ForClinics = () => {
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {[
-                { value: "500+", label: "Healthcare Facilities" },
-                { value: "10K+", label: "Verified Professionals" },
-                { value: "95%", label: "Fill Rate" },
-                { value: "4.8★", label: "Average Rating" }
+                { value: "500+", label: t("nav.forClinics").replace("For ", "").replace("للعيادات", "منشأة") },
+                { value: "10K+", label: t("nav.forProfessionals").replace("For ", "").replace("للمهنيين", "مهني") },
+                { value: "95%", label: t("dashboard.stats.fillRate") },
+                { value: "4.8★", label: t("dashboard.stats.avgRating") }
               ].map((stat, index) => (
                 <motion.div
                   key={stat.label}
@@ -216,15 +215,15 @@ const ForClinics = () => {
                 <Building2 className="w-8 h-8 text-accent-foreground" />
               </div>
               <h2 className="text-3xl font-bold text-foreground mb-4">
-                Ready to Simplify Your Staffing?
+                {t("home.cta.title")}
               </h2>
               <p className="text-muted-foreground mb-8">
-                Join SyndeoCare today and connect with verified healthcare professionals.
+                {t("home.cta.subtitle")}
               </p>
               <Button asChild size="lg" className="bg-accent hover:bg-accent/90">
                 <Link to="/auth?mode=signup&role=clinic">
-                  Get Started Today
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  {t("common.getStarted")}
+                  <ArrowRight className="w-5 h-5 ms-2 rtl-flip" />
                 </Link>
               </Button>
             </div>

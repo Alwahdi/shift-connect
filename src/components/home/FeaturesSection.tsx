@@ -9,51 +9,54 @@ import {
   Clock,
   FileCheck
 } from "lucide-react";
-
-const features = [
-  {
-    icon: Shield,
-    title: "Verified Professionals",
-    description: "All credentials, licenses, and certifications verified before matching.",
-  },
-  {
-    icon: Zap,
-    title: "Instant Matching",
-    description: "Smart algorithm matches the right professionals to your shifts in seconds.",
-  },
-  {
-    icon: MapPin,
-    title: "Location-Based",
-    description: "Find nearby opportunities or staff within your preferred radius.",
-  },
-  {
-    icon: Calendar,
-    title: "Flexible Scheduling",
-    description: "Set your availability and book shifts that fit your life.",
-  },
-  {
-    icon: Star,
-    title: "Ratings & Reviews",
-    description: "Build your reputation with transparent feedback from both sides.",
-  },
-  {
-    icon: CreditCard,
-    title: "Fast Payments",
-    description: "Get paid quickly with transparent rates and no surprises.",
-  },
-  {
-    icon: Clock,
-    title: "Real-time Updates",
-    description: "Instant notifications for new opportunities and booking confirmations.",
-  },
-  {
-    icon: FileCheck,
-    title: "Easy Documentation",
-    description: "Upload and manage all your documents in one secure place.",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 const FeaturesSection = () => {
+  const { t } = useTranslation();
+
+  const features = [
+    {
+      icon: Shield,
+      title: t("home.features.verification.title"),
+      description: t("home.features.verification.desc"),
+    },
+    {
+      icon: Zap,
+      title: t("home.features.matching.title"),
+      description: t("home.features.matching.desc"),
+    },
+    {
+      icon: MapPin,
+      title: t("professionals.benefits.verified"),
+      description: t("professionals.benefits.verifiedDesc"),
+    },
+    {
+      icon: Calendar,
+      title: t("professionals.benefits.flexibility"),
+      description: t("professionals.benefits.flexibilityDesc"),
+    },
+    {
+      icon: Star,
+      title: t("dashboard.stats.avgRating"),
+      description: t("home.features.booking.desc"),
+    },
+    {
+      icon: CreditCard,
+      title: t("home.features.payments.title"),
+      description: t("home.features.payments.desc"),
+    },
+    {
+      icon: Clock,
+      title: t("clinics.benefits.fast"),
+      description: t("clinics.benefits.fastDesc"),
+    },
+    {
+      icon: FileCheck,
+      title: t("profile.documents"),
+      description: t("home.features.booking.desc"),
+    },
+  ];
+
   return (
     <section className="py-16 md:py-24 bg-background">
       <div className="container mx-auto px-4">
@@ -65,10 +68,10 @@ const FeaturesSection = () => {
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Everything You Need
+            {t("home.features.title")}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Built for the modern healthcare workforce. Simple, secure, and efficient.
+            {t("home.features.subtitle")}
           </p>
         </motion.div>
 

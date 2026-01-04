@@ -1,53 +1,56 @@
 import { motion } from "framer-motion";
 import { UserPlus, FileCheck, Search, CalendarCheck } from "lucide-react";
-
-const professionalSteps = [
-  {
-    icon: UserPlus,
-    title: "Create Profile",
-    description: "Sign up and tell us about your qualifications and experience.",
-  },
-  {
-    icon: FileCheck,
-    title: "Get Verified",
-    description: "Upload your documents and we'll verify your credentials quickly.",
-  },
-  {
-    icon: Search,
-    title: "Browse Shifts",
-    description: "Find opportunities that match your skills and schedule.",
-  },
-  {
-    icon: CalendarCheck,
-    title: "Start Working",
-    description: "Accept shifts, check in, and get paid fast.",
-  },
-];
-
-const clinicSteps = [
-  {
-    icon: UserPlus,
-    title: "Register Clinic",
-    description: "Create your organization account and set up your profile.",
-  },
-  {
-    icon: FileCheck,
-    title: "Configure Settings",
-    description: "Set your booking preferences, rates, and requirements.",
-  },
-  {
-    icon: Search,
-    title: "Post Shifts",
-    description: "Create shifts and our matching engine finds the best professionals.",
-  },
-  {
-    icon: CalendarCheck,
-    title: "Staff Your Facility",
-    description: "Review matches, confirm bookings, and fill your schedule.",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 const HowItWorksSection = () => {
+  const { t } = useTranslation();
+
+  const professionalSteps = [
+    {
+      icon: UserPlus,
+      title: t("home.howItWorks.professionals.step1.title"),
+      description: t("home.howItWorks.professionals.step1.desc"),
+    },
+    {
+      icon: FileCheck,
+      title: t("home.howItWorks.professionals.step2.title"),
+      description: t("home.howItWorks.professionals.step2.desc"),
+    },
+    {
+      icon: Search,
+      title: t("home.howItWorks.professionals.step3.title"),
+      description: t("home.howItWorks.professionals.step3.desc"),
+    },
+    {
+      icon: CalendarCheck,
+      title: t("onboarding.complete"),
+      description: t("home.howItWorks.professionals.step3.desc"),
+    },
+  ];
+
+  const clinicSteps = [
+    {
+      icon: UserPlus,
+      title: t("home.howItWorks.clinics.step1.title"),
+      description: t("home.howItWorks.clinics.step1.desc"),
+    },
+    {
+      icon: FileCheck,
+      title: t("home.howItWorks.clinics.step2.title"),
+      description: t("home.howItWorks.clinics.step2.desc"),
+    },
+    {
+      icon: Search,
+      title: t("home.howItWorks.clinics.step2.title"),
+      description: t("home.howItWorks.clinics.step2.desc"),
+    },
+    {
+      icon: CalendarCheck,
+      title: t("home.howItWorks.clinics.step3.title"),
+      description: t("home.howItWorks.clinics.step3.desc"),
+    },
+  ];
+
   return (
     <section className="py-16 md:py-24 bg-secondary">
       <div className="container mx-auto px-4">
@@ -59,10 +62,10 @@ const HowItWorksSection = () => {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            How It Works
+            {t("home.howItWorks.title")}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Get started in minutes, not days. Here's your journey.
+            {t("home.howItWorks.subtitle")}
           </p>
         </motion.div>
 
@@ -74,9 +77,9 @@ const HowItWorksSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="text-xl font-semibold text-foreground mb-8 text-center lg:text-left"
+              className="text-xl font-semibold text-foreground mb-8 text-center lg:text-start"
             >
-              For Professionals
+              {t("nav.forProfessionals")}
             </motion.h3>
             <div className="space-y-6">
               {professionalSteps.map((step, index) => (
@@ -109,9 +112,9 @@ const HowItWorksSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="text-xl font-semibold text-foreground mb-8 text-center lg:text-left"
+              className="text-xl font-semibold text-foreground mb-8 text-center lg:text-start"
             >
-              For Clinics
+              {t("nav.forClinics")}
             </motion.h3>
             <div className="space-y-6">
               {clinicSteps.map((step, index) => (

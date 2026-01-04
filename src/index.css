@@ -126,10 +126,10 @@
     font-family: 'DM Sans', sans-serif;
   }
 
-  /* RTL Support - Arabic font */
+  /* RTL Support - Cairo font for Arabic (professional, modern) */
   html[dir="rtl"] body,
   html.rtl body {
-    font-family: 'Noto Sans Arabic', 'DM Sans', sans-serif;
+    font-family: 'Cairo', 'DM Sans', sans-serif;
   }
 }
 

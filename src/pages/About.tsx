@@ -12,36 +12,39 @@ import {
   Sparkles,
   ArrowRight
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const About = () => {
+  const { t } = useTranslation();
+
   const values = [
     {
       icon: Heart,
-      title: "Care First",
-      description: "We believe in putting healthcare professionals and patients at the center of everything we do."
+      title: t("about.values.quality"),
+      description: t("about.values.qualityDesc")
     },
     {
       icon: Shield,
-      title: "Trust & Safety",
-      description: "Rigorous verification ensures every professional is qualified and every facility is legitimate."
+      title: t("about.values.trust"),
+      description: t("about.values.trustDesc")
     },
     {
       icon: Sparkles,
-      title: "Simplicity",
-      description: "We make complex healthcare staffing simple with intuitive tools and transparent processes."
+      title: t("about.values.flexibility"),
+      description: t("about.values.flexibilityDesc")
     },
     {
       icon: Target,
-      title: "Reliability",
-      description: "When you need staff, we deliver. Our platform is built for dependable, consistent results."
+      title: t("about.values.trust"),
+      description: t("about.values.trustDesc")
     }
   ];
 
   const team = [
-    { name: "Healthcare Professionals", count: "10,000+", description: "Verified nurses and healthcare workers" },
-    { name: "Healthcare Facilities", count: "500+", description: "Clinics, hospitals, and care centers" },
-    { name: "Shifts Filled", count: "50,000+", description: "Successful staffing placements" },
-    { name: "Cities", count: "100+", description: "Locations across the country" }
+    { name: t("nav.forProfessionals").replace("For ", "").replace("للمهنيين", "المهنيون"), count: "10,000+", description: t("home.features.verification.desc") },
+    { name: t("nav.forClinics").replace("For ", "").replace("للعيادات", "المنشآت"), count: "500+", description: t("clinics.benefits.verifiedDesc") },
+    { name: t("dashboard.completedShifts"), count: "50,000+", description: t("home.features.booking.desc") },
+    { name: t("location.useCurrentLocation").split(" ")[0], count: "100+", description: t("professionals.benefits.flexibilityDesc") }
   ];
 
   return (
@@ -68,7 +71,7 @@ const About = () => {
                 transition={{ delay: 0.1 }}
                 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6"
               >
-                About SyndeoCare
+                {t("about.title")}
               </motion.h1>
 
               <motion.p
@@ -77,8 +80,7 @@ const About = () => {
                 transition={{ delay: 0.2 }}
                 className="text-xl text-muted-foreground"
               >
-                We're on a mission to transform healthcare staffing by connecting 
-                verified professionals with facilities that need them.
+                {t("about.missionText")}
               </motion.p>
             </div>
           </div>
@@ -94,20 +96,12 @@ const About = () => {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                 >
-                  <h2 className="text-3xl font-bold text-foreground mb-6">Our Mission</h2>
+                  <h2 className="text-3xl font-bold text-foreground mb-6">{t("about.mission")}</h2>
                   <p className="text-muted-foreground mb-4">
-                    SyndeoCare was founded with a simple belief: healthcare staffing shouldn't be complicated. 
-                    Too often, qualified professionals struggle to find flexible work, while facilities 
-                    scramble to fill critical shifts.
+                    {t("about.missionText")}
                   </p>
                   <p className="text-muted-foreground mb-4">
-                    We're changing that by building a platform that puts both sides in control. 
-                    Professionals can find shifts that fit their lives, and facilities can quickly 
-                    connect with verified, qualified staff.
-                  </p>
-                  <p className="text-muted-foreground">
-                    Our technology handles the complexity—verification, matching, scheduling, payments—so 
-                    everyone can focus on what matters most: delivering quality care.
+                    {t("about.storyText")}
                   </p>
                 </motion.div>
 
@@ -119,18 +113,18 @@ const About = () => {
                 >
                   <div className="p-6 rounded-2xl bg-primary/5 border border-primary/10">
                     <Users className="w-8 h-8 text-primary mb-3" />
-                    <h4 className="font-semibold text-foreground mb-1">For Professionals</h4>
-                    <p className="text-sm text-muted-foreground">Flexible work on your terms</p>
+                    <h4 className="font-semibold text-foreground mb-1">{t("nav.forProfessionals")}</h4>
+                    <p className="text-sm text-muted-foreground">{t("professionals.benefits.flexibilityDesc")}</p>
                   </div>
                   <div className="p-6 rounded-2xl bg-accent/5 border border-accent/10">
                     <Building2 className="w-8 h-8 text-accent mb-3" />
-                    <h4 className="font-semibold text-foreground mb-1">For Facilities</h4>
-                    <p className="text-sm text-muted-foreground">Reliable staffing solutions</p>
+                    <h4 className="font-semibold text-foreground mb-1">{t("nav.forClinics")}</h4>
+                    <p className="text-sm text-muted-foreground">{t("clinics.benefits.fastDesc")}</p>
                   </div>
                   <div className="p-6 rounded-2xl bg-success/5 border border-success/10 col-span-2">
                     <Heart className="w-8 h-8 text-success mb-3" />
-                    <h4 className="font-semibold text-foreground mb-1">For Patients</h4>
-                    <p className="text-sm text-muted-foreground">Better care through better staffing</p>
+                    <h4 className="font-semibold text-foreground mb-1">{t("about.values.quality")}</h4>
+                    <p className="text-sm text-muted-foreground">{t("about.values.qualityDesc")}</p>
                   </div>
                 </motion.div>
               </div>
@@ -142,16 +136,16 @@ const About = () => {
         <section className="py-20">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-2xl mx-auto mb-12">
-              <h2 className="text-3xl font-bold text-foreground mb-4">Our Values</h2>
+              <h2 className="text-3xl font-bold text-foreground mb-4">{t("about.values.title")}</h2>
               <p className="text-muted-foreground">
-                These principles guide everything we do at SyndeoCare.
+                {t("home.features.subtitle")}
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {values.map((value, index) => (
                 <motion.div
-                  key={value.title}
+                  key={value.title + index}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -172,13 +166,6 @@ const About = () => {
         {/* Stats */}
         <section className="py-20 bg-card">
           <div className="container mx-auto px-4">
-            <div className="text-center max-w-2xl mx-auto mb-12">
-              <h2 className="text-3xl font-bold text-foreground mb-4">By the Numbers</h2>
-              <p className="text-muted-foreground">
-                Growing together with healthcare communities across the country.
-              </p>
-            </div>
-
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {team.map((stat, index) => (
                 <motion.div
@@ -191,7 +178,6 @@ const About = () => {
                 >
                   <div className="text-3xl font-bold text-primary mb-2">{stat.count}</div>
                   <h4 className="font-semibold text-foreground mb-1">{stat.name}</h4>
-                  <p className="text-xs text-muted-foreground">{stat.description}</p>
                 </motion.div>
               ))}
             </div>
@@ -203,23 +189,22 @@ const About = () => {
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="text-3xl font-bold text-foreground mb-4">
-                Join the SyndeoCare Community
+                {t("home.cta.title")}
               </h2>
               <p className="text-muted-foreground mb-8">
-                Whether you're a healthcare professional looking for flexible work or a 
-                facility needing reliable staff, we're here to help.
+                {t("home.cta.subtitle")}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button asChild size="lg">
                   <Link to="/for-professionals">
-                    I'm a Professional
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    {t("auth.imProfessional")}
+                    <ArrowRight className="w-5 h-5 ms-2 rtl-flip" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
                   <Link to="/for-clinics">
-                    I'm a Facility
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    {t("auth.imClinic")}
+                    <ArrowRight className="w-5 h-5 ms-2 rtl-flip" />
                   </Link>
                 </Button>
               </div>
