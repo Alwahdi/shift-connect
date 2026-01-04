@@ -12,50 +12,51 @@ import {
   Clock,
   Star,
   ArrowRight,
-  CheckCircle2,
-  Briefcase,
-  Heart
+  Briefcase
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const ForProfessionals = () => {
+  const { t } = useTranslation();
+
   const benefits = [
     {
       icon: Calendar,
-      title: "Flexible Scheduling",
-      description: "Choose shifts that work around your life. Work when you want, where you want."
+      title: t("professionals.benefits.flexibility"),
+      description: t("professionals.benefits.flexibilityDesc")
     },
     {
       icon: DollarSign,
-      title: "Competitive Pay",
-      description: "Get paid fairly for your skills. Set your own rates and see transparent earnings."
+      title: t("professionals.benefits.topPay"),
+      description: t("professionals.benefits.topPayDesc")
     },
     {
       icon: MapPin,
-      title: "Work Nearby",
-      description: "Find shifts at facilities close to you. We match you based on your location preferences."
+      title: t("shifts.location"),
+      description: t("home.features.matching.desc")
     },
     {
       icon: Shield,
-      title: "Verified Facilities",
-      description: "All clinics are verified and reviewed. Work with confidence at trusted healthcare facilities."
+      title: t("professionals.benefits.verified"),
+      description: t("professionals.benefits.verifiedDesc")
     },
     {
       icon: Clock,
-      title: "Quick Payments",
-      description: "Get paid fast. Our streamlined payment system ensures you receive your earnings promptly."
+      title: t("clinics.benefits.fast"),
+      description: t("home.features.payments.desc")
     },
     {
       icon: Star,
-      title: "Build Your Reputation",
-      description: "Earn ratings and reviews from facilities. Build a profile that showcases your expertise."
+      title: t("dashboard.stats.avgRating"),
+      description: t("home.features.booking.desc")
     }
   ];
 
   const steps = [
-    { number: "01", title: "Create Your Profile", description: "Sign up and add your qualifications, certifications, and availability." },
-    { number: "02", title: "Get Verified", description: "Upload your documents for a quick verification process." },
-    { number: "03", title: "Browse Shifts", description: "Find available shifts that match your skills and schedule." },
-    { number: "04", title: "Start Working", description: "Accept shifts, show up, and get paid. It's that simple." }
+    { number: "01", title: t("home.howItWorks.professionals.step1.title"), description: t("home.howItWorks.professionals.step1.desc") },
+    { number: "02", title: t("home.howItWorks.professionals.step2.title"), description: t("home.howItWorks.professionals.step2.desc") },
+    { number: "03", title: t("home.howItWorks.professionals.step3.title"), description: t("home.howItWorks.professionals.step3.desc") },
+    { number: "04", title: t("onboarding.complete"), description: t("home.cta.subtitle") }
   ];
 
   return (
@@ -74,7 +75,7 @@ const ForProfessionals = () => {
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6"
               >
                 <Users className="w-4 h-4" />
-                For Healthcare Professionals
+                {t("nav.forProfessionals")}
               </motion.div>
 
               <motion.h1
@@ -83,8 +84,7 @@ const ForProfessionals = () => {
                 transition={{ delay: 0.1 }}
                 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6"
               >
-                Your Career,{" "}
-                <span className="text-primary">Your Terms</span>
+                {t("professionals.hero.title")}
               </motion.h1>
 
               <motion.p
@@ -93,9 +93,7 @@ const ForProfessionals = () => {
                 transition={{ delay: 0.2 }}
                 className="text-xl text-muted-foreground mb-8"
               >
-                Join thousands of healthcare professionals who've found flexible, 
-                rewarding work through SyndeoCare. Pick your shifts, set your rates, 
-                and take control of your career.
+                {t("professionals.hero.subtitle")}
               </motion.p>
 
               <motion.div
@@ -106,13 +104,13 @@ const ForProfessionals = () => {
               >
                 <Button asChild size="lg">
                   <Link to="/auth?mode=signup&role=professional">
-                    Get Started Free
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    {t("common.getStarted")}
+                    <ArrowRight className="w-5 h-5 ms-2 rtl-flip" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
                   <Link to="/auth">
-                    I Already Have an Account
+                    {t("auth.haveAccount")}
                   </Link>
                 </Button>
               </motion.div>
@@ -125,10 +123,10 @@ const ForProfessionals = () => {
           <div className="container mx-auto px-4">
             <div className="text-center max-w-2xl mx-auto mb-12">
               <h2 className="text-3xl font-bold text-foreground mb-4">
-                Why Professionals Choose SyndeoCare
+                {t("home.features.title")}
               </h2>
               <p className="text-muted-foreground">
-                We're building a platform that puts healthcare professionals first.
+                {t("home.features.subtitle")}
               </p>
             </div>
 
@@ -158,10 +156,10 @@ const ForProfessionals = () => {
           <div className="container mx-auto px-4">
             <div className="text-center max-w-2xl mx-auto mb-12">
               <h2 className="text-3xl font-bold text-foreground mb-4">
-                How It Works
+                {t("home.howItWorks.title")}
               </h2>
               <p className="text-muted-foreground">
-                Getting started with SyndeoCare is quick and easy.
+                {t("home.howItWorks.subtitle")}
               </p>
             </div>
 
@@ -192,15 +190,15 @@ const ForProfessionals = () => {
                 <Briefcase className="w-8 h-8 text-primary-foreground" />
               </div>
               <h2 className="text-3xl font-bold text-foreground mb-4">
-                Ready to Take Control of Your Career?
+                {t("home.cta.title")}
               </h2>
               <p className="text-muted-foreground mb-8">
-                Join SyndeoCare today and start finding shifts that fit your life.
+                {t("home.cta.subtitle")}
               </p>
               <Button asChild size="lg">
                 <Link to="/auth?mode=signup&role=professional">
-                  Create Your Free Account
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  {t("common.getStarted")}
+                  <ArrowRight className="w-5 h-5 ms-2 rtl-flip" />
                 </Link>
               </Button>
             </div>
