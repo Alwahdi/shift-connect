@@ -14,7 +14,9 @@ import {
   Loader2,
   MapPin,
   FileText,
-  Upload
+  Upload,
+  User,
+  Settings
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -165,12 +167,20 @@ const ProfessionalDashboard = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
+          className="flex items-center justify-between mb-6 flex-wrap gap-4"
         >
-          <h1 className="text-2xl font-bold text-foreground mb-1">
-            Welcome back, {profile?.full_name?.split(" ")[0] || "Professional"}!
-          </h1>
-          <p className="text-muted-foreground">Find your next shift or check your upcoming bookings.</p>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground mb-1">
+              Welcome back, {profile?.full_name?.split(" ")[0] || "Professional"}!
+            </h1>
+            <p className="text-muted-foreground">Find your next shift or check your upcoming bookings.</p>
+          </div>
+          <Button asChild variant="outline">
+            <Link to="/profile/professional">
+              <User className="w-4 h-4 mr-2" />
+              My Profile
+            </Link>
+          </Button>
         </motion.div>
 
         {/* Onboarding/Verification Banner */}
