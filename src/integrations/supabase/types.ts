@@ -127,6 +127,7 @@ export type Database = {
           location_lng: number | null
           logo_url: string | null
           name: string
+          onboarding_completed: boolean | null
           phone: string | null
           rating_avg: number | null
           rating_count: number | null
@@ -148,6 +149,7 @@ export type Database = {
           location_lng?: number | null
           logo_url?: string | null
           name: string
+          onboarding_completed?: boolean | null
           phone?: string | null
           rating_avg?: number | null
           rating_count?: number | null
@@ -169,6 +171,7 @@ export type Database = {
           location_lng?: number | null
           logo_url?: string | null
           name?: string
+          onboarding_completed?: boolean | null
           phone?: string | null
           rating_avg?: number | null
           rating_count?: number | null
@@ -241,6 +244,7 @@ export type Database = {
           location_lat: number | null
           location_lng: number | null
           max_travel_distance_km: number | null
+          onboarding_completed: boolean | null
           phone: string | null
           qualifications: string[] | null
           rating_avg: number | null
@@ -265,6 +269,7 @@ export type Database = {
           location_lat?: number | null
           location_lng?: number | null
           max_travel_distance_km?: number | null
+          onboarding_completed?: boolean | null
           phone?: string | null
           qualifications?: string[] | null
           rating_avg?: number | null
@@ -289,6 +294,7 @@ export type Database = {
           location_lat?: number | null
           location_lng?: number | null
           max_travel_distance_km?: number | null
+          onboarding_completed?: boolean | null
           phone?: string | null
           qualifications?: string[] | null
           rating_avg?: number | null

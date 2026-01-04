@@ -18,7 +18,7 @@ const passwordSchema = z.string().min(6, "Password must be at least 6 characters
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { signIn, signUp, user, userRole, isLoading: authLoading } = useAuth();
+  const { signIn, signUp, user, userRole, isOnboardingComplete, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
 
   const [mode, setMode] = useState<AuthMode>(
@@ -44,15 +44,28 @@ const Auth = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user && userRole) {
-      if (userRole === "professional") {
-        navigate("/dashboard/professional");
-      } else if (userRole === "clinic") {
-        navigate("/dashboard/clinic");
+      // Check if onboarding is complete
+      if (!isOnboardingComplete) {
+        // Redirect to onboarding
+        if (userRole === "professional") {
+          navigate("/onboarding/professional");
+        } else if (userRole === "clinic") {
+          navigate("/onboarding/clinic");
+        }
       } else {
-        navigate("/");
+        // Redirect to dashboard
+        if (userRole === "professional") {
+          navigate("/dashboard/professional");
+        } else if (userRole === "clinic") {
+          navigate("/dashboard/clinic");
+        } else if (userRole === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/");
+        }
       }
     }
-  }, [user, userRole, navigate]);
+  }, [user, userRole, isOnboardingComplete, navigate]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -127,7 +140,7 @@ const Auth = () => {
           return;
         }
 
-        const { error } = await signUp(formData.email, formData.password, role, {
+        const { error, needsOnboarding } = await signUp(formData.email, formData.password, role, {
           name: formData.name,
           organizationName: formData.organizationName,
         });
@@ -146,8 +159,17 @@ const Auth = () => {
         } else {
           toast({
             title: "Account created!",
-            description: "Welcome to SyndeoCare. Let's set up your profile.",
+            description: "Let's complete your profile setup.",
           });
+          
+          // Navigate to onboarding
+          if (needsOnboarding) {
+            if (role === "professional") {
+              navigate("/onboarding/professional");
+            } else {
+              navigate("/onboarding/clinic");
+            }
+          }
         }
       }
     } finally {

@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 
 type UserRole = "professional" | "clinic" | "admin";
 
@@ -9,10 +8,12 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   userRole: UserRole | null;
+  isOnboardingComplete: boolean;
   isLoading: boolean;
-  signUp: (email: string, password: string, role: UserRole, metadata: Record<string, string>) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, role: UserRole, metadata: Record<string, string>) => Promise<{ error: Error | null; needsOnboarding: boolean }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
+  refreshOnboardingStatus: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,6 +22,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUserRole = async (userId: string) => {
@@ -32,6 +34,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (!error && data) {
       setUserRole(data.role as UserRole);
+      return data.role as UserRole;
+    }
+    return null;
+  };
+
+  const checkOnboardingStatus = async (userId: string, role: UserRole | null) => {
+    if (!role || role === "admin") {
+      setIsOnboardingComplete(true);
+      return true;
+    }
+
+    const table = role === "professional" ? "profiles" : "clinics";
+    const { data, error } = await supabase
+      .from(table)
+      .select("onboarding_completed")
+      .eq("user_id", userId)
+      .single();
+
+    if (!error && data) {
+      setIsOnboardingComplete(data.onboarding_completed);
+      return data.onboarding_completed;
+    }
+    return false;
+  };
+
+  const refreshOnboardingStatus = async () => {
+    if (user && userRole) {
+      await checkOnboardingStatus(user.id, userRole);
     }
   };
 
@@ -44,11 +74,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         if (session?.user) {
           // Defer the role fetch to avoid deadlock
-          setTimeout(() => {
-            fetchUserRole(session.user.id);
+          setTimeout(async () => {
+            const role = await fetchUserRole(session.user.id);
+            await checkOnboardingStatus(session.user.id, role);
           }, 0);
         } else {
           setUserRole(null);
+          setIsOnboardingComplete(false);
         }
         
         setIsLoading(false);
@@ -56,12 +88,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        fetchUserRole(session.user.id);
+        const role = await fetchUserRole(session.user.id);
+        await checkOnboardingStatus(session.user.id, role);
       }
       
       setIsLoading(false);
@@ -110,6 +143,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               user_id: data.user.id,
               full_name: metadata.name || "",
               email: email,
+              onboarding_completed: false,
             });
 
           if (profileError) throw profileError;
@@ -120,15 +154,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               user_id: data.user.id,
               name: metadata.organizationName || "",
               email: email,
+              onboarding_completed: false,
             });
 
           if (clinicError) throw clinicError;
         }
+
+        setUserRole(role);
+        setIsOnboardingComplete(false);
       }
 
-      return { error: null };
+      return { error: null, needsOnboarding: true };
     } catch (error) {
-      return { error: error as Error };
+      return { error: error as Error, needsOnboarding: false };
     }
   };
 
@@ -151,6 +189,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setSession(null);
     setUserRole(null);
+    setIsOnboardingComplete(false);
   };
 
   return (
@@ -159,10 +198,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         session,
         userRole,
+        isOnboardingComplete,
         isLoading,
         signUp,
         signIn,
         signOut,
+        refreshOnboardingStatus,
       }}
     >
       {children}
