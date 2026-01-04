@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { Heart, Bell, LogOut, User, Building2, Shield } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 
 interface DashboardHeaderProps {
   type: "professional" | "clinic" | "admin";
@@ -10,6 +12,8 @@ interface DashboardHeaderProps {
 }
 
 const DashboardHeader = ({ type, onSignOut, avatarUrl, name }: DashboardHeaderProps) => {
+  const { t } = useTranslation();
+  
   const getConfig = () => {
     switch (type) {
       case "professional":
@@ -38,7 +42,6 @@ const DashboardHeader = ({ type, onSignOut, avatarUrl, name }: DashboardHeaderPr
 
   const config = getConfig();
   const IconComponent = config.icon;
-  const AvatarIcon = config.avatarIcon;
   
   const initials = name
     ? name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
@@ -53,21 +56,22 @@ const DashboardHeader = ({ type, onSignOut, avatarUrl, name }: DashboardHeaderPr
               <IconComponent className={`w-4 h-4 ${type === "admin" ? "text-background" : `text-${type === "clinic" ? "accent" : "primary"}-foreground`}`} />
             </div>
             <span className="font-bold text-lg text-foreground">
-              {type === "admin" ? "Admin Dashboard" : "SyndeoCare.ai"}
+              {type === "admin" ? t("nav.dashboard") : "SyndeoCare.ai"}
             </span>
           </Link>
 
           <div className="flex items-center gap-3">
+            <LanguageSwitcher variant="icon" />
             {type !== "admin" && (
               <button className="relative p-2 rounded-lg hover:bg-secondary transition-colors">
                 <Bell className="w-5 h-5 text-muted-foreground" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full" />
+                <span className="absolute top-1 end-1 w-2 h-2 bg-accent rounded-full" />
               </button>
             )}
             <button 
               onClick={onSignOut}
               className="flex items-center gap-2 p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
-              title="Sign out"
+              title={t("common.logOut")}
             >
               <LogOut className="w-5 h-5" />
             </button>

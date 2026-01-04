@@ -7,19 +7,22 @@ import { motion } from "framer-motion";
 import { Heart, Mail, Lock, Eye, EyeOff, User, Building2, Users, ArrowRight, Check, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import { z } from "zod";
 
 type UserRole = "professional" | "clinic";
 type AuthMode = "login" | "signup";
 
-const emailSchema = z.string().email("Please enter a valid email address");
-const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
-
 const Auth = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { signIn, signUp, user, userRole, isOnboardingComplete, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
+
+  const emailSchema = z.string().email(t("auth.errors.invalidEmail"));
+  const passwordSchema = z.string().min(6, t("auth.errors.passwordMin"));
 
   const [mode, setMode] = useState<AuthMode>(
     searchParams.get("mode") === "signup" ? "signup" : "login"
@@ -44,16 +47,13 @@ const Auth = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user && userRole) {
-      // Check if onboarding is complete
       if (!isOnboardingComplete) {
-        // Redirect to onboarding
         if (userRole === "professional") {
           navigate("/onboarding/professional");
         } else if (userRole === "clinic") {
           navigate("/onboarding/clinic");
         }
       } else {
-        // Redirect to dashboard
         if (userRole === "professional") {
           navigate("/dashboard/professional");
         } else if (userRole === "clinic") {
@@ -88,10 +88,10 @@ const Auth = () => {
 
     if (mode === "signup") {
       if (!formData.name.trim()) {
-        newErrors.name = "Name is required";
+        newErrors.name = t("auth.errors.nameRequired");
       }
       if (role === "clinic" && !formData.organizationName.trim()) {
-        newErrors.organizationName = "Organization name is required";
+        newErrors.organizationName = t("auth.errors.orgNameRequired");
       }
     }
 
@@ -118,29 +118,29 @@ const Auth = () => {
         if (error) {
           toast({
             variant: "destructive",
-            title: "Login failed",
+            title: t("auth.errors.loginFailed"),
             description: error.message === "Invalid login credentials" 
-              ? "Invalid email or password. Please try again."
+              ? t("auth.errors.invalidCredentials")
               : error.message,
           });
         } else {
           toast({
-            title: "Welcome back!",
-            description: "You have successfully logged in.",
+            title: t("auth.success.welcomeBack"),
+            description: t("auth.success.loggedIn"),
           });
         }
       } else {
         if (!role) {
           toast({
             variant: "destructive",
-            title: "Please select a role",
-            description: "Choose whether you're a professional or a clinic.",
+            title: t("auth.errors.selectRole"),
+            description: t("auth.howToGetStarted"),
           });
           setIsLoading(false);
           return;
         }
 
-        const { error, needsOnboarding, needsEmailConfirmation, email } = await signUp(formData.email, formData.password, role, {
+        const { error, needsOnboarding, needsEmailConfirmation } = await signUp(formData.email, formData.password, role, {
           name: formData.name,
           organizationName: formData.organizationName,
         });
@@ -148,28 +148,26 @@ const Auth = () => {
         if (error) {
           let message = error.message;
           if (error.message.includes("already registered")) {
-            message = "This email is already registered. Please login instead.";
+            message = t("auth.errors.emailExists");
           }
           
           toast({
             variant: "destructive",
-            title: "Signup failed",
+            title: t("auth.errors.signupFailed"),
             description: message,
           });
         } else if (needsEmailConfirmation) {
-          // Redirect to email verification page
           toast({
-            title: "Check your email",
-            description: "We've sent you a verification link.",
+            title: t("auth.verification.checkEmail"),
+            description: t("auth.verification.clickLink"),
           });
           navigate("/verify-email", { state: { email: formData.email } });
         } else {
           toast({
-            title: "Account created!",
-            description: "Let's complete your profile setup.",
+            title: t("auth.success.accountCreated"),
+            description: t("auth.success.completeProfile"),
           });
           
-          // Navigate to onboarding
           if (needsOnboarding) {
             if (role === "professional") {
               navigate("/onboarding/professional");
@@ -200,6 +198,11 @@ const Auth = () => {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
+        {/* Language Switcher */}
+        <div className="flex justify-end mb-4">
+          <LanguageSwitcher variant="text" />
+        </div>
+
         {/* Logo */}
         <Link to="/" className="flex items-center justify-center gap-2 mb-8">
           <div className="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
@@ -213,43 +216,43 @@ const Auth = () => {
           {mode === "login" ? (
             <>
               <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold text-foreground mb-2">Welcome back</h1>
-                <p className="text-muted-foreground">Sign in to your account to continue</p>
+                <h1 className="text-2xl font-bold text-foreground mb-2">{t("auth.welcomeBack")}</h1>
+                <p className="text-muted-foreground">{t("auth.signInToContinue")}</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t("auth.email")}</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Mail className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       id="email"
                       type="email"
-                      placeholder="you@example.com"
+                      placeholder={t("auth.emailPlaceholder")}
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className={`pl-10 ${errors.email ? "border-destructive" : ""}`}
+                      className={`ps-10 ${errors.email ? "border-destructive" : ""}`}
                     />
                   </div>
                   {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">{t("auth.password")}</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Lock className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
+                      placeholder={t("auth.passwordPlaceholder")}
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className={`pl-10 pr-10 ${errors.password ? "border-destructive" : ""}`}
+                      className={`ps-10 pe-10 ${errors.password ? "border-destructive" : ""}`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -258,40 +261,40 @@ const Auth = () => {
                 </div>
 
                 <Button type="submit" variant="hero" className="w-full" size="lg" disabled={isLoading}>
-                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign in"}
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : t("auth.signIn")}
                 </Button>
               </form>
 
               <div className="mt-6 text-center text-sm text-muted-foreground">
-                Don't have an account?{" "}
+                {t("auth.noAccount")}{" "}
                 <button 
                   onClick={() => { setMode("signup"); setStep("role"); }}
                   className="text-primary font-medium hover:underline"
                 >
-                  Sign up
+                  {t("common.signUp")}
                 </button>
               </div>
             </>
           ) : step === "role" ? (
             <>
               <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold text-foreground mb-2">Join SyndeoCare</h1>
-                <p className="text-muted-foreground">How would you like to get started?</p>
+                <h1 className="text-2xl font-bold text-foreground mb-2">{t("auth.joinSyndeoCare")}</h1>
+                <p className="text-muted-foreground">{t("auth.howToGetStarted")}</p>
               </div>
 
               <div className="space-y-4">
                 <button
                   onClick={() => handleRoleSelect("professional")}
-                  className="w-full p-6 rounded-xl border-2 border-border hover:border-primary transition-colors text-left group"
+                  className="w-full p-6 rounded-xl border-2 border-border hover:border-primary transition-colors text-start group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                       <Users className="w-6 h-6 text-primary-foreground" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground mb-1">I'm a Professional</h3>
+                      <h3 className="font-semibold text-foreground mb-1">{t("auth.imProfessional")}</h3>
                       <p className="text-sm text-muted-foreground">
-                        Find flexible shifts at top healthcare facilities near you.
+                        {t("auth.professionalDesc")}
                       </p>
                     </div>
                   </div>
@@ -299,16 +302,16 @@ const Auth = () => {
 
                 <button
                   onClick={() => handleRoleSelect("clinic")}
-                  className="w-full p-6 rounded-xl border-2 border-border hover:border-accent transition-colors text-left group"
+                  className="w-full p-6 rounded-xl border-2 border-border hover:border-accent transition-colors text-start group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl gradient-accent flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                       <Building2 className="w-6 h-6 text-accent-foreground" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground mb-1">I'm a Clinic</h3>
+                      <h3 className="font-semibold text-foreground mb-1">{t("auth.imClinic")}</h3>
                       <p className="text-sm text-muted-foreground">
-                        Staff your facility with verified healthcare professionals.
+                        {t("auth.clinicDesc")}
                       </p>
                     </div>
                   </div>
@@ -316,12 +319,12 @@ const Auth = () => {
               </div>
 
               <div className="mt-6 text-center text-sm text-muted-foreground">
-                Already have an account?{" "}
+                {t("auth.haveAccount")}{" "}
                 <button 
                   onClick={() => setMode("login")}
                   className="text-primary font-medium hover:underline"
                 >
-                  Sign in
+                  {t("auth.signIn")}
                 </button>
               </div>
             </>
@@ -329,24 +332,24 @@ const Auth = () => {
             <>
               <div className="text-center mb-8">
                 <h1 className="text-2xl font-bold text-foreground mb-2">
-                  {role === "professional" ? "Professional Sign Up" : "Clinic Sign Up"}
+                  {role === "professional" ? t("auth.professionalSignUp") : t("auth.clinicSignUp")}
                 </h1>
-                <p className="text-muted-foreground">Create your account to get started</p>
+                <p className="text-muted-foreground">{t("auth.createAccountToStart")}</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 {role === "clinic" && (
                   <div className="space-y-2">
-                    <Label htmlFor="organizationName">Organization Name</Label>
+                    <Label htmlFor="organizationName">{t("auth.organizationName")}</Label>
                     <div className="relative">
-                      <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                      <Building2 className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <Input
                         id="organizationName"
                         type="text"
-                        placeholder="Your Clinic Name"
+                        placeholder={t("auth.clinicNamePlaceholder")}
                         value={formData.organizationName}
                         onChange={(e) => setFormData({ ...formData, organizationName: e.target.value })}
-                        className={`pl-10 ${errors.organizationName ? "border-destructive" : ""}`}
+                        className={`ps-10 ${errors.organizationName ? "border-destructive" : ""}`}
                       />
                     </div>
                     {errors.organizationName && <p className="text-sm text-destructive">{errors.organizationName}</p>}
@@ -354,53 +357,53 @@ const Auth = () => {
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="name">{role === "professional" ? "Full Name" : "Contact Name"}</Label>
+                  <Label htmlFor="name">{role === "professional" ? t("auth.fullName") : t("auth.contactName")}</Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <User className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       id="name"
                       type="text"
-                      placeholder="John Doe"
+                      placeholder={t("auth.namePlaceholder")}
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className={`pl-10 ${errors.name ? "border-destructive" : ""}`}
+                      className={`ps-10 ${errors.name ? "border-destructive" : ""}`}
                     />
                   </div>
                   {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t("auth.email")}</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Mail className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       id="email"
                       type="email"
-                      placeholder="you@example.com"
+                      placeholder={t("auth.emailPlaceholder")}
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className={`pl-10 ${errors.email ? "border-destructive" : ""}`}
+                      className={`ps-10 ${errors.email ? "border-destructive" : ""}`}
                     />
                   </div>
                   {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">{t("auth.password")}</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Lock className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
+                      placeholder={t("auth.passwordPlaceholder")}
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className={`pl-10 pr-10 ${errors.password ? "border-destructive" : ""}`}
+                      className={`ps-10 pe-10 ${errors.password ? "border-destructive" : ""}`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -411,16 +414,16 @@ const Auth = () => {
                 {/* Benefits */}
                 <div className="bg-secondary rounded-lg p-4 space-y-2">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Check className="w-4 h-4 text-success" />
-                    Free to create account
+                    <Check className="w-4 h-4 text-success flex-shrink-0" />
+                    {t("auth.benefits.freeAccount")}
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Check className="w-4 h-4 text-success" />
-                    {role === "professional" ? "Quick verification process" : "Start posting shifts today"}
+                    <Check className="w-4 h-4 text-success flex-shrink-0" />
+                    {role === "professional" ? t("auth.benefits.quickVerification") : t("auth.benefits.postShiftsToday")}
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Check className="w-4 h-4 text-success" />
-                    Cancel anytime
+                    <Check className="w-4 h-4 text-success flex-shrink-0" />
+                    {t("auth.benefits.cancelAnytime")}
                   </div>
                 </div>
 
@@ -429,8 +432,8 @@ const Auth = () => {
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
                     <>
-                      Create Account
-                      <ArrowRight className="w-5 h-5 ml-2" />
+                      {t("auth.createAccount")}
+                      <ArrowRight className="w-5 h-5 ms-2 rtl-flip" />
                     </>
                   )}
                 </Button>
@@ -440,17 +443,17 @@ const Auth = () => {
                   onClick={() => setStep("role")}
                   className="w-full text-sm text-muted-foreground hover:text-primary"
                 >
-                  ← Choose different role
+                  ← {t("common.back")}
                 </button>
               </form>
 
               <div className="mt-6 text-center text-sm text-muted-foreground">
-                Already have an account?{" "}
+                {t("auth.haveAccount")}{" "}
                 <button 
                   onClick={() => setMode("login")}
                   className="text-primary font-medium hover:underline"
                 >
-                  Sign in
+                  {t("auth.signIn")}
                 </button>
               </div>
             </>

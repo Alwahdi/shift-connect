@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { AlertCircle, ArrowRight, CheckCircle2, Clock, FileText, User } from "lucide-react";
+import { AlertCircle, ArrowRight, Clock, FileText, User } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface OnboardingBannerProps {
   type: "professional" | "clinic";
@@ -18,6 +19,8 @@ const OnboardingBanner = ({
   pendingDocuments,
   totalDocuments,
 }: OnboardingBannerProps) => {
+  const { t } = useTranslation();
+
   if (onboardingComplete && verificationStatus === "verified" && pendingDocuments === 0) {
     return null;
   }
@@ -26,9 +29,9 @@ const OnboardingBanner = ({
     if (!onboardingComplete) {
       return {
         icon: User,
-        title: "Complete Your Profile",
-        description: `Finish setting up your ${type === "professional" ? "profile" : "clinic"} to get started.`,
-        action: "Complete Setup",
+        title: t("onboarding.incomplete"),
+        description: t("onboarding.incompleteDesc"),
+        action: t("dashboard.completeOnboarding"),
         link: type === "professional" ? "/onboarding/professional" : "/onboarding/clinic",
         color: "warning",
       };
@@ -37,9 +40,9 @@ const OnboardingBanner = ({
     if (totalDocuments === 0) {
       return {
         icon: FileText,
-        title: "Upload Required Documents",
-        description: "Upload your verification documents to become eligible for shifts.",
-        action: "Upload Documents",
+        title: t("profile.uploadDocument"),
+        description: t("dashboard.needsVerification"),
+        action: t("dashboard.viewDocuments"),
         link: type === "professional" ? "/profile/professional?tab=documents" : "/profile/clinic?tab=documents",
         color: "destructive",
       };
@@ -48,8 +51,8 @@ const OnboardingBanner = ({
     if (pendingDocuments > 0) {
       return {
         icon: Clock,
-        title: "Documents Under Review",
-        description: `${pendingDocuments} document(s) are being reviewed by our team.`,
+        title: t("onboarding.pendingVerification"),
+        description: t("onboarding.pendingVerificationDesc"),
         action: null,
         link: null,
         color: "warning",
@@ -59,8 +62,8 @@ const OnboardingBanner = ({
     if (verificationStatus === "pending") {
       return {
         icon: Clock,
-        title: "Profile Under Review",
-        description: "Your profile is being reviewed by our team. This usually takes 1-2 business days.",
+        title: t("onboarding.pendingVerification"),
+        description: t("onboarding.pendingVerificationDesc"),
         action: null,
         link: null,
         color: "warning",
@@ -70,9 +73,9 @@ const OnboardingBanner = ({
     if (verificationStatus === "rejected") {
       return {
         icon: AlertCircle,
-        title: "Verification Issue",
-        description: "There was an issue with your verification. Please review and resubmit.",
-        action: "View Details",
+        title: t("common.rejected"),
+        description: t("dashboard.needsVerification"),
+        action: t("dashboard.viewDocuments"),
         link: type === "professional" ? "/profile/professional?tab=documents" : "/profile/clinic?tab=documents",
         color: "destructive",
       };
@@ -109,7 +112,7 @@ const OnboardingBanner = ({
           <Button asChild size="sm" variant="outline">
             <Link to={content.link}>
               {content.action}
-              <ArrowRight className="w-4 h-4 ml-2" />
+              <ArrowRight className="w-4 h-4 ms-2 rtl-flip" />
             </Link>
           </Button>
         )}
