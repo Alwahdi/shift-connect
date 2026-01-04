@@ -52,14 +52,14 @@ const HeroSection = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
           >
-            <Link to="/signup?role=professional">
+            <Link to="/auth?mode=signup&role=professional">
               <Button variant="hero" size="xl" className="w-full sm:w-auto">
                 <Users className="w-5 h-5 mr-2" />
                 I'm a Professional
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
-            <Link to="/signup?role=clinic">
+            <Link to="/auth?mode=signup&role=clinic">
               <Button variant="hero-outline" size="xl" className="w-full sm:w-auto">
                 <Building2 className="w-5 h-5 mr-2" />
                 I'm a Clinic

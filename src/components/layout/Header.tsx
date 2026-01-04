@@ -46,12 +46,12 @@ const Header = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
-            <Link to="/login">
+            <Link to="/auth">
               <Button variant="ghost" size="sm">
                 Log in
               </Button>
             </Link>
-            <Link to="/signup">
+            <Link to="/auth?mode=signup">
               <Button variant="hero" size="sm">
                 Get Started
               </Button>
@@ -93,12 +93,12 @@ const Header = () => {
                 </Link>
               ))}
               <div className="flex gap-3 pt-4 border-t border-border mt-4">
-                <Link to="/login" className="flex-1">
+                <Link to="/auth" className="flex-1">
                   <Button variant="outline" className="w-full">
                     Log in
                   </Button>
                 </Link>
-                <Link to="/signup" className="flex-1">
+                <Link to="/auth?mode=signup" className="flex-1">
                   <Button variant="hero" className="w-full">
                     Get Started
                   </Button>
