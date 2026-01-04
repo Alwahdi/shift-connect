@@ -140,7 +140,7 @@ const Auth = () => {
           return;
         }
 
-        const { error, needsOnboarding } = await signUp(formData.email, formData.password, role, {
+        const { error, needsOnboarding, needsEmailConfirmation, email } = await signUp(formData.email, formData.password, role, {
           name: formData.name,
           organizationName: formData.organizationName,
         });
@@ -156,6 +156,13 @@ const Auth = () => {
             title: "Signup failed",
             description: message,
           });
+        } else if (needsEmailConfirmation) {
+          // Redirect to email verification page
+          toast({
+            title: "Check your email",
+            description: "We've sent you a verification link.",
+          });
+          navigate("/verify-email", { state: { email: formData.email } });
         } else {
           toast({
             title: "Account created!",

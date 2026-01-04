@@ -1,0 +1,337 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "apply": "Apply",
+    "viewAll": "View All",
+    "seeMore": "See More",
+    "learnMore": "Learn More",
+    "getStarted": "Get Started",
+    "signUp": "Sign Up",
+    "logIn": "Log in",
+    "logOut": "Sign Out",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "continue": "Continue",
+    "confirm": "Confirm",
+    "perHour": "/hr",
+    "km": "km",
+    "verified": "Verified",
+    "pending": "Pending",
+    "rejected": "Rejected",
+    "urgent": "Urgent",
+    "new": "New"
+  },
+  "nav": {
+    "home": "Home",
+    "forProfessionals": "For Professionals",
+    "forClinics": "For Clinics",
+    "about": "About",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "auth": {
+    "welcomeBack": "Welcome back",
+    "signInToContinue": "Sign in to your account to continue",
+    "joinSyndeoCare": "Join SyndeoCare",
+    "howToGetStarted": "How would you like to get started?",
+    "professionalSignUp": "Professional Sign Up",
+    "clinicSignUp": "Clinic Sign Up",
+    "createAccount": "Create Account",
+    "createAccountToStart": "Create your account to get started",
+    "signIn": "Sign in",
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full Name",
+    "contactName": "Contact Name",
+    "organizationName": "Organization Name",
+    "emailPlaceholder": "you@example.com",
+    "passwordPlaceholder": "••••••••",
+    "namePlaceholder": "John Doe",
+    "clinicNamePlaceholder": "Your Clinic Name",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "imProfessional": "I'm a Professional",
+    "professionalDesc": "Find flexible shifts at top healthcare facilities near you.",
+    "imClinic": "I'm a Clinic",
+    "clinicDesc": "Staff your facility with verified healthcare professionals.",
+    "benefits": {
+      "freeAccount": "Free to create account",
+      "quickVerification": "Quick verification process",
+      "postShiftsToday": "Start posting shifts today",
+      "cancelAnytime": "Cancel anytime"
+    },
+    "errors": {
+      "invalidEmail": "Please enter a valid email address",
+      "passwordMin": "Password must be at least 6 characters",
+      "nameRequired": "Name is required",
+      "orgNameRequired": "Organization name is required",
+      "selectRole": "Please select a role",
+      "loginFailed": "Login failed",
+      "signupFailed": "Signup failed",
+      "invalidCredentials": "Invalid email or password. Please try again.",
+      "emailExists": "This email is already registered. Please login instead."
+    },
+    "success": {
+      "welcomeBack": "Welcome back!",
+      "loggedIn": "You have successfully logged in.",
+      "accountCreated": "Account created!",
+      "completeProfile": "Let's complete your profile setup."
+    },
+    "verification": {
+      "checkEmail": "Check your email",
+      "verificationSent": "We've sent a verification link to",
+      "clickLink": "Click the link in your email to verify your account and continue.",
+      "didntReceive": "Didn't receive the email?",
+      "resendEmail": "Resend verification email",
+      "emailResent": "Verification email resent!",
+      "checkInbox": "Please check your inbox.",
+      "verifying": "Verifying your email...",
+      "verified": "Email Verified!",
+      "verifiedDesc": "Your email has been verified. Redirecting...",
+      "failed": "Verification Failed",
+      "failedDesc": "We couldn't verify your email. Please try again or contact support.",
+      "tryAgain": "Try again",
+      "emailNotVerified": "Please verify your email before signing in."
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Healthcare Staffing, Simplified",
+      "subtitle": "Connect verified healthcare professionals with clinics instantly. Smart matching, seamless booking, better patient care.",
+      "findShifts": "Find Shifts",
+      "hireStaff": "Hire Staff",
+      "trustedBy": "Trusted by 500+ healthcare facilities"
+    },
+    "features": {
+      "title": "Why Choose SyndeoCare?",
+      "subtitle": "We're building the future of healthcare staffing with technology that works for everyone.",
+      "verification": {
+        "title": "Verified Professionals",
+        "desc": "Every professional undergoes thorough background checks and credential verification."
+      },
+      "matching": {
+        "title": "Smart Matching",
+        "desc": "Our AI matches the right professionals to the right shifts based on skills and location."
+      },
+      "booking": {
+        "title": "Seamless Booking",
+        "desc": "Book shifts in seconds, not hours. Real-time availability and instant confirmation."
+      },
+      "payments": {
+        "title": "Secure Payments",
+        "desc": "Automated timesheets and fast, reliable payments for completed shifts."
+      }
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "Get started in minutes, not days.",
+      "professionals": {
+        "step1": {
+          "title": "Create Your Profile",
+          "desc": "Sign up and complete your professional profile with credentials."
+        },
+        "step2": {
+          "title": "Get Verified",
+          "desc": "Submit your documents for quick verification."
+        },
+        "step3": {
+          "title": "Find & Book Shifts",
+          "desc": "Browse available shifts and apply with one click."
+        }
+      },
+      "clinics": {
+        "step1": {
+          "title": "Register Your Facility",
+          "desc": "Create your clinic profile and verify your organization."
+        },
+        "step2": {
+          "title": "Post Shifts",
+          "desc": "Create shift listings with requirements and rates."
+        },
+        "step3": {
+          "title": "Hire Instantly",
+          "desc": "Review applicants and confirm bookings in minutes."
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to Transform Your Healthcare Staffing?",
+      "subtitle": "Join thousands of professionals and clinics already using SyndeoCare.",
+      "startFree": "Start Free Today"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "overview": "Overview",
+    "availableShifts": "Available Shifts",
+    "myShifts": "My Shifts",
+    "upcomingShifts": "Upcoming Shifts",
+    "completedShifts": "Completed Shifts",
+    "activeShifts": "Active Shifts",
+    "applicants": "Applicants",
+    "stats": {
+      "monthlyEarnings": "Monthly Earnings",
+      "shiftsCompleted": "Shifts Completed",
+      "avgRating": "Average Rating",
+      "documents": "Documents",
+      "totalSpend": "Monthly Spend",
+      "shiftsPosted": "Shifts Posted",
+      "fillRate": "Fill Rate"
+    },
+    "noShifts": "No shifts available",
+    "noShiftsDesc": "Check back later or adjust your filters.",
+    "needsVerification": "Complete verification to view shifts",
+    "completeOnboarding": "Complete Onboarding",
+    "viewDocuments": "View Documents",
+    "filters": {
+      "role": "Role",
+      "allRoles": "All Roles",
+      "minRate": "Min Rate",
+      "dateRange": "Date Range",
+      "distance": "Distance",
+      "clearFilters": "Clear Filters"
+    },
+    "search": {
+      "placeholder": "Search shifts by title, clinic, or location..."
+    }
+  },
+  "shifts": {
+    "apply": "Apply Now",
+    "applied": "Applied",
+    "booked": "Booked",
+    "filled": "Filled",
+    "details": "Shift Details",
+    "date": "Date",
+    "time": "Time",
+    "rate": "Hourly Rate",
+    "location": "Location",
+    "distance": "{{distance}} km away",
+    "requirements": "Requirements",
+    "description": "Description",
+    "clinic": "Clinic",
+    "role": "Role",
+    "applicants": "{{count}} applicants",
+    "maxApplicants": "{{count}} max applicants",
+    "applySuccess": "Application submitted successfully!",
+    "applyError": "Failed to apply. Please try again.",
+    "manage": "Manage Shift",
+    "create": "Create Shift",
+    "edit": "Edit Shift",
+    "delete": "Delete Shift",
+    "viewApplicants": "View Applicants"
+  },
+  "profile": {
+    "title": "Profile",
+    "personalInfo": "Personal Information",
+    "professionalInfo": "Professional Information",
+    "clinicInfo": "Clinic Information",
+    "documents": "Documents",
+    "availability": "Availability",
+    "settings": "Settings",
+    "uploadDocument": "Upload Document",
+    "verificationStatus": "Verification Status",
+    "bio": "Bio",
+    "specialties": "Specialties",
+    "qualifications": "Qualifications",
+    "hourlyRate": "Hourly Rate",
+    "location": "Location",
+    "phone": "Phone",
+    "address": "Address",
+    "maxTravelDistance": "Max Travel Distance"
+  },
+  "onboarding": {
+    "welcome": "Welcome to SyndeoCare",
+    "letsSetup": "Let's set up your profile",
+    "step": "Step {{current}} of {{total}}",
+    "basicInfo": "Basic Information",
+    "professionalDetails": "Professional Details",
+    "documents": "Documents",
+    "availability": "Availability",
+    "review": "Review",
+    "complete": "Complete Setup",
+    "skip": "Skip for now",
+    "incomplete": "Onboarding Incomplete",
+    "incompleteDesc": "Complete your profile to access all features.",
+    "pendingVerification": "Verification Pending",
+    "pendingVerificationDesc": "Your documents are being reviewed."
+  },
+  "footer": {
+    "tagline": "Connecting healthcare professionals with clinics. Building a healthier workforce, one shift at a time.",
+    "forProfessionals": "For Professionals",
+    "findShifts": "Find Shifts",
+    "resources": "Resources",
+    "forClinics": "For Clinics",
+    "postShifts": "Post Shifts",
+    "enterprise": "Enterprise",
+    "contact": "Contact",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "help": "Help",
+    "copyright": "© {{year}} SyndeoCare.ai. All rights reserved."
+  },
+  "about": {
+    "title": "About SyndeoCare",
+    "mission": "Our Mission",
+    "missionText": "To transform healthcare staffing by connecting qualified professionals with facilities that need them, when they need them.",
+    "story": "Our Story",
+    "storyText": "SyndeoCare was founded by healthcare professionals who understood the challenges of staffing firsthand. We built the platform we wished existed.",
+    "values": {
+      "title": "Our Values",
+      "quality": "Quality Care",
+      "qualityDesc": "We prioritize patient safety through rigorous verification.",
+      "flexibility": "Flexibility",
+      "flexibilityDesc": "Work when and where you want, on your terms.",
+      "trust": "Trust",
+      "trustDesc": "Transparent, reliable, and always there when you need us."
+    }
+  },
+  "professionals": {
+    "hero": {
+      "title": "Your Career, Your Schedule",
+      "subtitle": "Find flexible healthcare shifts that work for you. Join thousands of professionals who've taken control of their careers."
+    },
+    "benefits": {
+      "flexibility": "Flexible Scheduling",
+      "flexibilityDesc": "Work when you want, where you want.",
+      "topPay": "Top Pay Rates",
+      "topPayDesc": "Competitive rates for qualified professionals.",
+      "verified": "Verified Facilities",
+      "verifiedDesc": "All partner clinics are thoroughly vetted."
+    }
+  },
+  "clinics": {
+    "hero": {
+      "title": "Staff Your Facility with Confidence",
+      "subtitle": "Access a network of verified healthcare professionals ready to fill your shifts."
+    },
+    "benefits": {
+      "verified": "Verified Professionals",
+      "verifiedDesc": "Every professional is background-checked and credential-verified.",
+      "fast": "Fast Staffing",
+      "fastDesc": "Fill shifts in hours, not days.",
+      "flexible": "Flexible Solutions",
+      "flexibleDesc": "From per-diem to long-term assignments."
+    }
+  },
+  "location": {
+    "useCurrentLocation": "Use Current Location",
+    "enterAddress": "Enter Address",
+    "searchPlaceholder": "Search for an address...",
+    "detecting": "Detecting location...",
+    "locationError": "Could not detect location",
+    "permissionDenied": "Location permission denied",
+    "noResults": "No results found"
+  }
+}

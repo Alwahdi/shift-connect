@@ -125,6 +125,12 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'DM Sans', sans-serif;
   }
+
+  /* RTL Support - Arabic font */
+  html[dir="rtl"] body,
+  html.rtl body {
+    font-family: 'Noto Sans Arabic', 'DM Sans', sans-serif;
+  }
 }
 
 @layer utilities {
@@ -146,5 +152,36 @@
   
   .shadow-card-hover {
     box-shadow: var(--shadow-lg);
+  }
+}
+
+/* RTL Specific Styles */
+@layer utilities {
+  /* Flip directional icons in RTL */
+  html[dir="rtl"] .rtl-flip {
+    transform: scaleX(-1);
+  }
+
+  /* Fix spacing for RTL */
+  html[dir="rtl"] .space-x-reverse > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 1;
+  }
+
+  /* Margin and padding logical properties */
+  html[dir="rtl"] .ms-auto {
+    margin-inline-start: auto;
+  }
+  
+  html[dir="rtl"] .me-auto {
+    margin-inline-end: auto;
+  }
+
+  /* RTL-aware flex */
+  html[dir="rtl"] .flex-row {
+    flex-direction: row-reverse;
+  }
+
+  html[dir="rtl"] .rtl\:flex-row-reverse {
+    flex-direction: row-reverse;
   }
 }
