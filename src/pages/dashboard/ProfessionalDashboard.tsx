@@ -16,15 +16,18 @@ import {
   FileText,
   Upload,
   User,
-  Settings
+  X
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsGrid from "@/components/dashboard/StatsGrid";
 import OnboardingBanner from "@/components/dashboard/OnboardingBanner";
+import ShiftDetailModal from "@/components/shifts/ShiftDetailModal";
 
 interface Shift {
   id: string;
@@ -34,10 +37,15 @@ interface Shift {
   start_time: string;
   end_time: string;
   hourly_rate: number;
-  location_address: string;
+  location_address: string | null;
+  description: string | null;
+  required_certifications: string[] | null;
   is_urgent: boolean;
   clinic: {
+    id: string;
     name: string;
+    address: string | null;
+    rating_avg: number | null;
   };
 }
 
@@ -55,12 +63,36 @@ interface Document {
   status: string;
 }
 
+interface Filters {
+  role: string;
+  minRate: string;
+  dateRange: string;
+}
+
+const ROLE_OPTIONS = [
+  "All Roles",
+  "Registered Nurse",
+  "LPN/LVN",
+  "CNA",
+  "Medical Assistant",
+  "Dental Hygienist",
+  "Dental Assistant",
+  "Physical Therapist",
+  "Other",
+];
+
 const ProfessionalDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
+  const [showShiftDetail, setShowShiftDetail] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState<Filters>({ role: "All Roles", minRate: "", dateRange: "all" });
+  const [monthlyEarnings, setMonthlyEarnings] = useState(0);
+  const [completedShifts, setCompletedShifts] = useState(0);
   const { user, userRole, signOut, isLoading: authLoading, isOnboardingComplete } = useAuth();
   const navigate = useNavigate();
 
@@ -91,6 +123,38 @@ const ProfessionalDashboard = () => {
 
         if (profileData) {
           setProfile(profileData);
+
+          // Fetch completed bookings for this professional this month
+          const startOfMonth = new Date();
+          startOfMonth.setDate(1);
+          startOfMonth.setHours(0, 0, 0, 0);
+
+          const { data: bookingsData } = await supabase
+            .from("bookings")
+            .select(`
+              id,
+              status,
+              shift:shifts(hourly_rate, start_time, end_time)
+            `)
+            .eq("professional_id", profileData.id)
+            .in("status", ["completed", "checked_out"])
+            .gte("created_at", startOfMonth.toISOString());
+
+          if (bookingsData) {
+            setCompletedShifts(bookingsData.length);
+            
+            // Calculate earnings
+            let earnings = 0;
+            bookingsData.forEach((booking: any) => {
+              if (booking.shift) {
+                const [startH, startM] = booking.shift.start_time.split(":").map(Number);
+                const [endH, endM] = booking.shift.end_time.split(":").map(Number);
+                const hours = (endH * 60 + endM - startH * 60 - startM) / 60;
+                earnings += (hours > 0 ? hours : 24 + hours) * booking.shift.hourly_rate;
+              }
+            });
+            setMonthlyEarnings(earnings);
+          }
         }
 
         // Fetch user documents
@@ -104,28 +168,7 @@ const ProfessionalDashboard = () => {
         }
 
         // Fetch available shifts
-        const { data: shiftsData } = await supabase
-          .from("shifts")
-          .select(`
-            id,
-            title,
-            role_required,
-            shift_date,
-            start_time,
-            end_time,
-            hourly_rate,
-            location_address,
-            is_urgent,
-            clinic:clinics(name)
-          `)
-          .eq("is_filled", false)
-          .gte("shift_date", new Date().toISOString().split("T")[0])
-          .order("shift_date", { ascending: true })
-          .limit(10);
-
-        if (shiftsData) {
-          setShifts(shiftsData as unknown as Shift[]);
-        }
+        await fetchShifts();
       } finally {
         setIsLoading(false);
       }
@@ -136,10 +179,75 @@ const ProfessionalDashboard = () => {
     }
   }, [user, isOnboardingComplete]);
 
+  const fetchShifts = async () => {
+    let query = supabase
+      .from("shifts")
+      .select(`
+        id,
+        title,
+        role_required,
+        shift_date,
+        start_time,
+        end_time,
+        hourly_rate,
+        location_address,
+        description,
+        required_certifications,
+        is_urgent,
+        clinic:clinics(id, name, address, rating_avg)
+      `)
+      .eq("is_filled", false)
+      .gte("shift_date", new Date().toISOString().split("T")[0])
+      .order("shift_date", { ascending: true })
+      .limit(20);
+
+    // Apply role filter
+    if (filters.role && filters.role !== "All Roles") {
+      query = query.ilike("role_required", `%${filters.role}%`);
+    }
+
+    // Apply minimum rate filter
+    if (filters.minRate) {
+      query = query.gte("hourly_rate", parseFloat(filters.minRate));
+    }
+
+    // Apply date filter
+    if (filters.dateRange === "today") {
+      const today = new Date().toISOString().split("T")[0];
+      query = query.eq("shift_date", today);
+    } else if (filters.dateRange === "week") {
+      const nextWeek = new Date();
+      nextWeek.setDate(nextWeek.getDate() + 7);
+      query = query.lte("shift_date", nextWeek.toISOString().split("T")[0]);
+    } else if (filters.dateRange === "month") {
+      const nextMonth = new Date();
+      nextMonth.setMonth(nextMonth.getMonth() + 1);
+      query = query.lte("shift_date", nextMonth.toISOString().split("T")[0]);
+    }
+
+    const { data: shiftsData } = await query;
+
+    if (shiftsData) {
+      setShifts(shiftsData as unknown as Shift[]);
+    }
+  };
+
+  useEffect(() => {
+    if (user && isOnboardingComplete) {
+      fetchShifts();
+    }
+  }, [filters]);
+
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
   };
+
+  const clearFilters = () => {
+    setFilters({ role: "All Roles", minRate: "", dateRange: "all" });
+  };
+
+  const hasActiveFilters = filters.role !== "All Roles" || filters.minRate || filters.dateRange !== "all";
 
   if (authLoading || isLoading) {
     return (
@@ -153,9 +261,9 @@ const ProfessionalDashboard = () => {
   const totalDocs = documents.length;
 
   const stats = [
-    { label: "This Month", value: "$0", icon: DollarSign },
-    { label: "Shifts Completed", value: "0", icon: Calendar },
-    { label: "Avg Rating", value: profile?.rating_avg ? `${profile.rating_avg}★` : "N/A", icon: Star },
+    { label: "This Month", value: `$${monthlyEarnings.toFixed(0)}`, icon: DollarSign },
+    { label: "Shifts Completed", value: completedShifts.toString(), icon: Calendar },
+    { label: "Avg Rating", value: profile?.rating_avg ? `${profile.rating_avg.toFixed(1)}★` : "N/A", icon: Star },
     { label: "Documents", value: `${totalDocs}`, icon: FileText },
   ];
 
@@ -207,7 +315,7 @@ const ProfessionalDashboard = () => {
                 <p className="text-sm text-muted-foreground">Upload your credentials to start receiving shift opportunities.</p>
               </div>
               <Button asChild>
-                <Link to="/onboarding/professional">
+                <Link to="/profile/professional?tab=documents">
                   <Upload className="w-4 h-4 mr-2" />
                   Upload Documents
                 </Link>
@@ -227,6 +335,12 @@ const ProfessionalDashboard = () => {
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-foreground">Available Shifts</h2>
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
+                <X className="w-4 h-4 mr-1" />
+                Clear Filters
+              </Button>
+            )}
           </div>
 
           {/* Search & Filter */}
@@ -240,9 +354,61 @@ const ProfessionalDashboard = () => {
                 className="pl-9"
               />
             </div>
-            <Button variant="outline" size="icon">
-              <Filter className="w-4 h-4" />
-            </Button>
+            <Popover open={showFilters} onOpenChange={setShowFilters}>
+              <PopoverTrigger asChild>
+                <Button variant={hasActiveFilters ? "default" : "outline"} size="icon">
+                  <Filter className="w-4 h-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72" align="end">
+                <div className="space-y-4">
+                  <h4 className="font-medium text-foreground">Filter Shifts</h4>
+                  
+                  <div className="space-y-2">
+                    <label className="text-sm text-muted-foreground">Role</label>
+                    <Select value={filters.role} onValueChange={(value) => setFilters({ ...filters, role: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ROLE_OPTIONS.map((role) => (
+                          <SelectItem key={role} value={role}>{role}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm text-muted-foreground">Minimum Rate ($/hr)</label>
+                    <Input
+                      type="number"
+                      placeholder="e.g. 30"
+                      value={filters.minRate}
+                      onChange={(e) => setFilters({ ...filters, minRate: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm text-muted-foreground">Date Range</label>
+                    <Select value={filters.dateRange} onValueChange={(value) => setFilters({ ...filters, dateRange: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Upcoming</SelectItem>
+                        <SelectItem value="today">Today</SelectItem>
+                        <SelectItem value="week">This Week</SelectItem>
+                        <SelectItem value="month">This Month</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <Button variant="outline" className="w-full" onClick={clearFilters}>
+                    Clear Filters
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Shift Cards */}
@@ -253,7 +419,9 @@ const ProfessionalDashboard = () => {
               <p className="text-sm text-muted-foreground">
                 {profile?.verification_status !== "verified" 
                   ? "Complete your verification to see available shifts."
-                  : "Check back soon for new opportunities in your area."}
+                  : hasActiveFilters
+                    ? "No shifts match your filters. Try adjusting your criteria."
+                    : "Check back soon for new opportunities in your area."}
               </p>
             </div>
           ) : (
@@ -269,6 +437,10 @@ const ProfessionalDashboard = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4 + index * 0.05 }}
                   className="bg-card rounded-xl border border-border p-4 shadow-card hover:shadow-card-hover hover:border-primary/20 transition-all cursor-pointer"
+                  onClick={() => {
+                    setSelectedShift(shift);
+                    setShowShiftDetail(true);
+                  }}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-4 flex-1">
@@ -311,6 +483,15 @@ const ProfessionalDashboard = () => {
             </div>
           )}
         </motion.div>
+
+        {/* Shift Detail Modal */}
+        <ShiftDetailModal
+          open={showShiftDetail}
+          onOpenChange={setShowShiftDetail}
+          shift={selectedShift}
+          profileId={profile?.id || ""}
+          verificationStatus={profile?.verification_status || "pending"}
+        />
       </main>
     </div>
   );

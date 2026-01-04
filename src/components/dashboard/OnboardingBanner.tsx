@@ -40,7 +40,7 @@ const OnboardingBanner = ({
         title: "Upload Required Documents",
         description: "Upload your verification documents to become eligible for shifts.",
         action: "Upload Documents",
-        link: type === "professional" ? "/onboarding/professional" : "/onboarding/clinic",
+        link: type === "professional" ? "/profile/professional?tab=documents" : "/profile/clinic?tab=documents",
         color: "destructive",
       };
     }
@@ -73,7 +73,7 @@ const OnboardingBanner = ({
         title: "Verification Issue",
         description: "There was an issue with your verification. Please review and resubmit.",
         action: "View Details",
-        link: type === "professional" ? "/onboarding/professional" : "/onboarding/clinic",
+        link: type === "professional" ? "/profile/professional?tab=documents" : "/profile/clinic?tab=documents",
         color: "destructive",
       };
     }

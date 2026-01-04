@@ -25,6 +25,7 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsGrid from "@/components/dashboard/StatsGrid";
 import OnboardingBanner from "@/components/dashboard/OnboardingBanner";
 import CreateShiftModal from "@/components/clinic/CreateShiftModal";
+import ShiftManageModal from "@/components/clinic/ShiftManageModal";
 
 interface Shift {
   id: string;
@@ -34,6 +35,8 @@ interface Shift {
   start_time: string;
   end_time: string;
   hourly_rate: number;
+  location_address: string | null;
+  description: string | null;
   is_filled: boolean;
   is_urgent: boolean;
 }
@@ -58,6 +61,9 @@ const ClinicDashboard = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateShift, setShowCreateShift] = useState(false);
+  const [showManageShift, setShowManageShift] = useState(false);
+  const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
+  const [monthlySpend, setMonthlySpend] = useState(0);
   const { user, userRole, signOut, isLoading: authLoading, isOnboardingComplete } = useAuth();
   const navigate = useNavigate();
 
@@ -114,6 +120,35 @@ const ClinicDashboard = () => {
           if (shiftsData) {
             setShifts(shiftsData);
           }
+
+          // Fetch completed bookings for this clinic this month to calculate spend
+          const startOfMonth = new Date();
+          startOfMonth.setDate(1);
+          startOfMonth.setHours(0, 0, 0, 0);
+
+          const { data: bookingsData } = await supabase
+            .from("bookings")
+            .select(`
+              id,
+              status,
+              shift:shifts(hourly_rate, start_time, end_time)
+            `)
+            .eq("clinic_id", clinicData.id)
+            .in("status", ["completed", "checked_out"])
+            .gte("created_at", startOfMonth.toISOString());
+
+          if (bookingsData) {
+            let totalSpend = 0;
+            bookingsData.forEach((booking: any) => {
+              if (booking.shift) {
+                const [startH, startM] = booking.shift.start_time.split(":").map(Number);
+                const [endH, endM] = booking.shift.end_time.split(":").map(Number);
+                const hours = (endH * 60 + endM - startH * 60 - startM) / 60;
+                totalSpend += (hours > 0 ? hours : 24 + hours) * booking.shift.hourly_rate;
+              }
+            });
+            setMonthlySpend(totalSpend);
+          }
         }
 
         // Fetch clinic documents
@@ -154,8 +189,8 @@ const ClinicDashboard = () => {
 
   const stats = [
     { label: "Active Shifts", value: activeShifts.toString(), icon: Calendar },
-    { label: "This Month Spend", value: "$0", icon: DollarSign },
-    { label: "Staff Rating", value: clinic?.rating_avg ? `${clinic.rating_avg}★` : "N/A", icon: Star },
+    { label: "This Month Spend", value: `$${monthlySpend.toFixed(0)}`, icon: DollarSign },
+    { label: "Staff Rating", value: clinic?.rating_avg ? `${clinic.rating_avg.toFixed(1)}★` : "N/A", icon: Star },
     { label: "Fill Rate", value: shifts.length > 0 ? `${Math.round((shifts.filter(s => s.is_filled).length / shifts.length) * 100)}%` : "0%", icon: Users },
   ];
 
@@ -219,7 +254,7 @@ const ClinicDashboard = () => {
                 <p className="text-sm text-muted-foreground">Upload your business documents to start posting shifts.</p>
               </div>
               <Button asChild className="bg-accent hover:bg-accent/90">
-                <Link to="/onboarding/clinic">
+                <Link to="/profile/clinic?tab=documents">
                   <Upload className="w-4 h-4 mr-2" />
                   Upload Documents
                 </Link>
@@ -257,7 +292,7 @@ const ClinicDashboard = () => {
                 </Button>
               ) : (
                 <Button asChild className="bg-accent hover:bg-accent/90">
-                  <Link to="/onboarding/clinic">
+                  <Link to="/profile/clinic?tab=documents">
                     <FileText className="w-4 h-4 mr-2" />
                     Complete Verification
                   </Link>
@@ -273,6 +308,10 @@ const ClinicDashboard = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 + index * 0.05 }}
                   className="bg-card rounded-xl border border-border p-4 shadow-card hover:shadow-card-hover transition-shadow cursor-pointer"
+                  onClick={() => {
+                    setSelectedShift(shift);
+                    setShowManageShift(true);
+                  }}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
@@ -324,6 +363,14 @@ const ClinicDashboard = () => {
           onSuccess={fetchShifts}
         />
       )}
+
+      {/* Manage Shift Modal */}
+      <ShiftManageModal
+        open={showManageShift}
+        onOpenChange={setShowManageShift}
+        shift={selectedShift}
+        onUpdate={fetchShifts}
+      />
     </div>
   );
 };
