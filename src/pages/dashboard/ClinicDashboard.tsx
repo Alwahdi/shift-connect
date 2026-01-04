@@ -15,12 +15,12 @@ import {
   Loader2,
   FileText,
   Upload,
-  Building2,
-  Settings
+  Building2
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsGrid from "@/components/dashboard/StatsGrid";
 import OnboardingBanner from "@/components/dashboard/OnboardingBanner";
@@ -56,6 +56,7 @@ interface Document {
 }
 
 const ClinicDashboard = () => {
+  const { t } = useTranslation();
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [clinic, setClinic] = useState<Clinic | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -188,10 +189,10 @@ const ClinicDashboard = () => {
   const activeShifts = shifts.filter(s => !s.is_filled).length;
 
   const stats = [
-    { label: "Active Shifts", value: activeShifts.toString(), icon: Calendar },
-    { label: "This Month Spend", value: `$${monthlySpend.toFixed(0)}`, icon: DollarSign },
-    { label: "Staff Rating", value: clinic?.rating_avg ? `${clinic.rating_avg.toFixed(1)}★` : "N/A", icon: Star },
-    { label: "Fill Rate", value: shifts.length > 0 ? `${Math.round((shifts.filter(s => s.is_filled).length / shifts.length) * 100)}%` : "0%", icon: Users },
+    { label: t("dashboard.activeShifts"), value: activeShifts.toString(), icon: Calendar },
+    { label: t("dashboard.stats.totalSpend"), value: `$${monthlySpend.toFixed(0)}`, icon: DollarSign },
+    { label: t("dashboard.stats.avgRating"), value: clinic?.rating_avg ? `${clinic.rating_avg.toFixed(1)}★` : "N/A", icon: Star },
+    { label: t("dashboard.stats.fillRate"), value: shifts.length > 0 ? `${Math.round((shifts.filter(s => s.is_filled).length / shifts.length) * 100)}%` : "0%", icon: Users },
   ];
 
   const canPostShifts = clinic?.verification_status === "verified" || totalDocs > 0;
@@ -208,14 +209,14 @@ const ClinicDashboard = () => {
           className="flex items-center justify-between mb-6 flex-wrap gap-4"
         >
           <div>
-            <h1 className="text-2xl font-bold text-foreground mb-1">{clinic?.name || "Your Clinic"}</h1>
-            <p className="text-muted-foreground">Manage your shifts and staff needs.</p>
+            <h1 className="text-2xl font-bold text-foreground mb-1">{clinic?.name || t("nav.forClinics")}</h1>
+            <p className="text-muted-foreground">{t("dashboard.noShiftsDesc")}</p>
           </div>
           <div className="flex gap-3">
             <Button asChild variant="outline">
               <Link to="/profile/clinic">
-                <Building2 className="w-4 h-4 mr-2" />
-                Clinic Profile
+                <Building2 className="w-4 h-4 me-2" />
+                {t("profile.clinicInfo")}
               </Link>
             </Button>
             <Button 
@@ -225,8 +226,8 @@ const ClinicDashboard = () => {
               onClick={() => setShowCreateShift(true)}
               className="bg-accent hover:bg-accent/90"
             >
-              <Plus className="w-5 h-5 mr-2" />
-              Post New Shift
+              <Plus className="w-5 h-5 me-2" />
+              {t("shifts.create")}
             </Button>
           </div>
         </motion.div>
@@ -250,13 +251,13 @@ const ClinicDashboard = () => {
           >
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
-                <h3 className="font-semibold text-foreground mb-1">Get Verified to Post Shifts</h3>
-                <p className="text-sm text-muted-foreground">Upload your business documents to start posting shifts.</p>
+                <h3 className="font-semibold text-foreground mb-1">{t("dashboard.needsVerification")}</h3>
+                <p className="text-sm text-muted-foreground">{t("onboarding.incompleteDesc")}</p>
               </div>
               <Button asChild className="bg-accent hover:bg-accent/90">
                 <Link to="/profile/clinic?tab=documents">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload Documents
+                  <Upload className="w-4 h-4 me-2" />
+                  {t("profile.uploadDocument")}
                 </Link>
               </Button>
             </div>
@@ -273,28 +274,28 @@ const ClinicDashboard = () => {
           transition={{ delay: 0.2 }}
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">Your Shifts</h2>
+            <h2 className="text-lg font-semibold text-foreground">{t("dashboard.myShifts")}</h2>
           </div>
 
           {shifts.length === 0 ? (
             <div className="bg-card rounded-xl border border-border p-8 text-center shadow-card">
               <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-medium text-foreground mb-2">No shifts posted yet</h3>
+              <h3 className="font-medium text-foreground mb-2">{t("dashboard.noShifts")}</h3>
               <p className="text-sm text-muted-foreground mb-4">
                 {canPostShifts 
-                  ? "Post your first shift to start finding verified professionals."
-                  : "Upload your business documents to start posting shifts."}
+                  ? t("dashboard.noShiftsDesc")
+                  : t("dashboard.needsVerification")}
               </p>
               {canPostShifts ? (
                 <Button className="bg-accent hover:bg-accent/90" onClick={() => setShowCreateShift(true)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Post Your First Shift
+                  <Plus className="w-4 h-4 me-2" />
+                  {t("shifts.create")}
                 </Button>
               ) : (
                 <Button asChild className="bg-accent hover:bg-accent/90">
                   <Link to="/profile/clinic?tab=documents">
-                    <FileText className="w-4 h-4 mr-2" />
-                    Complete Verification
+                    <FileText className="w-4 h-4 me-2" />
+                    {t("dashboard.completeOnboarding")}
                   </Link>
                 </Button>
               )}
@@ -319,16 +320,16 @@ const ClinicDashboard = () => {
                         <h3 className="font-medium text-foreground">{shift.role_required}</h3>
                         {shift.is_filled ? (
                           <Badge className="bg-success/10 text-success border-success/20">
-                            <CheckCircle2 className="w-3 h-3 mr-1" />
-                            Filled
+                            <CheckCircle2 className="w-3 h-3 me-1" />
+                            {t("shifts.filled")}
                           </Badge>
                         ) : shift.is_urgent ? (
                           <Badge variant="destructive">
-                            <AlertCircle className="w-3 h-3 mr-1" />
-                            Urgent
+                            <AlertCircle className="w-3 h-3 me-1" />
+                            {t("common.urgent")}
                           </Badge>
                         ) : (
-                          <Badge variant="secondary">Open</Badge>
+                          <Badge variant="secondary">{t("shifts.apply")}</Badge>
                         )}
                       </div>
                       <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">

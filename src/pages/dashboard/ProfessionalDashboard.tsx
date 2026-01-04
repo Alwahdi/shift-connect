@@ -24,6 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsGrid from "@/components/dashboard/StatsGrid";
 import OnboardingBanner from "@/components/dashboard/OnboardingBanner";
@@ -82,6 +83,7 @@ const ROLE_OPTIONS = [
 ];
 
 const ProfessionalDashboard = () => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -261,10 +263,10 @@ const ProfessionalDashboard = () => {
   const totalDocs = documents.length;
 
   const stats = [
-    { label: "This Month", value: `$${monthlyEarnings.toFixed(0)}`, icon: DollarSign },
-    { label: "Shifts Completed", value: completedShifts.toString(), icon: Calendar },
-    { label: "Avg Rating", value: profile?.rating_avg ? `${profile.rating_avg.toFixed(1)}★` : "N/A", icon: Star },
-    { label: "Documents", value: `${totalDocs}`, icon: FileText },
+    { label: t("dashboard.stats.monthlyEarnings"), value: `$${monthlyEarnings.toFixed(0)}`, icon: DollarSign },
+    { label: t("dashboard.stats.shiftsCompleted"), value: completedShifts.toString(), icon: Calendar },
+    { label: t("dashboard.stats.avgRating"), value: profile?.rating_avg ? `${profile.rating_avg.toFixed(1)}★` : "N/A", icon: Star },
+    { label: t("dashboard.stats.documents"), value: `${totalDocs}`, icon: FileText },
   ];
 
   return (
@@ -280,14 +282,14 @@ const ProfessionalDashboard = () => {
         >
           <div>
             <h1 className="text-2xl font-bold text-foreground mb-1">
-              Welcome back, {profile?.full_name?.split(" ")[0] || "Professional"}!
+              {t("dashboard.welcome")}, {profile?.full_name?.split(" ")[0] || ""}!
             </h1>
-            <p className="text-muted-foreground">Find your next shift or check your upcoming bookings.</p>
+            <p className="text-muted-foreground">{t("dashboard.noShiftsDesc")}</p>
           </div>
           <Button asChild variant="outline">
             <Link to="/profile/professional">
-              <User className="w-4 h-4 mr-2" />
-              My Profile
+              <User className="w-4 h-4 me-2" />
+              {t("nav.profile")}
             </Link>
           </Button>
         </motion.div>
@@ -311,13 +313,13 @@ const ProfessionalDashboard = () => {
           >
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
-                <h3 className="font-semibold text-foreground mb-1">Get Verified to Apply for Shifts</h3>
-                <p className="text-sm text-muted-foreground">Upload your credentials to start receiving shift opportunities.</p>
+                <h3 className="font-semibold text-foreground mb-1">{t("dashboard.needsVerification")}</h3>
+                <p className="text-sm text-muted-foreground">{t("onboarding.incompleteDesc")}</p>
               </div>
               <Button asChild>
                 <Link to="/profile/professional?tab=documents">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload Documents
+                  <Upload className="w-4 h-4 me-2" />
+                  {t("profile.uploadDocument")}
                 </Link>
               </Button>
             </div>
@@ -334,11 +336,11 @@ const ProfessionalDashboard = () => {
           transition={{ delay: 0.3 }}
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">Available Shifts</h2>
+            <h2 className="text-lg font-semibold text-foreground">{t("dashboard.availableShifts")}</h2>
             {hasActiveFilters && (
               <Button variant="ghost" size="sm" onClick={clearFilters}>
-                <X className="w-4 h-4 mr-1" />
-                Clear Filters
+                <X className="w-4 h-4 me-1" />
+                {t("dashboard.filters.clearFilters")}
               </Button>
             )}
           </div>
@@ -346,12 +348,12 @@ const ProfessionalDashboard = () => {
           {/* Search & Filter */}
           <div className="flex gap-3 mb-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Search shifts..."
+                placeholder={t("dashboard.search.placeholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
+                className="ps-9"
               />
             </div>
             <Popover open={showFilters} onOpenChange={setShowFilters}>
@@ -362,10 +364,10 @@ const ProfessionalDashboard = () => {
               </PopoverTrigger>
               <PopoverContent className="w-72" align="end">
                 <div className="space-y-4">
-                  <h4 className="font-medium text-foreground">Filter Shifts</h4>
+                  <h4 className="font-medium text-foreground">{t("common.filter")}</h4>
                   
                   <div className="space-y-2">
-                    <label className="text-sm text-muted-foreground">Role</label>
+                    <label className="text-sm text-muted-foreground">{t("dashboard.filters.role")}</label>
                     <Select value={filters.role} onValueChange={(value) => setFilters({ ...filters, role: value })}>
                       <SelectTrigger>
                         <SelectValue />
@@ -379,7 +381,7 @@ const ProfessionalDashboard = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm text-muted-foreground">Minimum Rate ($/hr)</label>
+                    <label className="text-sm text-muted-foreground">{t("dashboard.filters.minRate")}</label>
                     <Input
                       type="number"
                       placeholder="e.g. 30"
@@ -389,7 +391,7 @@ const ProfessionalDashboard = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm text-muted-foreground">Date Range</label>
+                    <label className="text-sm text-muted-foreground">{t("dashboard.filters.dateRange")}</label>
                     <Select value={filters.dateRange} onValueChange={(value) => setFilters({ ...filters, dateRange: value })}>
                       <SelectTrigger>
                         <SelectValue />
@@ -404,7 +406,7 @@ const ProfessionalDashboard = () => {
                   </div>
 
                   <Button variant="outline" className="w-full" onClick={clearFilters}>
-                    Clear Filters
+                    {t("dashboard.filters.clearFilters")}
                   </Button>
                 </div>
               </PopoverContent>
@@ -415,13 +417,13 @@ const ProfessionalDashboard = () => {
           {shifts.length === 0 ? (
             <div className="bg-card rounded-xl border border-border p-8 text-center shadow-card">
               <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-medium text-foreground mb-2">No shifts available</h3>
+              <h3 className="font-medium text-foreground mb-2">{t("dashboard.noShifts")}</h3>
               <p className="text-sm text-muted-foreground">
                 {profile?.verification_status !== "verified" 
-                  ? "Complete your verification to see available shifts."
+                  ? t("dashboard.needsVerification")
                   : hasActiveFilters
-                    ? "No shifts match your filters. Try adjusting your criteria."
-                    : "Check back soon for new opportunities in your area."}
+                    ? t("dashboard.noShiftsDesc")
+                    : t("dashboard.noShiftsDesc")}
               </p>
             </div>
           ) : (
@@ -449,9 +451,9 @@ const ProfessionalDashboard = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-medium text-foreground truncate">{shift.clinic?.name || "Clinic"}</h3>
+                          <h3 className="font-medium text-foreground truncate">{shift.clinic?.name || t("nav.forClinics")}</h3>
                           {shift.is_urgent && (
-                            <Badge variant="destructive" className="text-xs">Urgent</Badge>
+                            <Badge variant="destructive" className="text-xs">{t("common.urgent")}</Badge>
                           )}
                         </div>
                         <p className="text-sm text-muted-foreground mb-2">{shift.role_required}</p>

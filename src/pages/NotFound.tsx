@@ -2,8 +2,11 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Heart, Home, Search, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 const NotFound = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
@@ -45,24 +48,23 @@ const NotFound = () => {
             transition={{ delay: 0.2 }}
           >
             <h1 className="text-3xl font-bold text-foreground mb-4">
-              Page Not Found
+              {t("location.noResults")}
             </h1>
             <p className="text-muted-foreground mb-8 text-lg">
-              Oops! The page you're looking for seems to have wandered off. 
-              Let's get you back on track.
+              {t("dashboard.noShiftsDesc")}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg">
                 <Link to="/">
-                  <Home className="w-5 h-5 mr-2" />
-                  Go Home
+                  <Home className="w-5 h-5 me-2" />
+                  {t("nav.home")}
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" onClick={() => window.history.back()}>
                 <button>
-                  <ArrowLeft className="w-5 h-5 mr-2" />
-                  Go Back
+                  <ArrowLeft className="w-5 h-5 me-2 rtl-flip" />
+                  {t("common.back")}
                 </button>
               </Button>
             </div>
@@ -74,19 +76,19 @@ const NotFound = () => {
             transition={{ delay: 0.4 }}
             className="mt-12 p-6 rounded-2xl bg-card border border-border"
           >
-            <h3 className="font-semibold text-foreground mb-4">Looking for something?</h3>
+            <h3 className="font-semibold text-foreground mb-4">{t("common.seeMore")}</h3>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <Link to="/" className="p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-foreground">
-                Home
+                {t("nav.home")}
               </Link>
               <Link to="/for-professionals" className="p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-foreground">
-                For Professionals
+                {t("nav.forProfessionals")}
               </Link>
               <Link to="/for-clinics" className="p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-foreground">
-                For Clinics
+                {t("nav.forClinics")}
               </Link>
               <Link to="/auth" className="p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-foreground">
-                Login
+                {t("common.logIn")}
               </Link>
             </div>
           </motion.div>
@@ -95,7 +97,7 @@ const NotFound = () => {
 
       {/* Footer */}
       <footer className="py-6 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} SyndeoCare. All rights reserved.
+        {t("footer.copyright", { year: new Date().getFullYear() })}
       </footer>
     </div>
   );
