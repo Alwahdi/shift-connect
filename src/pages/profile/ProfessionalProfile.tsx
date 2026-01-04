@@ -28,7 +28,7 @@ import {
   Briefcase,
   AlertCircle
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -76,11 +76,12 @@ interface DocumentUpload {
 
 const ProfessionalProfile = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, userRole, signOut, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "profile");
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
