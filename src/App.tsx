@@ -19,6 +19,9 @@ import ClinicDashboard from "./pages/dashboard/ClinicDashboard";
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import ProfessionalProfile from "./pages/profile/ProfessionalProfile";
 import ClinicProfile from "./pages/profile/ClinicProfile";
+import ViewProfessionalProfile from "./pages/profile/ViewProfessionalProfile";
+import ViewClinicProfile from "./pages/profile/ViewClinicProfile";
+import ShiftSearch from "./pages/shifts/ShiftSearch";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +50,9 @@ const App = () => (
               <Route path="/dashboard/clinic" element={<ClinicDashboard />} />
               <Route path="/profile/professional" element={<ProfessionalProfile />} />
               <Route path="/profile/clinic" element={<ClinicProfile />} />
+              <Route path="/professional/:id" element={<ViewProfessionalProfile />} />
+              <Route path="/clinic/:id" element={<ViewClinicProfile />} />
+              <Route path="/shifts" element={<ShiftSearch />} />
               <Route path="/admin" element={<AdminDashboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

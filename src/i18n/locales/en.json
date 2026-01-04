@@ -37,6 +37,7 @@
   },
   "nav": {
     "home": "Home",
+    "findShifts": "Find Shifts",
     "forProfessionals": "For Professionals",
     "forClinics": "For Clinics",
     "about": "About",
@@ -494,6 +495,27 @@
     "locationError": "Could not detect location",
     "permissionDenied": "Location permission denied",
     "noResults": "No results found"
+  },
+  "viewProfile": {
+    "notFound": "Professional not found",
+    "clinicNotFound": "Clinic not found",
+    "about": "About",
+    "aboutClinic": "About This Clinic",
+    "contactInfo": "Contact Information",
+    "reviews": "reviews",
+    "openShifts": "Open Shifts",
+    "availableForShifts": "Available for Shifts",
+    "viewProfile": "View Profile"
+  },
+  "shiftSearch": {
+    "title": "Find Shifts",
+    "subtitle": "Browse available shifts from verified healthcare facilities near you.",
+    "resultsCount": "{{count}} shifts found",
+    "noResults": "Try adjusting your filters or search terms.",
+    "allUpcoming": "All Upcoming",
+    "today": "Today",
+    "thisWeek": "This Week",
+    "thisMonth": "This Month"
   },
   "notFound": {
     "title": "Page Not Found",
