@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 interface Shift {
   id: string;
@@ -55,6 +56,8 @@ const ShiftDetailModal = ({
   verificationStatus,
   onApplicationSuccess,
 }: ShiftDetailModalProps) => {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
   const [isApplying, setIsApplying] = useState(false);
   const [hasApplied, setHasApplied] = useState(false);
   const { toast } = useToast();
@@ -67,8 +70,8 @@ const ShiftDetailModal = ({
     if (!isVerified) {
       toast({
         variant: "destructive",
-        title: "Verification Required",
-        description: "You must be verified to apply for shifts.",
+        title: t("shifts.modal.verificationRequired"),
+        description: t("shifts.modal.verificationRequiredDesc"),
       });
       return;
     }
@@ -86,8 +89,8 @@ const ShiftDetailModal = ({
       if (existing) {
         toast({
           variant: "destructive",
-          title: "Already Applied",
-          description: "You have already applied for this shift.",
+          title: t("shifts.modal.alreadyApplied"),
+          description: t("shifts.modal.alreadyAppliedDesc"),
         });
         setHasApplied(true);
         return;
@@ -106,8 +109,8 @@ const ShiftDetailModal = ({
       if (error) throw error;
 
       toast({
-        title: "Application Submitted",
-        description: "Your application has been sent to the clinic.",
+        title: t("shifts.applySuccess"),
+        description: t("shifts.modal.applicantAcceptedDesc"),
       });
 
       setHasApplied(true);
@@ -115,7 +118,7 @@ const ShiftDetailModal = ({
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Application Failed",
+        title: t("shifts.applyError"),
         description: error.message,
       });
     } finally {
@@ -134,12 +137,12 @@ const ShiftDetailModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg" dir={isRTL ? "rtl" : "ltr"}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {shift.clinic.name}
             {shift.is_urgent && (
-              <Badge variant="destructive" className="text-xs">Urgent</Badge>
+              <Badge variant="destructive" className="text-xs">{t("common.urgent")}</Badge>
             )}
           </DialogTitle>
           <DialogDescription>{shift.role_required}</DialogDescription>
@@ -151,10 +154,10 @@ const ShiftDetailModal = ({
             <div className="bg-secondary/50 rounded-lg p-3">
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
                 <Calendar className="w-4 h-4" />
-                Date
+                {t("shifts.date")}
               </div>
               <p className="font-medium text-foreground">
-                {new Date(shift.shift_date).toLocaleDateString("en-US", {
+                {new Date(shift.shift_date).toLocaleDateString(isRTL ? "ar-SA" : "en-US", {
                   weekday: "short",
                   month: "short",
                   day: "numeric",
@@ -164,7 +167,7 @@ const ShiftDetailModal = ({
             <div className="bg-secondary/50 rounded-lg p-3">
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
                 <Clock className="w-4 h-4" />
-                Time
+                {t("shifts.time")}
               </div>
               <p className="font-medium text-foreground">
                 {shift.start_time} - {shift.end_time}
@@ -173,14 +176,14 @@ const ShiftDetailModal = ({
             <div className="bg-secondary/50 rounded-lg p-3">
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
                 <DollarSign className="w-4 h-4" />
-                Rate
+                {t("shifts.rate")}
               </div>
-              <p className="font-medium text-foreground">${shift.hourly_rate}/hr</p>
+              <p className="font-medium text-foreground">${shift.hourly_rate}{t("common.perHour")}</p>
             </div>
             <div className="bg-primary/10 rounded-lg p-3">
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
                 <DollarSign className="w-4 h-4 text-primary" />
-                Estimated
+                {t("shifts.modal.estimated")}
               </div>
               <p className="font-bold text-primary">${estimatedEarnings}</p>
             </div>
@@ -191,7 +194,7 @@ const ShiftDetailModal = ({
             <div className="flex items-start gap-3">
               <MapPin className="w-5 h-5 text-muted-foreground mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-foreground">Location</p>
+                <p className="text-sm font-medium text-foreground">{t("shifts.location")}</p>
                 <p className="text-sm text-muted-foreground">{shift.location_address}</p>
               </div>
             </div>
@@ -202,7 +205,7 @@ const ShiftDetailModal = ({
             <>
               <Separator />
               <div>
-                <p className="text-sm font-medium text-foreground mb-2">Description</p>
+                <p className="text-sm font-medium text-foreground mb-2">{t("shifts.description")}</p>
                 <p className="text-sm text-muted-foreground">{shift.description}</p>
               </div>
             </>
@@ -215,7 +218,7 @@ const ShiftDetailModal = ({
               <div>
                 <p className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
                   <FileText className="w-4 h-4" />
-                  Required Certifications
+                  {t("shifts.fields.requiredCertifications")}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {shift.required_certifications.map((cert, i) => (
@@ -250,9 +253,9 @@ const ShiftDetailModal = ({
             <div className="bg-warning/10 border border-warning/20 rounded-lg p-4 flex items-start gap-3">
               <Shield className="w-5 h-5 text-warning mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-foreground">Verification Required</p>
+                <p className="text-sm font-medium text-foreground">{t("shifts.modal.verificationRequired")}</p>
                 <p className="text-sm text-muted-foreground">
-                  Complete your verification to apply for shifts.
+                  {t("shifts.modal.verificationRequiredDesc")}
                 </p>
               </div>
             </div>
@@ -261,7 +264,7 @@ const ShiftDetailModal = ({
           {/* Action Button */}
           <div className="flex gap-3 pt-2">
             <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
-              Close
+              {t("common.close")}
             </Button>
             <Button
               className="flex-1"
@@ -270,16 +273,16 @@ const ShiftDetailModal = ({
             >
               {isApplying ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Applying...
+                  <Loader2 className="w-4 h-4 me-2 animate-spin" />
+                  {t("shifts.modal.applying")}
                 </>
               ) : hasApplied ? (
                 <>
-                  <CheckCircle2 className="w-4 h-4 mr-2" />
-                  Applied
+                  <CheckCircle2 className="w-4 h-4 me-2" />
+                  {t("shifts.applied")}
                 </>
               ) : (
-                "Apply for Shift"
+                t("shifts.modal.applyForShift")
               )}
             </Button>
           </div>

@@ -8,6 +8,7 @@ import {
   MapPin,
   Loader2 
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface Applicant {
   id: string;
@@ -32,18 +33,19 @@ interface ApplicantCardProps {
 }
 
 const ApplicantCard = ({ applicant, isUpdating, onAccept, onDecline }: ApplicantCardProps) => {
+  const { t } = useTranslation();
   const { professional } = applicant;
   
   const getStatusBadge = () => {
     switch (applicant.status) {
       case "accepted":
       case "confirmed":
-        return <Badge className="bg-success/10 text-success border-success/20"><CheckCircle2 className="w-3 h-3 mr-1" />Accepted</Badge>;
+        return <Badge className="bg-success/10 text-success border-success/20"><CheckCircle2 className="w-3 h-3 me-1" />{t("applicant.accepted")}</Badge>;
       case "declined":
-        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />Declined</Badge>;
+        return <Badge variant="destructive"><XCircle className="w-3 h-3 me-1" />{t("applicant.declined")}</Badge>;
       case "requested":
       default:
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary">{t("applicant.pending")}</Badge>;
     }
   };
 
@@ -62,13 +64,13 @@ const ApplicantCard = ({ applicant, isUpdating, onAccept, onDecline }: Applicant
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
             <h4 className="font-medium text-foreground truncate">{professional.full_name}</h4>
             {getStatusBadge()}
             {professional.verification_status === "verified" && (
               <Badge variant="outline" className="text-xs text-success border-success/20">
-                <CheckCircle2 className="w-3 h-3 mr-1" />
-                Verified
+                <CheckCircle2 className="w-3 h-3 me-1" />
+                {t("common.verified")}
               </Badge>
             )}
           </div>
@@ -118,7 +120,7 @@ const ApplicantCard = ({ applicant, isUpdating, onAccept, onDecline }: Applicant
               disabled={isUpdating}
               className="bg-success hover:bg-success/90"
             >
-              {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CheckCircle2 className="w-4 h-4 mr-1" />Accept</>}
+              {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CheckCircle2 className="w-4 h-4 me-1" />{t("applicant.accept")}</>}
             </Button>
           </div>
         )}

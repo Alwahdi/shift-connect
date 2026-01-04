@@ -26,13 +26,16 @@ import { useToast } from "@/hooks/use-toast";
 import OnboardingProgress from "@/components/onboarding/OnboardingProgress";
 import DocumentUploadCard from "@/components/onboarding/DocumentUploadCard";
 import AvatarUpload from "@/components/onboarding/AvatarUpload";
+import LocationPicker from "@/components/location/LocationPicker";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 
 type Step = "profile" | "qualifications" | "documents" | "complete";
 
 interface DocumentUpload {
   type: "id" | "license" | "certification";
-  name: string;
-  description: string;
+  nameKey: string;
+  descKey: string;
   required: boolean;
   file: File | null;
   uploading: boolean;
@@ -43,6 +46,8 @@ interface DocumentUpload {
 
 const ProfessionalOnboarding = () => {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
   const { user, userRole, isLoading: authLoading, refreshOnboardingStatus } = useAuth();
   const { toast } = useToast();
   
@@ -57,6 +62,8 @@ const ProfessionalOnboarding = () => {
     phone: "",
     bio: "",
     location_address: "",
+    location_lat: null as number | null,
+    location_lng: null as number | null,
     hourly_rate: "",
   });
   
@@ -68,16 +75,16 @@ const ProfessionalOnboarding = () => {
   });
   
   const [documents, setDocuments] = useState<DocumentUpload[]>([
-    { type: "id", name: "Government ID", description: "Passport, driver's license, or national ID", required: true, file: null, uploading: false, uploaded: false },
-    { type: "license", name: "Professional License", description: "Your nursing or healthcare license", required: true, file: null, uploading: false, uploaded: false },
-    { type: "certification", name: "Certifications", description: "ACLS, BLS, or other certifications", required: false, file: null, uploading: false, uploaded: false },
+    { type: "id", nameKey: "documents.governmentId", descKey: "documents.governmentIdDesc", required: true, file: null, uploading: false, uploaded: false },
+    { type: "license", nameKey: "documents.professionalLicense", descKey: "documents.professionalLicenseDesc", required: true, file: null, uploading: false, uploaded: false },
+    { type: "certification", nameKey: "documents.certifications", descKey: "documents.certificationsDesc", required: false, file: null, uploading: false, uploaded: false },
   ]);
 
   const steps: { key: Step; label: string; icon: React.ElementType }[] = [
-    { key: "profile", label: "Profile", icon: User },
-    { key: "qualifications", label: "Qualifications", icon: Briefcase },
-    { key: "documents", label: "Documents", icon: FileText },
-    { key: "complete", label: "Complete", icon: CheckCircle2 },
+    { key: "profile", label: t("onboarding.steps.profile"), icon: User },
+    { key: "qualifications", label: t("onboarding.steps.qualifications"), icon: Briefcase },
+    { key: "documents", label: t("onboarding.steps.documents"), icon: FileText },
+    { key: "complete", label: t("onboarding.steps.complete"), icon: CheckCircle2 },
   ];
 
   useEffect(() => {
@@ -103,6 +110,8 @@ const ProfessionalOnboarding = () => {
           phone: data.phone || "",
           bio: data.bio || "",
           location_address: data.location_address || "",
+          location_lat: data.location_lat,
+          location_lng: data.location_lng,
           hourly_rate: data.hourly_rate?.toString() || "",
         });
         setQualifications({
@@ -124,7 +133,6 @@ const ProfessionalOnboarding = () => {
 
       if (docs) {
         setExistingDocs(docs);
-        // Update document state with existing uploads
         setDocuments(prev => prev.map(doc => {
           const existing = docs.find(d => d.document_type === doc.type);
           if (existing) {
@@ -167,11 +175,9 @@ const ProfessionalOnboarding = () => {
 
       if (uploadError) throw uploadError;
 
-      // Check if document of this type already exists
       const existingDoc = existingDocs.find(d => d.document_type === doc.type);
       
       if (existingDoc) {
-        // Update existing document
         const { error: dbError } = await supabase
           .from("documents")
           .update({
@@ -184,13 +190,12 @@ const ProfessionalOnboarding = () => {
 
         if (dbError) throw dbError;
       } else {
-        // Create new document record
         const { error: dbError } = await supabase
           .from("documents")
           .insert({
             user_id: user.id,
             document_type: doc.type,
-            name: doc.name,
+            name: t(doc.nameKey),
             file_url: fileName,
             status: "pending",
           });
@@ -202,15 +207,15 @@ const ProfessionalOnboarding = () => {
       setDocuments(newDocs);
 
       toast({
-        title: "Document uploaded",
-        description: `${doc.name} has been uploaded for verification.`,
+        title: t("documents.documentUploaded"),
+        description: t("documents.documentUploadedDesc", { name: t(doc.nameKey) }),
       });
     } catch (error: any) {
       newDocs[index] = { ...newDocs[index], uploading: false };
       setDocuments(newDocs);
       toast({
         variant: "destructive",
-        title: "Upload failed",
+        title: t("documents.uploadFailed"),
         description: error.message,
       });
     }
@@ -220,19 +225,27 @@ const ProfessionalOnboarding = () => {
     if (!user) return;
     setAvatarUrl(url);
     
-    // Save to database
     await supabase
       .from("profiles")
       .update({ avatar_url: url })
       .eq("user_id", user.id);
   };
 
+  const handleLocationChange = (location: { address: string; lat: number | null; lng: number | null }) => {
+    setProfileData({
+      ...profileData,
+      location_address: location.address,
+      location_lat: location.lat,
+      location_lng: location.lng,
+    });
+  };
+
   const saveProfile = async () => {
     if (!user || !profileData.full_name.trim()) {
       toast({
         variant: "destructive",
-        title: "Name required",
-        description: "Please enter your full name.",
+        title: t("auth.errors.nameRequired"),
+        description: t("onboarding.fields.fullName"),
       });
       return;
     }
@@ -246,6 +259,8 @@ const ProfessionalOnboarding = () => {
           phone: profileData.phone.trim(),
           bio: profileData.bio.trim(),
           location_address: profileData.location_address.trim(),
+          location_lat: profileData.location_lat,
+          location_lng: profileData.location_lng,
           hourly_rate: profileData.hourly_rate ? parseFloat(profileData.hourly_rate) : null,
           avatar_url: avatarUrl,
         })
@@ -256,7 +271,7 @@ const ProfessionalOnboarding = () => {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error saving profile",
+        title: t("common.error"),
         description: error.message,
       });
     } finally {
@@ -282,7 +297,7 @@ const ProfessionalOnboarding = () => {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error saving qualifications",
+        title: t("common.error"),
         description: error.message,
       });
     } finally {
@@ -293,15 +308,14 @@ const ProfessionalOnboarding = () => {
   const completeOnboarding = async () => {
     if (!user) return;
     
-    // Check required documents
     const requiredDocs = documents.filter(d => d.required);
     const uploadedRequired = requiredDocs.filter(d => d.uploaded);
     
     if (uploadedRequired.length < requiredDocs.length) {
       toast({
         variant: "destructive",
-        title: "Required documents missing",
-        description: "Please upload all required documents before completing.",
+        title: t("documents.missingDocuments"),
+        description: t("documents.missingDocumentsDesc"),
       });
       return;
     }
@@ -320,7 +334,7 @@ const ProfessionalOnboarding = () => {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error completing onboarding",
+        title: t("common.error"),
         description: error.message,
       });
     } finally {
@@ -367,17 +381,18 @@ const ProfessionalOnboarding = () => {
   const totalRequiredDocs = documents.filter(d => d.required).length;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" dir={isRTL ? "rtl" : "ltr"}>
       {/* Header */}
       <header className="bg-card border-b border-border">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center h-16">
+          <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
               <div className="w-9 h-9 rounded-lg gradient-primary flex items-center justify-center">
                 <Heart className="w-5 h-5 text-primary-foreground" />
               </div>
               <span className="font-bold text-xl text-foreground">SyndeoCare.ai</span>
             </div>
+            <LanguageSwitcher variant="text" />
           </div>
         </div>
       </header>
@@ -390,13 +405,13 @@ const ProfessionalOnboarding = () => {
           {currentStep === "profile" && (
             <motion.div
               key="profile"
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
+              exit={{ opacity: 0, x: isRTL ? 20 : -20 }}
               className="bg-card rounded-2xl border border-border p-6 shadow-card"
             >
-              <h2 className="text-2xl font-bold text-foreground mb-2">Complete Your Profile</h2>
-              <p className="text-muted-foreground mb-6">Tell us about yourself so clinics can find you.</p>
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t("onboarding.professional.profileTitle")}</h2>
+              <p className="text-muted-foreground mb-6">{t("onboarding.professional.profileDesc")}</p>
 
               <div className="space-y-5">
                 {/* Profile Picture Upload */}
@@ -411,67 +426,66 @@ const ProfessionalOnboarding = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="full_name">Full Name *</Label>
+                  <Label htmlFor="full_name">{t("onboarding.fields.fullName")} *</Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <User className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       id="full_name"
-                      placeholder="John Doe"
+                      placeholder={t("onboarding.fields.fullNamePlaceholder")}
                       value={profileData.full_name}
                       onChange={(e) => setProfileData({ ...profileData, full_name: e.target.value })}
-                      className="pl-10"
+                      className="ps-10"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
+                  <Label htmlFor="phone">{t("onboarding.fields.phone")}</Label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Phone className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       id="phone"
-                      placeholder="+1 (555) 123-4567"
+                      placeholder={t("onboarding.fields.phonePlaceholder")}
                       value={profileData.phone}
                       onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-                      className="pl-10"
+                      className="ps-10"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="location">Location</Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input
-                      id="location"
-                      placeholder="San Francisco, CA"
-                      value={profileData.location_address}
-                      onChange={(e) => setProfileData({ ...profileData, location_address: e.target.value })}
-                      className="pl-10"
-                    />
-                  </div>
+                  <Label>{t("onboarding.fields.location")}</Label>
+                  <LocationPicker
+                    value={{
+                      address: profileData.location_address,
+                      lat: profileData.location_lat,
+                      lng: profileData.location_lng,
+                    }}
+                    onChange={handleLocationChange}
+                    placeholder={t("onboarding.fields.locationPlaceholder")}
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="hourly_rate">Preferred Hourly Rate ($)</Label>
+                  <Label htmlFor="hourly_rate">{t("onboarding.fields.hourlyRate")}</Label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <DollarSign className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       id="hourly_rate"
                       type="number"
-                      placeholder="55"
+                      placeholder={t("onboarding.fields.hourlyRatePlaceholder")}
                       value={profileData.hourly_rate}
                       onChange={(e) => setProfileData({ ...profileData, hourly_rate: e.target.value })}
-                      className="pl-10"
+                      className="ps-10"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="bio">Bio</Label>
+                  <Label htmlFor="bio">{t("onboarding.fields.bio")}</Label>
                   <Textarea
                     id="bio"
-                    placeholder="Tell clinics about your experience and what makes you a great healthcare professional..."
+                    placeholder={t("onboarding.fields.bioPlaceholder")}
                     value={profileData.bio}
                     onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
                     rows={4}
@@ -488,8 +502,8 @@ const ProfessionalOnboarding = () => {
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
                     <>
-                      Continue
-                      <ArrowRight className="w-5 h-5 ml-2" />
+                      {t("common.continue")}
+                      <ArrowRight className={`w-5 h-5 ${isRTL ? "me-2 rotate-180" : "ms-2"}`} />
                     </>
                   )}
                 </Button>
@@ -500,101 +514,93 @@ const ProfessionalOnboarding = () => {
           {currentStep === "qualifications" && (
             <motion.div
               key="qualifications"
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
+              exit={{ opacity: 0, x: isRTL ? 20 : -20 }}
               className="bg-card rounded-2xl border border-border p-6 shadow-card"
             >
-              <h2 className="text-2xl font-bold text-foreground mb-2">Your Qualifications</h2>
-              <p className="text-muted-foreground mb-6">Add your specialties and qualifications.</p>
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t("onboarding.professional.qualificationsTitle")}</h2>
+              <p className="text-muted-foreground mb-6">{t("onboarding.professional.qualificationsDesc")}</p>
 
               <div className="space-y-6">
                 {/* Specialties */}
                 <div className="space-y-3">
-                  <Label>Specialties</Label>
+                  <Label>{t("onboarding.fields.specialties")}</Label>
                   <div className="flex gap-2">
                     <Input
-                      placeholder="e.g., Critical Care, Pediatrics"
+                      placeholder={t("onboarding.fields.addSpecialty")}
                       value={qualifications.newSpecialty}
                       onChange={(e) => setQualifications({ ...qualifications, newSpecialty: e.target.value })}
-                      onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSpecialty())}
+                      onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addSpecialty())}
                     />
-                    <Button type="button" onClick={addSpecialty} variant="outline">
-                      Add
+                    <Button type="button" variant="secondary" onClick={addSpecialty}>
+                      {t("common.apply")}
                     </Button>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {qualifications.specialties.map((specialty, index) => (
+                    {qualifications.specialties.map((item, i) => (
                       <span
-                        key={index}
-                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm"
+                        key={i}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm"
                       >
-                        {specialty}
-                        <button onClick={() => removeItem("specialties", index)} className="hover:text-primary/70">
-                          <X className="w-3 h-3" />
+                        {item}
+                        <button onClick={() => removeItem("specialties", i)}>
+                          <X className="w-3.5 h-3.5" />
                         </button>
                       </span>
                     ))}
-                    {qualifications.specialties.length === 0 && (
-                      <span className="text-sm text-muted-foreground">No specialties added yet</span>
-                    )}
                   </div>
                 </div>
 
                 {/* Qualifications */}
                 <div className="space-y-3">
-                  <Label>Qualifications & Certifications</Label>
+                  <Label>{t("onboarding.fields.qualifications")}</Label>
                   <div className="flex gap-2">
                     <Input
-                      placeholder="e.g., RN, BSN, ACLS"
+                      placeholder={t("onboarding.fields.addQualification")}
                       value={qualifications.newQualification}
                       onChange={(e) => setQualifications({ ...qualifications, newQualification: e.target.value })}
-                      onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addQualification())}
+                      onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addQualification())}
                     />
-                    <Button type="button" onClick={addQualification} variant="outline">
-                      Add
+                    <Button type="button" variant="secondary" onClick={addQualification}>
+                      {t("common.apply")}
                     </Button>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {qualifications.qualifications.map((qual, index) => (
+                    {qualifications.qualifications.map((item, i) => (
                       <span
-                        key={index}
-                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-secondary text-foreground text-sm"
+                        key={i}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-secondary text-foreground text-sm"
                       >
-                        {qual}
-                        <button onClick={() => removeItem("qualifications", index)} className="hover:text-muted-foreground">
-                          <X className="w-3 h-3" />
+                        {item}
+                        <button onClick={() => removeItem("qualifications", i)}>
+                          <X className="w-3.5 h-3.5" />
                         </button>
                       </span>
                     ))}
-                    {qualifications.qualifications.length === 0 && (
-                      <span className="text-sm text-muted-foreground">No qualifications added yet</span>
-                    )}
                   </div>
                 </div>
 
                 <div className="flex gap-3 pt-4">
                   <Button
                     variant="outline"
-                    className="flex-1"
-                    size="lg"
                     onClick={() => setCurrentStep("profile")}
+                    className="flex-1"
                   >
-                    <ArrowLeft className="w-5 h-5 mr-2" />
-                    Back
+                    <ArrowLeft className={`w-4 h-4 ${isRTL ? "ms-2 rotate-180" : "me-2"}`} />
+                    {t("common.back")}
                   </Button>
                   <Button
-                    className="flex-1"
-                    size="lg"
                     onClick={saveQualifications}
                     disabled={isSubmitting}
+                    className="flex-1"
                   >
                     {isSubmitting ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
                       <>
-                        Continue
-                        <ArrowRight className="w-5 h-5 ml-2" />
+                        {t("common.continue")}
+                        <ArrowRight className={`w-5 h-5 ${isRTL ? "me-2 rotate-180" : "ms-2"}`} />
                       </>
                     )}
                   </Button>
@@ -606,23 +612,21 @@ const ProfessionalOnboarding = () => {
           {currentStep === "documents" && (
             <motion.div
               key="documents"
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
+              exit={{ opacity: 0, x: isRTL ? 20 : -20 }}
               className="bg-card rounded-2xl border border-border p-6 shadow-card"
             >
-              <h2 className="text-2xl font-bold text-foreground mb-2">Upload Documents</h2>
-              <p className="text-muted-foreground mb-6">
-                Upload your verification documents. Required documents are marked with a red badge.
-              </p>
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t("onboarding.professional.documentsTitle")}</h2>
+              <p className="text-muted-foreground mb-6">{t("onboarding.professional.documentsDesc")}</p>
 
-              <div className="space-y-4 mb-6">
+              <div className="space-y-4">
                 {documents.map((doc, index) => (
                   <DocumentUploadCard
                     key={doc.type}
                     type={doc.type}
-                    name={doc.name}
-                    description={doc.description}
+                    name={t(doc.nameKey)}
+                    description={t(doc.descKey)}
                     required={doc.required}
                     file={doc.file}
                     uploading={doc.uploading}
@@ -638,39 +642,32 @@ const ProfessionalOnboarding = () => {
                     }}
                   />
                 ))}
-              </div>
 
-              <div className="p-4 rounded-lg bg-secondary mb-6">
-                <p className="text-sm text-muted-foreground">
-                  <strong>Progress:</strong> {requiredDocsUploaded}/{totalRequiredDocs} required documents uploaded
+                <p className="text-sm text-muted-foreground text-center pt-2">
+                  {requiredDocsUploaded}/{totalRequiredDocs} {t("documents.required").toLowerCase()}
                 </p>
-              </div>
 
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  size="lg"
-                  onClick={() => setCurrentStep("qualifications")}
-                >
-                  <ArrowLeft className="w-5 h-5 mr-2" />
-                  Back
-                </Button>
-                <Button
-                  className="flex-1"
-                  size="lg"
-                  onClick={completeOnboarding}
-                  disabled={isSubmitting || requiredDocsUploaded < totalRequiredDocs}
-                >
-                  {isSubmitting ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <>
-                      Complete Setup
-                      <CheckCircle2 className="w-5 h-5 ml-2" />
-                    </>
-                  )}
-                </Button>
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentStep("qualifications")}
+                    className="flex-1"
+                  >
+                    <ArrowLeft className={`w-4 h-4 ${isRTL ? "ms-2 rotate-180" : "me-2"}`} />
+                    {t("common.back")}
+                  </Button>
+                  <Button
+                    onClick={completeOnboarding}
+                    disabled={isSubmitting || requiredDocsUploaded < totalRequiredDocs}
+                    className="flex-1"
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      t("onboarding.complete")
+                    )}
+                  </Button>
+                </div>
               </div>
             </motion.div>
           )}
@@ -682,35 +679,16 @@ const ProfessionalOnboarding = () => {
               animate={{ opacity: 1, scale: 1 }}
               className="bg-card rounded-2xl border border-border p-8 shadow-card text-center"
             >
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", delay: 0.2 }}
-                className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-6"
-              >
-                <Sparkles className="w-10 h-10 text-success" />
-              </motion.div>
-
-              <h2 className="text-2xl font-bold text-foreground mb-2">You're All Set!</h2>
-              <p className="text-muted-foreground mb-6">
-                Your profile is complete and your documents are under review. 
-                Once verified, you'll be able to apply for shifts.
-              </p>
-
-              <div className="p-4 rounded-lg bg-warning/10 border border-warning/20 mb-6">
-                <p className="text-sm text-warning">
-                  <strong>Note:</strong> Document verification usually takes 1-2 business days. 
-                  We'll notify you once your profile is fully verified.
-                </p>
+              <div className="w-20 h-20 rounded-full gradient-primary flex items-center justify-center mx-auto mb-6">
+                <Sparkles className="w-10 h-10 text-primary-foreground" />
               </div>
-
-              <Button
-                size="lg"
-                onClick={() => navigate("/dashboard/professional")}
-                className="w-full"
-              >
-                Go to Dashboard
-                <ArrowRight className="w-5 h-5 ml-2" />
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t("onboarding.professional.completeTitle")}</h2>
+              <p className="text-muted-foreground mb-8 max-w-sm mx-auto">
+                {t("onboarding.professional.completeDesc")}
+              </p>
+              <Button size="lg" onClick={() => navigate("/dashboard/professional")}>
+                {t("onboarding.professional.goToDashboard")}
+                <ArrowRight className={`w-5 h-5 ${isRTL ? "me-2 rotate-180" : "ms-2"}`} />
               </Button>
             </motion.div>
           )}

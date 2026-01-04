@@ -25,13 +25,16 @@ import { useToast } from "@/hooks/use-toast";
 import OnboardingProgress from "@/components/onboarding/OnboardingProgress";
 import DocumentUploadCard from "@/components/onboarding/DocumentUploadCard";
 import AvatarUpload from "@/components/onboarding/AvatarUpload";
+import LocationPicker from "@/components/location/LocationPicker";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 
 type Step = "organization" | "location" | "documents" | "complete";
 
 interface DocumentUpload {
   type: "business_license" | "insurance";
-  name: string;
-  description: string;
+  nameKey: string;
+  descKey: string;
   required: boolean;
   file: File | null;
   uploading: boolean;
@@ -42,6 +45,8 @@ interface DocumentUpload {
 
 const ClinicOnboarding = () => {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
   const { user, userRole, isLoading: authLoading, refreshOnboardingStatus } = useAuth();
   const { toast } = useToast();
   
@@ -61,19 +66,21 @@ const ClinicOnboarding = () => {
   
   const [locationData, setLocationData] = useState({
     address: "",
+    location_lat: null as number | null,
+    location_lng: null as number | null,
     website: "",
   });
   
   const [documents, setDocuments] = useState<DocumentUpload[]>([
-    { type: "business_license", name: "Business License", description: "Your healthcare facility license", required: true, file: null, uploading: false, uploaded: false },
-    { type: "insurance", name: "Liability Insurance", description: "Professional liability insurance certificate", required: true, file: null, uploading: false, uploaded: false },
+    { type: "business_license", nameKey: "documents.businessLicense", descKey: "documents.businessLicenseDesc", required: true, file: null, uploading: false, uploaded: false },
+    { type: "insurance", nameKey: "documents.insurance", descKey: "documents.insuranceDesc", required: true, file: null, uploading: false, uploaded: false },
   ]);
 
   const steps: { key: Step; label: string; icon: React.ElementType }[] = [
-    { key: "organization", label: "Organization", icon: Building2 },
-    { key: "location", label: "Location", icon: MapPin },
-    { key: "documents", label: "Documents", icon: FileText },
-    { key: "complete", label: "Complete", icon: CheckCircle2 },
+    { key: "organization", label: t("onboarding.steps.organization"), icon: Building2 },
+    { key: "location", label: t("onboarding.steps.location"), icon: MapPin },
+    { key: "documents", label: t("onboarding.steps.documents"), icon: FileText },
+    { key: "complete", label: t("onboarding.steps.complete"), icon: CheckCircle2 },
   ];
 
   useEffect(() => {
@@ -103,6 +110,8 @@ const ClinicOnboarding = () => {
         });
         setLocationData({
           address: data.address || "",
+          location_lat: data.location_lat,
+          location_lng: data.location_lng,
           website: (data.settings as any)?.website || "",
         });
         
@@ -119,7 +128,6 @@ const ClinicOnboarding = () => {
 
       if (docs) {
         setExistingDocs(docs);
-        // Update document state with existing uploads
         setDocuments(prev => prev.map(doc => {
           const existing = docs.find(d => d.document_type === doc.type);
           if (existing) {
@@ -162,11 +170,9 @@ const ClinicOnboarding = () => {
 
       if (uploadError) throw uploadError;
 
-      // Check if document of this type already exists
       const existingDoc = existingDocs.find(d => d.document_type === doc.type);
       
       if (existingDoc) {
-        // Update existing document
         const { error: dbError } = await supabase
           .from("documents")
           .update({
@@ -179,13 +185,12 @@ const ClinicOnboarding = () => {
 
         if (dbError) throw dbError;
       } else {
-        // Create new document record
         const { error: dbError } = await supabase
           .from("documents")
           .insert({
             user_id: user.id,
             document_type: doc.type,
-            name: doc.name,
+            name: t(doc.nameKey),
             file_url: fileName,
             status: "pending",
           });
@@ -197,15 +202,15 @@ const ClinicOnboarding = () => {
       setDocuments(newDocs);
 
       toast({
-        title: "Document uploaded",
-        description: `${doc.name} has been uploaded for verification.`,
+        title: t("documents.documentUploaded"),
+        description: t("documents.documentUploadedDesc", { name: t(doc.nameKey) }),
       });
     } catch (error: any) {
       newDocs[index] = { ...newDocs[index], uploading: false };
       setDocuments(newDocs);
       toast({
         variant: "destructive",
-        title: "Upload failed",
+        title: t("documents.uploadFailed"),
         description: error.message,
       });
     }
@@ -215,19 +220,27 @@ const ClinicOnboarding = () => {
     if (!user) return;
     setLogoUrl(url);
     
-    // Save to database
     await supabase
       .from("clinics")
       .update({ logo_url: url })
       .eq("user_id", user.id);
   };
 
+  const handleLocationChange = (location: { address: string; lat: number | null; lng: number | null }) => {
+    setLocationData({
+      ...locationData,
+      address: location.address,
+      location_lat: location.lat,
+      location_lng: location.lng,
+    });
+  };
+
   const saveOrganization = async () => {
     if (!user || !orgData.name.trim()) {
       toast({
         variant: "destructive",
-        title: "Name required",
-        description: "Please enter your organization name.",
+        title: t("auth.errors.orgNameRequired"),
+        description: t("onboarding.fields.orgName"),
       });
       return;
     }
@@ -251,7 +264,7 @@ const ClinicOnboarding = () => {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error saving organization",
+        title: t("common.error"),
         description: error.message,
       });
     } finally {
@@ -268,6 +281,8 @@ const ClinicOnboarding = () => {
         .from("clinics")
         .update({
           address: locationData.address.trim(),
+          location_lat: locationData.location_lat,
+          location_lng: locationData.location_lng,
           settings: { website: locationData.website.trim() },
         })
         .eq("user_id", user.id);
@@ -277,7 +292,7 @@ const ClinicOnboarding = () => {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error saving location",
+        title: t("common.error"),
         description: error.message,
       });
     } finally {
@@ -288,15 +303,14 @@ const ClinicOnboarding = () => {
   const completeOnboarding = async () => {
     if (!user) return;
     
-    // Check required documents
     const requiredDocs = documents.filter(d => d.required);
     const uploadedRequired = requiredDocs.filter(d => d.uploaded);
     
     if (uploadedRequired.length < requiredDocs.length) {
       toast({
         variant: "destructive",
-        title: "Required documents missing",
-        description: "Please upload all required documents before completing.",
+        title: t("documents.missingDocuments"),
+        description: t("documents.missingDocumentsDesc"),
       });
       return;
     }
@@ -315,7 +329,7 @@ const ClinicOnboarding = () => {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error completing onboarding",
+        title: t("common.error"),
         description: error.message,
       });
     } finally {
@@ -335,17 +349,18 @@ const ClinicOnboarding = () => {
   const totalRequiredDocs = documents.filter(d => d.required).length;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" dir={isRTL ? "rtl" : "ltr"}>
       {/* Header */}
       <header className="bg-card border-b border-border">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center h-16">
+          <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
               <div className="w-9 h-9 rounded-lg gradient-accent flex items-center justify-center">
                 <Heart className="w-5 h-5 text-accent-foreground" />
               </div>
               <span className="font-bold text-xl text-foreground">SyndeoCare.ai</span>
             </div>
+            <LanguageSwitcher variant="text" />
           </div>
         </div>
       </header>
@@ -358,13 +373,13 @@ const ClinicOnboarding = () => {
           {currentStep === "organization" && (
             <motion.div
               key="organization"
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
+              exit={{ opacity: 0, x: isRTL ? 20 : -20 }}
               className="bg-card rounded-2xl border border-border p-6 shadow-card"
             >
-              <h2 className="text-2xl font-bold text-foreground mb-2">Organization Details</h2>
-              <p className="text-muted-foreground mb-6">Tell us about your healthcare facility.</p>
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t("onboarding.clinic.orgTitle")}</h2>
+              <p className="text-muted-foreground mb-6">{t("onboarding.clinic.orgDesc")}</p>
 
               <div className="space-y-5">
                 {/* Logo Upload */}
@@ -379,65 +394,65 @@ const ClinicOnboarding = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="name">Organization Name *</Label>
+                  <Label htmlFor="name">{t("onboarding.fields.orgName")} *</Label>
                   <div className="relative">
-                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Building2 className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       id="name"
-                      placeholder="Bay Area Medical Center"
+                      placeholder={t("onboarding.fields.orgNamePlaceholder")}
                       value={orgData.name}
                       onChange={(e) => setOrgData({ ...orgData, name: e.target.value })}
-                      className="pl-10"
+                      className="ps-10"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Contact Email</Label>
+                    <Label htmlFor="email">{t("onboarding.fields.contactEmail")}</Label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                      <Mail className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <Input
                         id="email"
                         type="email"
-                        placeholder="contact@clinic.com"
+                        placeholder={t("onboarding.fields.contactEmailPlaceholder")}
                         value={orgData.email}
                         onChange={(e) => setOrgData({ ...orgData, email: e.target.value })}
-                        className="pl-10"
+                        className="ps-10"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
+                    <Label htmlFor="phone">{t("onboarding.fields.phone")}</Label>
                     <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                      <Phone className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <Input
                         id="phone"
-                        placeholder="+1 (555) 123-4567"
+                        placeholder={t("onboarding.fields.phonePlaceholder")}
                         value={orgData.phone}
                         onChange={(e) => setOrgData({ ...orgData, phone: e.target.value })}
-                        className="pl-10"
+                        className="ps-10"
                       />
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="tax_id">Tax ID / EIN (Optional)</Label>
+                  <Label htmlFor="tax_id">{t("onboarding.fields.taxId")} ({t("common.optional")})</Label>
                   <Input
                     id="tax_id"
-                    placeholder="XX-XXXXXXX"
+                    placeholder={t("onboarding.fields.taxIdPlaceholder")}
                     value={orgData.tax_id}
                     onChange={(e) => setOrgData({ ...orgData, tax_id: e.target.value })}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description">{t("onboarding.fields.description")}</Label>
                   <Textarea
                     id="description"
-                    placeholder="Tell professionals about your facility, the type of care you provide, and what makes you a great place to work..."
+                    placeholder={t("onboarding.fields.descriptionPlaceholder")}
                     value={orgData.description}
                     onChange={(e) => setOrgData({ ...orgData, description: e.target.value })}
                     rows={4}
@@ -454,8 +469,8 @@ const ClinicOnboarding = () => {
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
                     <>
-                      Continue
-                      <ArrowRight className="w-5 h-5 ml-2" />
+                      {t("common.continue")}
+                      <ArrowRight className={`w-5 h-5 ${isRTL ? "me-2 rotate-180" : "ms-2"}`} />
                     </>
                   )}
                 </Button>
@@ -466,65 +481,62 @@ const ClinicOnboarding = () => {
           {currentStep === "location" && (
             <motion.div
               key="location"
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
+              exit={{ opacity: 0, x: isRTL ? 20 : -20 }}
               className="bg-card rounded-2xl border border-border p-6 shadow-card"
             >
-              <h2 className="text-2xl font-bold text-foreground mb-2">Location & Contact</h2>
-              <p className="text-muted-foreground mb-6">Where is your facility located?</p>
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t("onboarding.clinic.locationTitle")}</h2>
+              <p className="text-muted-foreground mb-6">{t("onboarding.clinic.locationDesc")}</p>
 
               <div className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="address">Full Address</Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
-                    <Textarea
-                      id="address"
-                      placeholder="123 Medical Center Drive&#10;San Francisco, CA 94102"
-                      value={locationData.address}
-                      onChange={(e) => setLocationData({ ...locationData, address: e.target.value })}
-                      className="pl-10 min-h-[80px]"
-                    />
-                  </div>
+                  <Label>{t("onboarding.fields.fullAddress")}</Label>
+                  <LocationPicker
+                    value={{
+                      address: locationData.address,
+                      lat: locationData.location_lat,
+                      lng: locationData.location_lng,
+                    }}
+                    onChange={handleLocationChange}
+                    placeholder={t("onboarding.fields.fullAddressPlaceholder")}
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="website">Website (Optional)</Label>
+                  <Label htmlFor="website">{t("onboarding.fields.website")} ({t("common.optional")})</Label>
                   <div className="relative">
-                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Globe className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       id="website"
-                      placeholder="https://www.yourclinic.com"
+                      placeholder={t("onboarding.fields.websitePlaceholder")}
                       value={locationData.website}
                       onChange={(e) => setLocationData({ ...locationData, website: e.target.value })}
-                      className="pl-10"
+                      className="ps-10"
                     />
                   </div>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-3 pt-4">
                   <Button
                     variant="outline"
-                    className="flex-1"
-                    size="lg"
                     onClick={() => setCurrentStep("organization")}
+                    className="flex-1"
                   >
-                    <ArrowLeft className="w-5 h-5 mr-2" />
-                    Back
+                    <ArrowLeft className={`w-4 h-4 ${isRTL ? "ms-2 rotate-180" : "me-2"}`} />
+                    {t("common.back")}
                   </Button>
                   <Button
-                    className="flex-1 bg-accent hover:bg-accent/90"
-                    size="lg"
                     onClick={saveLocation}
                     disabled={isSubmitting}
+                    className="flex-1 bg-accent hover:bg-accent/90"
                   >
                     {isSubmitting ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
                       <>
-                        Continue
-                        <ArrowRight className="w-5 h-5 ml-2" />
+                        {t("common.continue")}
+                        <ArrowRight className={`w-5 h-5 ${isRTL ? "me-2 rotate-180" : "ms-2"}`} />
                       </>
                     )}
                   </Button>
@@ -536,23 +548,21 @@ const ClinicOnboarding = () => {
           {currentStep === "documents" && (
             <motion.div
               key="documents"
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
+              exit={{ opacity: 0, x: isRTL ? 20 : -20 }}
               className="bg-card rounded-2xl border border-border p-6 shadow-card"
             >
-              <h2 className="text-2xl font-bold text-foreground mb-2">Business Documents</h2>
-              <p className="text-muted-foreground mb-6">
-                Upload your business credentials for verification.
-              </p>
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t("onboarding.clinic.documentsTitle")}</h2>
+              <p className="text-muted-foreground mb-6">{t("onboarding.clinic.documentsDesc")}</p>
 
-              <div className="space-y-4 mb-6">
+              <div className="space-y-4">
                 {documents.map((doc, index) => (
                   <DocumentUploadCard
                     key={doc.type}
                     type={doc.type}
-                    name={doc.name}
-                    description={doc.description}
+                    name={t(doc.nameKey)}
+                    description={t(doc.descKey)}
                     required={doc.required}
                     file={doc.file}
                     uploading={doc.uploading}
@@ -568,39 +578,32 @@ const ClinicOnboarding = () => {
                     }}
                   />
                 ))}
-              </div>
 
-              <div className="p-4 rounded-lg bg-secondary mb-6">
-                <p className="text-sm text-muted-foreground">
-                  <strong>Progress:</strong> {requiredDocsUploaded}/{totalRequiredDocs} required documents uploaded
+                <p className="text-sm text-muted-foreground text-center pt-2">
+                  {requiredDocsUploaded}/{totalRequiredDocs} {t("documents.required").toLowerCase()}
                 </p>
-              </div>
 
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  size="lg"
-                  onClick={() => setCurrentStep("location")}
-                >
-                  <ArrowLeft className="w-5 h-5 mr-2" />
-                  Back
-                </Button>
-                <Button
-                  className="flex-1 bg-accent hover:bg-accent/90"
-                  size="lg"
-                  onClick={completeOnboarding}
-                  disabled={isSubmitting || requiredDocsUploaded < totalRequiredDocs}
-                >
-                  {isSubmitting ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <>
-                      Complete Setup
-                      <CheckCircle2 className="w-5 h-5 ml-2" />
-                    </>
-                  )}
-                </Button>
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentStep("location")}
+                    className="flex-1"
+                  >
+                    <ArrowLeft className={`w-4 h-4 ${isRTL ? "ms-2 rotate-180" : "me-2"}`} />
+                    {t("common.back")}
+                  </Button>
+                  <Button
+                    onClick={completeOnboarding}
+                    disabled={isSubmitting || requiredDocsUploaded < totalRequiredDocs}
+                    className="flex-1 bg-accent hover:bg-accent/90"
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      t("onboarding.complete")
+                    )}
+                  </Button>
+                </div>
               </div>
             </motion.div>
           )}
@@ -612,35 +615,16 @@ const ClinicOnboarding = () => {
               animate={{ opacity: 1, scale: 1 }}
               className="bg-card rounded-2xl border border-border p-8 shadow-card text-center"
             >
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", delay: 0.2 }}
-                className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-6"
-              >
-                <Sparkles className="w-10 h-10 text-success" />
-              </motion.div>
-
-              <h2 className="text-2xl font-bold text-foreground mb-2">You're All Set!</h2>
-              <p className="text-muted-foreground mb-6">
-                Your clinic profile is complete and your documents are under review. 
-                Once verified, you'll be able to post shifts.
-              </p>
-
-              <div className="p-4 rounded-lg bg-warning/10 border border-warning/20 mb-6">
-                <p className="text-sm text-warning">
-                  <strong>Note:</strong> Document verification usually takes 1-2 business days. 
-                  We'll notify you once your clinic is fully verified.
-                </p>
+              <div className="w-20 h-20 rounded-full gradient-accent flex items-center justify-center mx-auto mb-6">
+                <Sparkles className="w-10 h-10 text-accent-foreground" />
               </div>
-
-              <Button
-                size="lg"
-                onClick={() => navigate("/dashboard/clinic")}
-                className="w-full bg-accent hover:bg-accent/90"
-              >
-                Go to Dashboard
-                <ArrowRight className="w-5 h-5 ml-2" />
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t("onboarding.clinic.completeTitle")}</h2>
+              <p className="text-muted-foreground mb-8 max-w-sm mx-auto">
+                {t("onboarding.clinic.completeDesc")}
+              </p>
+              <Button size="lg" className="bg-accent hover:bg-accent/90" onClick={() => navigate("/dashboard/clinic")}>
+                {t("onboarding.clinic.goToDashboard")}
+                <ArrowRight className={`w-5 h-5 ${isRTL ? "me-2 rotate-180" : "ms-2"}`} />
               </Button>
             </motion.div>
           )}

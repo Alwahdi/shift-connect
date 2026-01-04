@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import ApplicantCard from "./ApplicantCard";
 
 interface Shift {
@@ -59,6 +60,8 @@ const ShiftManageModal = ({
   shift,
   onUpdate,
 }: ShiftManageModalProps) => {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -99,7 +102,7 @@ const ShiftManageModal = ({
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error loading applicants",
+        title: t("common.error"),
         description: error.message,
       });
     } finally {
@@ -137,8 +140,8 @@ const ShiftManageModal = ({
       if (fillError) throw fillError;
 
       toast({
-        title: "Applicant Accepted",
-        description: "The professional has been notified.",
+        title: t("shifts.modal.applicantAccepted"),
+        description: t("shifts.modal.applicantAcceptedDesc"),
       });
 
       fetchApplicants();
@@ -146,7 +149,7 @@ const ShiftManageModal = ({
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: t("common.error"),
         description: error.message,
       });
     } finally {
@@ -165,15 +168,15 @@ const ShiftManageModal = ({
       if (error) throw error;
 
       toast({
-        title: "Applicant Declined",
-        description: "The application has been declined.",
+        title: t("shifts.modal.applicantDeclined"),
+        description: t("shifts.modal.applicantDeclinedDesc"),
       });
 
       fetchApplicants();
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: t("common.error"),
         description: error.message,
       });
     } finally {
@@ -189,18 +192,18 @@ const ShiftManageModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto" dir={isRTL ? "rtl" : "ltr"}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            Manage Shift
+            {t("shifts.modal.manageShift")}
             {shift.is_filled ? (
               <Badge className="bg-success/10 text-success border-success/20">
-                <CheckCircle2 className="w-3 h-3 mr-1" />Filled
+                <CheckCircle2 className="w-3 h-3 me-1" />{t("shifts.filled")}
               </Badge>
             ) : shift.is_urgent ? (
-              <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Urgent</Badge>
+              <Badge variant="destructive"><AlertCircle className="w-3 h-3 me-1" />{t("common.urgent")}</Badge>
             ) : (
-              <Badge variant="secondary">Open</Badge>
+              <Badge variant="secondary">{t("shifts.open")}</Badge>
             )}
           </DialogTitle>
           <DialogDescription>{shift.role_required}</DialogDescription>
@@ -211,10 +214,10 @@ const ShiftManageModal = ({
           <div className="bg-secondary/50 rounded-lg p-3">
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
               <Calendar className="w-3 h-3" />
-              Date
+              {t("shifts.date")}
             </div>
             <p className="text-sm font-medium text-foreground">
-              {new Date(shift.shift_date).toLocaleDateString("en-US", {
+              {new Date(shift.shift_date).toLocaleDateString(isRTL ? "ar-SA" : "en-US", {
                 month: "short",
                 day: "numeric",
               })}
@@ -223,7 +226,7 @@ const ShiftManageModal = ({
           <div className="bg-secondary/50 rounded-lg p-3">
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
               <Clock className="w-3 h-3" />
-              Time
+              {t("shifts.time")}
             </div>
             <p className="text-sm font-medium text-foreground">
               {shift.start_time} - {shift.end_time}
@@ -232,14 +235,14 @@ const ShiftManageModal = ({
           <div className="bg-secondary/50 rounded-lg p-3">
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
               <DollarSign className="w-3 h-3" />
-              Rate
+              {t("shifts.rate")}
             </div>
-            <p className="text-sm font-medium text-foreground">${shift.hourly_rate}/hr</p>
+            <p className="text-sm font-medium text-foreground">${shift.hourly_rate}{t("common.perHour")}</p>
           </div>
           <div className="bg-secondary/50 rounded-lg p-3">
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
               <Users className="w-3 h-3" />
-              Applicants
+              {t("dashboard.applicants")}
             </div>
             <p className="text-sm font-medium text-foreground">{applicants.length}</p>
           </div>
@@ -262,34 +265,34 @@ const ShiftManageModal = ({
         ) : applicants.length === 0 ? (
           <div className="text-center py-8">
             <Users className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">No applicants yet</p>
-            <p className="text-sm text-muted-foreground">Applicants will appear here when professionals apply.</p>
+            <p className="text-muted-foreground">{t("shifts.modal.noApplicantsYet")}</p>
+            <p className="text-sm text-muted-foreground">{t("shifts.modal.noApplicantsDesc")}</p>
           </div>
         ) : (
           <Tabs defaultValue="pending" className="mt-4">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="pending">
-                Pending
+                {t("shifts.modal.pendingTab")}
                 {pendingApplicants.length > 0 && (
-                  <span className="ml-2 px-1.5 py-0.5 text-xs bg-warning text-warning-foreground rounded-full">
+                  <span className="ms-2 px-1.5 py-0.5 text-xs bg-warning text-warning-foreground rounded-full">
                     {pendingApplicants.length}
                   </span>
                 )}
               </TabsTrigger>
               <TabsTrigger value="accepted">
-                Accepted
+                {t("shifts.modal.acceptedTab")}
                 {acceptedApplicants.length > 0 && (
-                  <span className="ml-2 px-1.5 py-0.5 text-xs bg-success text-success-foreground rounded-full">
+                  <span className="ms-2 px-1.5 py-0.5 text-xs bg-success text-success-foreground rounded-full">
                     {acceptedApplicants.length}
                   </span>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="declined">Declined ({declinedApplicants.length})</TabsTrigger>
+              <TabsTrigger value="declined">{t("shifts.modal.declinedTab")} ({declinedApplicants.length})</TabsTrigger>
             </TabsList>
 
             <TabsContent value="pending" className="space-y-3 mt-4">
               {pendingApplicants.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">No pending applicants</p>
+                <p className="text-sm text-muted-foreground text-center py-4">{t("shifts.modal.noPending")}</p>
               ) : (
                 pendingApplicants.map(applicant => (
                   <ApplicantCard
@@ -305,7 +308,7 @@ const ShiftManageModal = ({
 
             <TabsContent value="accepted" className="space-y-3 mt-4">
               {acceptedApplicants.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">No accepted applicants</p>
+                <p className="text-sm text-muted-foreground text-center py-4">{t("shifts.modal.noAccepted")}</p>
               ) : (
                 acceptedApplicants.map(applicant => (
                   <ApplicantCard
@@ -321,7 +324,7 @@ const ShiftManageModal = ({
 
             <TabsContent value="declined" className="space-y-3 mt-4">
               {declinedApplicants.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">No declined applicants</p>
+                <p className="text-sm text-muted-foreground text-center py-4">{t("shifts.modal.noDeclined")}</p>
               ) : (
                 declinedApplicants.map(applicant => (
                   <ApplicantCard
