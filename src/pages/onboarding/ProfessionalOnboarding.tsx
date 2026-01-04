@@ -25,6 +25,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import OnboardingProgress from "@/components/onboarding/OnboardingProgress";
 import DocumentUploadCard from "@/components/onboarding/DocumentUploadCard";
+import AvatarUpload from "@/components/onboarding/AvatarUpload";
 
 type Step = "profile" | "qualifications" | "documents" | "complete";
 
@@ -49,6 +50,7 @@ const ProfessionalOnboarding = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profileId, setProfileId] = useState<string | null>(null);
   const [existingDocs, setExistingDocs] = useState<any[]>([]);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   
   const [profileData, setProfileData] = useState({
     full_name: "",
@@ -95,6 +97,7 @@ const ProfessionalOnboarding = () => {
 
       if (data) {
         setProfileId(data.id);
+        setAvatarUrl(data.avatar_url);
         setProfileData({
           full_name: data.full_name || "",
           phone: data.phone || "",
@@ -213,6 +216,17 @@ const ProfessionalOnboarding = () => {
     }
   };
 
+  const handleAvatarUpload = async (url: string) => {
+    if (!user) return;
+    setAvatarUrl(url);
+    
+    // Save to database
+    await supabase
+      .from("profiles")
+      .update({ avatar_url: url })
+      .eq("user_id", user.id);
+  };
+
   const saveProfile = async () => {
     if (!user || !profileData.full_name.trim()) {
       toast({
@@ -233,6 +247,7 @@ const ProfessionalOnboarding = () => {
           bio: profileData.bio.trim(),
           location_address: profileData.location_address.trim(),
           hourly_rate: profileData.hourly_rate ? parseFloat(profileData.hourly_rate) : null,
+          avatar_url: avatarUrl,
         })
         .eq("user_id", user.id);
 
@@ -384,6 +399,17 @@ const ProfessionalOnboarding = () => {
               <p className="text-muted-foreground mb-6">Tell us about yourself so clinics can find you.</p>
 
               <div className="space-y-5">
+                {/* Profile Picture Upload */}
+                <div className="flex justify-center pb-4">
+                  <AvatarUpload
+                    userId={user?.id || ""}
+                    currentAvatarUrl={avatarUrl}
+                    onUpload={handleAvatarUpload}
+                    name={profileData.full_name}
+                    size="lg"
+                  />
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="full_name">Full Name *</Label>
                   <div className="relative">

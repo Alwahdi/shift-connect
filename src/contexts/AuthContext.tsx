@@ -133,43 +133,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) throw error;
 
-      // Check if user needs email confirmation (identities empty means confirmation pending)
-      const needsEmailConfirmation = data.user && data.user.identities?.length === 0;
+      // Check if user needs email confirmation
+      // If identities is empty, user already exists or email confirmation is required
+      const needsEmailConfirmation = data.user && (!data.user.identities || data.user.identities.length === 0);
       
-      // If signup successful and user is confirmed, create role and profile/clinic
+      // The database trigger (handle_new_user) automatically creates user_roles and profiles/clinics
+      // So we don't need to insert them manually here
+      
       if (data.user && !needsEmailConfirmation) {
-        // Insert user role
-        const { error: roleError } = await supabase
-          .from("user_roles")
-          .insert({ user_id: data.user.id, role });
-
-        if (roleError) throw roleError;
-
-        // Create profile or clinic based on role
-        if (role === "professional") {
-          const { error: profileError } = await supabase
-            .from("profiles")
-            .insert({
-              user_id: data.user.id,
-              full_name: metadata.name || "",
-              email: email,
-              onboarding_completed: false,
-            });
-
-          if (profileError) throw profileError;
-        } else if (role === "clinic") {
-          const { error: clinicError } = await supabase
-            .from("clinics")
-            .insert({
-              user_id: data.user.id,
-              name: metadata.organizationName || "",
-              email: email,
-              onboarding_completed: false,
-            });
-
-          if (clinicError) throw clinicError;
-        }
-
         setUserRole(role);
         setIsOnboardingComplete(false);
       }
@@ -177,7 +148,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return { 
         error: null, 
         needsOnboarding: !needsEmailConfirmation,
-        needsEmailConfirmation: needsEmailConfirmation || false,
+        needsEmailConfirmation: !!needsEmailConfirmation,
         email 
       };
     } catch (error) {
