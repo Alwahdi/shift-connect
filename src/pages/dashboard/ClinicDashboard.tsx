@@ -14,7 +14,9 @@ import {
   ChevronRight,
   Loader2,
   FileText,
-  Upload
+  Upload,
+  Building2,
+  Settings
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -157,15 +159,23 @@ const ClinicDashboard = () => {
             <h1 className="text-2xl font-bold text-foreground mb-1">{clinic?.name || "Your Clinic"}</h1>
             <p className="text-muted-foreground">Manage your shifts and staff needs.</p>
           </div>
-          <Button 
-            variant="default" 
-            size="lg"
-            disabled={!canPostShifts}
-            className="bg-accent hover:bg-accent/90"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Post New Shift
-          </Button>
+          <div className="flex gap-3">
+            <Button asChild variant="outline">
+              <Link to="/profile/clinic">
+                <Building2 className="w-4 h-4 mr-2" />
+                Clinic Profile
+              </Link>
+            </Button>
+            <Button 
+              variant="default" 
+              size="lg"
+              disabled={!canPostShifts}
+              className="bg-accent hover:bg-accent/90"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Post New Shift
+            </Button>
+          </div>
         </motion.div>
 
         {/* Onboarding/Verification Banner */}
