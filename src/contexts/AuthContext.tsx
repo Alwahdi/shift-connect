@@ -4,13 +4,20 @@ import { supabase } from "@/integrations/supabase/client";
 
 type UserRole = "professional" | "clinic" | "admin";
 
+interface SignUpResult {
+  error: Error | null;
+  needsOnboarding: boolean;
+  needsEmailConfirmation: boolean;
+  email: string;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   userRole: UserRole | null;
   isOnboardingComplete: boolean;
   isLoading: boolean;
-  signUp: (email: string, password: string, role: UserRole, metadata: Record<string, string>) => Promise<{ error: Error | null; needsOnboarding: boolean }>;
+  signUp: (email: string, password: string, role: UserRole, metadata: Record<string, string>) => Promise<SignUpResult>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshOnboardingStatus: () => Promise<void>;
@@ -110,7 +117,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     metadata: Record<string, string>
   ) => {
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/verify-callback`;
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -126,8 +133,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) throw error;
 
-      // If signup successful, create role and profile/clinic
-      if (data.user) {
+      // Check if user needs email confirmation (identities empty means confirmation pending)
+      const needsEmailConfirmation = data.user && data.user.identities?.length === 0;
+      
+      // If signup successful and user is confirmed, create role and profile/clinic
+      if (data.user && !needsEmailConfirmation) {
         // Insert user role
         const { error: roleError } = await supabase
           .from("user_roles")
@@ -164,9 +174,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsOnboardingComplete(false);
       }
 
-      return { error: null, needsOnboarding: true };
+      return { 
+        error: null, 
+        needsOnboarding: !needsEmailConfirmation,
+        needsEmailConfirmation: needsEmailConfirmation || false,
+        email 
+      };
     } catch (error) {
-      return { error: error as Error, needsOnboarding: false };
+      return { error: error as Error, needsOnboarding: false, needsEmailConfirmation: false, email: "" };
     }
   };
 

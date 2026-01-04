@@ -3,16 +3,19 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { t } = useTranslation();
 
   const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/for-professionals", label: "For Professionals" },
-    { href: "/for-clinics", label: "For Clinics" },
-    { href: "/about", label: "About" },
+    { href: "/", label: t("nav.home") },
+    { href: "/for-professionals", label: t("nav.forProfessionals") },
+    { href: "/for-clinics", label: t("nav.forClinics") },
+    { href: "/about", label: t("nav.about") },
   ];
 
   return (
@@ -46,14 +49,15 @@ const Header = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
+            <LanguageSwitcher variant="text" />
             <Link to="/auth">
               <Button variant="ghost" size="sm">
-                Log in
+                {t("common.logIn")}
               </Button>
             </Link>
             <Link to="/auth?mode=signup">
               <Button variant="hero" size="sm">
-                Get Started
+                {t("common.getStarted")}
               </Button>
             </Link>
           </div>
@@ -92,15 +96,18 @@ const Header = () => {
                   {link.label}
                 </Link>
               ))}
-              <div className="flex gap-3 pt-4 border-t border-border mt-4">
+              <div className="flex items-center justify-between pt-4 border-t border-border mt-4">
+                <LanguageSwitcher variant="full" />
+              </div>
+              <div className="flex gap-3 pt-2">
                 <Link to="/auth" className="flex-1">
                   <Button variant="outline" className="w-full">
-                    Log in
+                    {t("common.logIn")}
                   </Button>
                 </Link>
                 <Link to="/auth?mode=signup" className="flex-1">
                   <Button variant="hero" className="w-full">
-                    Get Started
+                    {t("common.getStarted")}
                   </Button>
                 </Link>
               </div>
