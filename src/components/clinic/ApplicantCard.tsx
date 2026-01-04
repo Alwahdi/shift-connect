@@ -6,9 +6,11 @@ import {
   XCircle, 
   Star, 
   MapPin,
-  Loader2 
+  Loader2,
+  ExternalLink
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 interface Applicant {
   id: string;
@@ -55,17 +57,34 @@ const ApplicantCard = ({ applicant, isUpdating, onAccept, onDecline }: Applicant
     <div className="bg-card rounded-lg border border-border p-4">
       <div className="flex items-start gap-4">
         {/* Avatar */}
-        <Avatar className="w-12 h-12">
-          <AvatarImage src={professional.avatar_url || undefined} alt={professional.full_name} />
-          <AvatarFallback className="bg-primary/10 text-primary">
-            {professional.full_name?.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
-          </AvatarFallback>
-        </Avatar>
-
+        <Link to={`/professional/${professional.id}`} className="flex-shrink-0">
+          <Avatar className="w-12 h-12 hover:ring-2 hover:ring-primary/50 transition-all">
+            <AvatarImage src={professional.avatar_url || undefined} alt={professional.full_name} />
+            <AvatarFallback className="bg-primary/10 text-primary">
+              {professional.full_name?.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
+            </AvatarFallback>
+          </Avatar>
+        </Link>
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <h4 className="font-medium text-foreground truncate">{professional.full_name}</h4>
+            <Link 
+              to={`/professional/${professional.id}`}
+              className="font-medium text-foreground truncate hover:text-primary transition-colors"
+            >
+              {professional.full_name}
+            </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="h-6 px-2 text-xs"
+            >
+              <Link to={`/professional/${professional.id}`}>
+                <ExternalLink className="w-3 h-3 me-1" />
+                {t("viewProfile.viewProfile")}
+              </Link>
+            </Button>
             {getStatusBadge()}
             {professional.verification_status === "verified" && (
               <Badge variant="outline" className="text-xs text-success border-success/20">

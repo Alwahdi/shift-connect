@@ -37,6 +37,7 @@
   },
   "nav": {
     "home": "الرئيسية",
+    "findShifts": "ابحث عن ورديات",
     "forProfessionals": "للمهنيين",
     "forClinics": "للعيادات",
     "about": "عن المنصة",
@@ -494,6 +495,27 @@
     "locationError": "تعذر تحديد الموقع",
     "permissionDenied": "تم رفض إذن الموقع",
     "noResults": "لا توجد نتائج"
+  },
+  "viewProfile": {
+    "notFound": "لم يتم العثور على المهني",
+    "clinicNotFound": "لم يتم العثور على العيادة",
+    "about": "نبذة",
+    "aboutClinic": "عن هذه العيادة",
+    "contactInfo": "معلومات الاتصال",
+    "reviews": "تقييمات",
+    "openShifts": "الورديات المتاحة",
+    "availableForShifts": "متاح للورديات",
+    "viewProfile": "عرض الملف"
+  },
+  "shiftSearch": {
+    "title": "ابحث عن ورديات",
+    "subtitle": "تصفح الورديات المتاحة من المنشآت الصحية الموثقة القريبة منك.",
+    "resultsCount": "تم العثور على {{count}} وردية",
+    "noResults": "جرب تعديل الفلاتر أو كلمات البحث.",
+    "allUpcoming": "كل القادم",
+    "today": "اليوم",
+    "thisWeek": "هذا الأسبوع",
+    "thisMonth": "هذا الشهر"
   },
   "notFound": {
     "title": "الصفحة غير موجودة",

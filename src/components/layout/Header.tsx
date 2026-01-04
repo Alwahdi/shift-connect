@@ -13,6 +13,7 @@ const Header = () => {
 
   const navLinks = [
     { href: "/", label: t("nav.home") },
+    { href: "/shifts", label: t("nav.findShifts") },
     { href: "/for-professionals", label: t("nav.forProfessionals") },
     { href: "/for-clinics", label: t("nav.forClinics") },
     { href: "/about", label: t("nav.about") },

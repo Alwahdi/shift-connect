@@ -13,8 +13,10 @@ import {
   CheckCircle2,
   Loader2,
   Shield,
-  FileText
+  FileText,
+  ExternalLink
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
@@ -231,22 +233,30 @@ const ShiftDetailModal = ({
 
           {/* Clinic Info */}
           <Separator />
-          <div className="flex items-center gap-3">
+          <Link 
+            to={`/clinic/${shift.clinic.id}`}
+            className="flex items-center gap-3 p-3 rounded-lg hover:bg-secondary/50 transition-colors group"
+          >
             <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
               <Building2 className="w-5 h-5 text-accent" />
             </div>
             <div className="flex-1">
-              <p className="font-medium text-foreground">{shift.clinic.name}</p>
+              <p className="font-medium text-foreground group-hover:text-primary transition-colors">
+                {shift.clinic.name}
+              </p>
               {shift.clinic.address && (
                 <p className="text-sm text-muted-foreground">{shift.clinic.address}</p>
               )}
             </div>
-            {shift.clinic.rating_avg && (
-              <Badge variant="secondary" className="text-sm">
-                ★ {shift.clinic.rating_avg.toFixed(1)}
-              </Badge>
-            )}
-          </div>
+            <div className="flex items-center gap-2">
+              {shift.clinic.rating_avg && (
+                <Badge variant="secondary" className="text-sm">
+                  ★ {shift.clinic.rating_avg.toFixed(1)}
+                </Badge>
+              )}
+              <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
+          </Link>
 
           {/* Verification Warning */}
           {!isVerified && (
