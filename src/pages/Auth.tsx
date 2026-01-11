@@ -59,7 +59,7 @@ const Auth = () => {
           navigate("/dashboard/professional");
         } else if (userRole === "clinic") {
           navigate("/dashboard/clinic");
-        } else if (userRole === "admin") {
+        } else if (userRole === "admin" || userRole === "super_admin") {
           navigate("/admin");
         } else {
           navigate("/");
