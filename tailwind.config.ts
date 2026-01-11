@@ -77,6 +77,22 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        xl: "1rem",
+        "2xl": "1.5rem",
+        "3xl": "2rem",
+      },
+      spacing: {
+        '13': '3.25rem', // 52px - for touch-friendly inputs
+        '15': '3.75rem', // 60px
+        '18': '4.5rem',  // 72px
+      },
+      minHeight: {
+        'touch': '44px',
+        'touch-lg': '48px',
+      },
+      minWidth: {
+        'touch': '44px',
+        'touch-lg': '48px',
       },
       keyframes: {
         "accordion-down": {
@@ -99,6 +115,10 @@ export default {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.7" },
         },
+        "shimmer": {
+          "0%": { backgroundPosition: "200% 0" },
+          "100%": { backgroundPosition: "-200% 0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -106,6 +126,7 @@ export default {
         "fade-in": "fade-in 0.5s ease-out forwards",
         "slide-in-right": "slide-in-right 0.4s ease-out forwards",
         "pulse-subtle": "pulse-subtle 2s ease-in-out infinite",
+        "shimmer": "shimmer 1.5s infinite",
       },
     },
   },
