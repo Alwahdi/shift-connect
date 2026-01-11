@@ -13,7 +13,6 @@ import {
   Search,
   Filter,
   Building2,
-  Loader2,
   MapPin,
   X,
   SlidersHorizontal
@@ -26,6 +25,8 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ShiftDetailModal from "@/components/shifts/ShiftDetailModal";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { ShiftCardSkeleton, SkeletonGrid } from "@/components/ui/skeleton-cards";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface Shift {
   id: string;
@@ -313,19 +314,23 @@ const ShiftSearch = () => {
 
             {/* Shift Cards */}
             {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              </div>
+              <SkeletonGrid count={6} columns="grid-cols-1">
+                <ShiftCardSkeleton />
+              </SkeletonGrid>
             ) : filteredShifts.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="bg-card rounded-xl border border-border p-8 text-center shadow-card"
-              >
-                <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="font-medium text-foreground mb-2">{t("dashboard.noShifts")}</h3>
-                <p className="text-sm text-muted-foreground">{t("shiftSearch.noResults")}</p>
-              </motion.div>
+              <EmptyState
+                icon={Calendar}
+                title={t("dashboard.noShifts")}
+                description={t("shiftSearch.noResults")}
+                action={
+                  hasActiveFilters ? (
+                    <Button variant="outline" onClick={clearFilters}>
+                      <X className="w-4 h-4 me-2" />
+                      {t("dashboard.filters.clearFilters")}
+                    </Button>
+                  ) : undefined
+                }
+              />
             ) : (
               <div className="space-y-4">
                 {filteredShifts.map((shift, index) => (
@@ -334,10 +339,20 @@ const ShiftSearch = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 + index * 0.03 }}
-                    className="bg-card rounded-xl border border-border p-5 shadow-card hover:shadow-card-hover hover:border-primary/20 transition-all cursor-pointer"
+                    className="bg-card rounded-xl border border-border p-5 shadow-card hover:shadow-card-hover hover:border-primary/20 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     onClick={() => {
                       setSelectedShift(shift);
                       setShowShiftDetail(true);
+                    }}
+                    role="article"
+                    aria-label={`${shift.clinic?.name} - ${shift.role_required} - $${shift.hourly_rate}/hr`}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setSelectedShift(shift);
+                        setShowShiftDetail(true);
+                      }
                     }}
                   >
                     <div className="flex items-start gap-4">

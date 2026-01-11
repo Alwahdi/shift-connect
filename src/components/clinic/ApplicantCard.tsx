@@ -54,7 +54,11 @@ const ApplicantCard = ({ applicant, isUpdating, onAccept, onDecline }: Applicant
   const isPending = applicant.status === "requested";
 
   return (
-    <div className="bg-card rounded-lg border border-border p-4">
+    <div 
+      className="bg-card rounded-lg border border-border p-4 hover:shadow-card transition-shadow"
+      role="article"
+      aria-label={`${professional.full_name} - ${applicant.status}`}
+    >
       <div className="flex items-start gap-4">
         {/* Avatar */}
         <Link to={`/professional/${professional.id}`} className="flex-shrink-0">
@@ -123,23 +127,31 @@ const ApplicantCard = ({ applicant, isUpdating, onAccept, onDecline }: Applicant
 
         {/* Actions */}
         {isPending && (
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-shrink-0">
             <Button
               variant="outline"
-              size="sm"
+              size="icon"
               onClick={() => onDecline(applicant.id)}
               disabled={isUpdating}
-              className="text-destructive hover:text-destructive"
+              className="h-11 w-11 text-destructive hover:text-destructive hover:bg-destructive/10"
+              aria-label={t("applicant.decline")}
             >
-              {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+              {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-5 h-5" />}
             </Button>
             <Button
               size="sm"
               onClick={() => onAccept(applicant.id)}
               disabled={isUpdating}
-              className="bg-success hover:bg-success/90"
+              className="h-11 min-w-[100px] bg-success hover:bg-success/90"
             >
-              {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CheckCircle2 className="w-4 h-4 me-1" />{t("applicant.accept")}</>}
+              {isUpdating ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <CheckCircle2 className="w-4 h-4 me-1" aria-hidden="true" />
+                  {t("applicant.accept")}
+                </>
+              )}
             </Button>
           </div>
         )}

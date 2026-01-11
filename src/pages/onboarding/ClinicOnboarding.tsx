@@ -460,7 +460,7 @@ const ClinicOnboarding = () => {
                 </div>
 
                 <Button
-                  className="w-full bg-accent hover:bg-accent/90"
+                  className="w-full min-h-[48px] bg-accent hover:bg-accent/90"
                   size="lg"
                   onClick={saveOrganization}
                   disabled={isSubmitting || !orgData.name.trim()}
@@ -470,7 +470,7 @@ const ClinicOnboarding = () => {
                   ) : (
                     <>
                       {t("common.continue")}
-                      <ArrowRight className={`w-5 h-5 ${isRTL ? "me-2 rotate-180" : "ms-2"}`} />
+                      <ArrowRight className={`w-5 h-5 ${isRTL ? "me-2 rotate-180" : "ms-2"}`} aria-hidden="true" />
                     </>
                   )}
                 </Button>
@@ -521,22 +521,22 @@ const ClinicOnboarding = () => {
                   <Button
                     variant="outline"
                     onClick={() => setCurrentStep("organization")}
-                    className="flex-1"
+                    className="flex-1 min-h-[48px]"
                   >
-                    <ArrowLeft className={`w-4 h-4 ${isRTL ? "ms-2 rotate-180" : "me-2"}`} />
+                    <ArrowLeft className={`w-4 h-4 ${isRTL ? "ms-2 rotate-180" : "me-2"}`} aria-hidden="true" />
                     {t("common.back")}
                   </Button>
                   <Button
                     onClick={saveLocation}
                     disabled={isSubmitting}
-                    className="flex-1 bg-accent hover:bg-accent/90"
+                    className="flex-1 min-h-[48px] bg-accent hover:bg-accent/90"
                   >
                     {isSubmitting ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
                       <>
                         {t("common.continue")}
-                        <ArrowRight className={`w-5 h-5 ${isRTL ? "me-2 rotate-180" : "ms-2"}`} />
+                        <ArrowRight className={`w-5 h-5 ${isRTL ? "me-2 rotate-180" : "ms-2"}`} aria-hidden="true" />
                       </>
                     )}
                   </Button>
@@ -587,15 +587,15 @@ const ClinicOnboarding = () => {
                   <Button
                     variant="outline"
                     onClick={() => setCurrentStep("location")}
-                    className="flex-1"
+                    className="flex-1 min-h-[48px]"
                   >
-                    <ArrowLeft className={`w-4 h-4 ${isRTL ? "ms-2 rotate-180" : "me-2"}`} />
+                    <ArrowLeft className={`w-4 h-4 ${isRTL ? "ms-2 rotate-180" : "me-2"}`} aria-hidden="true" />
                     {t("common.back")}
                   </Button>
                   <Button
                     onClick={completeOnboarding}
                     disabled={isSubmitting || requiredDocsUploaded < totalRequiredDocs}
-                    className="flex-1 bg-accent hover:bg-accent/90"
+                    className="flex-1 min-h-[48px] bg-accent hover:bg-accent/90"
                   >
                     {isSubmitting ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
@@ -622,9 +622,9 @@ const ClinicOnboarding = () => {
               <p className="text-muted-foreground mb-8 max-w-sm mx-auto">
                 {t("onboarding.clinic.completeDesc")}
               </p>
-              <Button size="lg" className="bg-accent hover:bg-accent/90" onClick={() => navigate("/dashboard/clinic")}>
+              <Button size="lg" className="min-h-[48px] bg-accent hover:bg-accent/90" onClick={() => navigate("/dashboard/clinic")}>
                 {t("onboarding.clinic.goToDashboard")}
-                <ArrowRight className={`w-5 h-5 ${isRTL ? "me-2 rotate-180" : "ms-2"}`} />
+                <ArrowRight className={`w-5 h-5 ${isRTL ? "me-2 rotate-180" : "ms-2"}`} aria-hidden="true" />
               </Button>
             </motion.div>
           )}

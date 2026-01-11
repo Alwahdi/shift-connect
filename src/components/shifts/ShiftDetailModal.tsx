@@ -152,11 +152,11 @@ const ShiftDetailModal = ({
 
         <div className="space-y-4">
           {/* Key Details */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-secondary/50 rounded-lg p-3">
+          <div className="grid grid-cols-2 gap-3" role="list" aria-label={t("shifts.modal.details")}>
+            <div className="bg-secondary/50 rounded-lg p-4 min-h-[72px]" role="listitem">
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                <Calendar className="w-4 h-4" />
-                {t("shifts.date")}
+                <Calendar className="w-4 h-4" aria-hidden="true" />
+                <span>{t("shifts.date")}</span>
               </div>
               <p className="font-medium text-foreground">
                 {new Date(shift.shift_date).toLocaleDateString(isRTL ? "ar-SA" : "en-US", {
@@ -166,26 +166,26 @@ const ShiftDetailModal = ({
                 })}
               </p>
             </div>
-            <div className="bg-secondary/50 rounded-lg p-3">
+            <div className="bg-secondary/50 rounded-lg p-4 min-h-[72px]" role="listitem">
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                <Clock className="w-4 h-4" />
-                {t("shifts.time")}
+                <Clock className="w-4 h-4" aria-hidden="true" />
+                <span>{t("shifts.time")}</span>
               </div>
               <p className="font-medium text-foreground">
                 {shift.start_time} - {shift.end_time}
               </p>
             </div>
-            <div className="bg-secondary/50 rounded-lg p-3">
+            <div className="bg-secondary/50 rounded-lg p-4 min-h-[72px]" role="listitem">
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                <DollarSign className="w-4 h-4" />
-                {t("shifts.rate")}
+                <DollarSign className="w-4 h-4" aria-hidden="true" />
+                <span>{t("shifts.rate")}</span>
               </div>
               <p className="font-medium text-foreground">${shift.hourly_rate}{t("common.perHour")}</p>
             </div>
-            <div className="bg-primary/10 rounded-lg p-3">
+            <div className="bg-primary/10 rounded-lg p-4 min-h-[72px]" role="listitem">
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                <DollarSign className="w-4 h-4 text-primary" />
-                {t("shifts.modal.estimated")}
+                <DollarSign className="w-4 h-4 text-primary" aria-hidden="true" />
+                <span>{t("shifts.modal.estimated")}</span>
               </div>
               <p className="font-bold text-primary">${estimatedEarnings}</p>
             </div>
@@ -260,8 +260,12 @@ const ShiftDetailModal = ({
 
           {/* Verification Warning */}
           {!isVerified && (
-            <div className="bg-warning/10 border border-warning/20 rounded-lg p-4 flex items-start gap-3">
-              <Shield className="w-5 h-5 text-warning mt-0.5" />
+            <div 
+              id="verification-warning"
+              role="alert"
+              className="bg-warning/10 border border-warning/20 rounded-lg p-4 flex items-start gap-3"
+            >
+              <Shield className="w-5 h-5 text-warning mt-0.5 flex-shrink-0" aria-hidden="true" />
               <div>
                 <p className="text-sm font-medium text-foreground">{t("shifts.modal.verificationRequired")}</p>
                 <p className="text-sm text-muted-foreground">
@@ -273,13 +277,18 @@ const ShiftDetailModal = ({
 
           {/* Action Button */}
           <div className="flex gap-3 pt-2">
-            <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
+            <Button 
+              variant="outline" 
+              className="flex-1 min-h-[48px]" 
+              onClick={() => onOpenChange(false)}
+            >
               {t("common.close")}
             </Button>
             <Button
-              className="flex-1"
+              className="flex-1 min-h-[48px]"
               disabled={!isVerified || isApplying || hasApplied}
               onClick={handleApply}
+              aria-describedby={!isVerified ? "verification-warning" : undefined}
             >
               {isApplying ? (
                 <>

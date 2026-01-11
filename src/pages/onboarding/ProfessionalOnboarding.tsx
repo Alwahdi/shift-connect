@@ -493,7 +493,7 @@ const ProfessionalOnboarding = () => {
                 </div>
 
                 <Button
-                  className="w-full"
+                  className="w-full min-h-[48px]"
                   size="lg"
                   onClick={saveProfile}
                   disabled={isSubmitting || !profileData.full_name.trim()}
@@ -503,7 +503,7 @@ const ProfessionalOnboarding = () => {
                   ) : (
                     <>
                       {t("common.continue")}
-                      <ArrowRight className={`w-5 h-5 ${isRTL ? "me-2 rotate-180" : "ms-2"}`} />
+                      <ArrowRight className={`w-5 h-5 ${isRTL ? "me-2 rotate-180" : "ms-2"}`} aria-hidden="true" />
                     </>
                   )}
                 </Button>
@@ -537,15 +537,20 @@ const ProfessionalOnboarding = () => {
                       {t("common.apply")}
                     </Button>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2" role="list" aria-label={t("onboarding.fields.specialties")}>
                     {qualifications.specialties.map((item, i) => (
                       <span
                         key={i}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm"
+                        role="listitem"
+                        className="inline-flex items-center gap-1 px-3 py-2 rounded-full bg-primary/10 text-primary text-sm"
                       >
                         {item}
-                        <button onClick={() => removeItem("specialties", i)}>
-                          <X className="w-3.5 h-3.5" />
+                        <button 
+                          onClick={() => removeItem("specialties", i)}
+                          aria-label={`Remove ${item}`}
+                          className="p-0.5 hover:bg-primary/20 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          <X className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
                       </span>
                     ))}
@@ -566,15 +571,20 @@ const ProfessionalOnboarding = () => {
                       {t("common.apply")}
                     </Button>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2" role="list" aria-label={t("onboarding.fields.qualifications")}>
                     {qualifications.qualifications.map((item, i) => (
                       <span
                         key={i}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-secondary text-foreground text-sm"
+                        role="listitem"
+                        className="inline-flex items-center gap-1 px-3 py-2 rounded-full bg-secondary text-foreground text-sm"
                       >
                         {item}
-                        <button onClick={() => removeItem("qualifications", i)}>
-                          <X className="w-3.5 h-3.5" />
+                        <button 
+                          onClick={() => removeItem("qualifications", i)}
+                          aria-label={`Remove ${item}`}
+                          className="p-0.5 hover:bg-muted rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          <X className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
                       </span>
                     ))}
@@ -585,22 +595,22 @@ const ProfessionalOnboarding = () => {
                   <Button
                     variant="outline"
                     onClick={() => setCurrentStep("profile")}
-                    className="flex-1"
+                    className="flex-1 min-h-[48px]"
                   >
-                    <ArrowLeft className={`w-4 h-4 ${isRTL ? "ms-2 rotate-180" : "me-2"}`} />
+                    <ArrowLeft className={`w-4 h-4 ${isRTL ? "ms-2 rotate-180" : "me-2"}`} aria-hidden="true" />
                     {t("common.back")}
                   </Button>
                   <Button
                     onClick={saveQualifications}
                     disabled={isSubmitting}
-                    className="flex-1"
+                    className="flex-1 min-h-[48px]"
                   >
                     {isSubmitting ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
                       <>
                         {t("common.continue")}
-                        <ArrowRight className={`w-5 h-5 ${isRTL ? "me-2 rotate-180" : "ms-2"}`} />
+                        <ArrowRight className={`w-5 h-5 ${isRTL ? "me-2 rotate-180" : "ms-2"}`} aria-hidden="true" />
                       </>
                     )}
                   </Button>
@@ -651,15 +661,15 @@ const ProfessionalOnboarding = () => {
                   <Button
                     variant="outline"
                     onClick={() => setCurrentStep("qualifications")}
-                    className="flex-1"
+                    className="flex-1 min-h-[48px]"
                   >
-                    <ArrowLeft className={`w-4 h-4 ${isRTL ? "ms-2 rotate-180" : "me-2"}`} />
+                    <ArrowLeft className={`w-4 h-4 ${isRTL ? "ms-2 rotate-180" : "me-2"}`} aria-hidden="true" />
                     {t("common.back")}
                   </Button>
                   <Button
                     onClick={completeOnboarding}
                     disabled={isSubmitting || requiredDocsUploaded < totalRequiredDocs}
-                    className="flex-1"
+                    className="flex-1 min-h-[48px]"
                   >
                     {isSubmitting ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
@@ -686,9 +696,9 @@ const ProfessionalOnboarding = () => {
               <p className="text-muted-foreground mb-8 max-w-sm mx-auto">
                 {t("onboarding.professional.completeDesc")}
               </p>
-              <Button size="lg" onClick={() => navigate("/dashboard/professional")}>
+              <Button size="lg" className="min-h-[48px]" onClick={() => navigate("/dashboard/professional")}>
                 {t("onboarding.professional.goToDashboard")}
-                <ArrowRight className={`w-5 h-5 ${isRTL ? "me-2 rotate-180" : "ms-2"}`} />
+                <ArrowRight className={`w-5 h-5 ${isRTL ? "me-2 rotate-180" : "ms-2"}`} aria-hidden="true" />
               </Button>
             </motion.div>
           )}
