@@ -612,6 +612,70 @@
       "adminDesc": "Review and verification permissions",
       "professional": "Professional",
       "clinic": "Clinic"
+    },
+    "permissions": {
+      "verifyProfessionals": "Verify Professionals",
+      "verifyProfessionalsDesc": "Can approve or reject professional accounts",
+      "verifyClinics": "Verify Clinics",
+      "verifyClinicsDesc": "Can approve or reject clinic accounts",
+      "verifyDocuments": "Verify Documents",
+      "verifyDocumentsDesc": "Can review and verify uploaded documents",
+      "viewAnalytics": "View Analytics",
+      "viewAnalyticsDesc": "Can access dashboard analytics and reports",
+      "manageAdmins": "Manage Admins",
+      "manageAdminsDesc": "Can add or remove other admin users"
+    },
+    "team": {
+      "title": "Team Management",
+      "subtitle": "Manage admin users and their permissions",
+      "addAdmin": "Add Admin",
+      "inviteAdmin": "Invite New Admin",
+      "sendInvite": "Send Invitation",
+      "inviteSent": "Invitation Sent",
+      "inviteSentDesc": "An invitation has been sent to {{email}}",
+      "searchAdmins": "Search admins...",
+      "noAdmins": "No admin users found",
+      "manage": "Manage",
+      "manageAdmin": "Manage Admin",
+      "permissions": "Permissions",
+      "permissionsUpdated": "Permissions Updated",
+      "permissionsUpdatedDesc": "Admin permissions have been saved",
+      "removeAdmin": "Remove Admin",
+      "removed": "Admin Removed",
+      "removedDesc": "The admin has been removed from the team",
+      "superAdminOnly": "Super Admin Access Required",
+      "superAdminOnlyDesc": "Only super admins can manage the admin team"
+    },
+    "notes": {
+      "title": "Admin Notes",
+      "placeholder": "Add a note about this user...",
+      "add": "Add Note",
+      "added": "Note Added",
+      "addedDesc": "Your note has been saved",
+      "deleted": "Note Deleted",
+      "deletedDesc": "The note has been removed",
+      "empty": "No notes yet",
+      "types": {
+        "general": "General",
+        "warning": "Warning",
+        "verification": "Verification",
+        "followUp": "Follow Up"
+      }
+    },
+    "userDetail": {
+      "info": "Info",
+      "documents": "Documents",
+      "notes": "Notes",
+      "joined": "Joined",
+      "noDocuments": "No documents uploaded",
+      "previewUnavailable": "Preview not available",
+      "download": "Download",
+      "openNewTab": "Open in new tab",
+      "rejectionReason": "Enter rejection reason...",
+      "confirmReject": "Confirm Rejection",
+      "verifyDoc": "Verify Document",
+      "docVerified": "This document has been verified",
+      "docRejected": "This document was rejected"
     }
   },
   "notifications": {

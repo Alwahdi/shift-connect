@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_notes: {
+        Row: {
+          admin_id: string
+          created_at: string | null
+          id: string
+          note: string
+          note_type: string | null
+          target_type: string
+          target_user_id: string
+        }
+        Insert: {
+          admin_id: string
+          created_at?: string | null
+          id?: string
+          note: string
+          note_type?: string | null
+          target_type: string
+          target_user_id: string
+        }
+        Update: {
+          admin_id?: string
+          created_at?: string | null
+          id?: string
+          note?: string
+          note_type?: string | null
+          target_type?: string
+          target_user_id?: string
+        }
+        Relationships: []
+      }
+      admin_permissions: {
+        Row: {
+          can_manage_admins: boolean | null
+          can_verify_clinics: boolean | null
+          can_verify_documents: boolean | null
+          can_verify_professionals: boolean | null
+          can_view_analytics: boolean | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          can_manage_admins?: boolean | null
+          can_verify_clinics?: boolean | null
+          can_verify_documents?: boolean | null
+          can_verify_professionals?: boolean | null
+          can_view_analytics?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          can_manage_admins?: boolean | null
+          can_verify_clinics?: boolean | null
+          can_verify_documents?: boolean | null
+          can_verify_professionals?: boolean | null
+          can_view_analytics?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       availability: {
         Row: {
           created_at: string
