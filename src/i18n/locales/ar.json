@@ -612,6 +612,70 @@
       "adminDesc": "صلاحيات المراجعة والتوثيق",
       "professional": "مختص صحي",
       "clinic": "منشأة صحية"
+    },
+    "permissions": {
+      "verifyProfessionals": "توثيق المختصين",
+      "verifyProfessionalsDesc": "قبول أو رفض حسابات المختصين",
+      "verifyClinics": "توثيق المنشآت",
+      "verifyClinicsDesc": "قبول أو رفض حسابات المنشآت",
+      "verifyDocuments": "توثيق المستندات",
+      "verifyDocumentsDesc": "مراجعة والتحقق من المستندات المرفوعة",
+      "viewAnalytics": "عرض الإحصائيات",
+      "viewAnalyticsDesc": "الوصول لتحليلات وتقارير لوحة التحكم",
+      "manageAdmins": "إدارة المشرفين",
+      "manageAdminsDesc": "إضافة أو إزالة مستخدمين مشرفين آخرين"
+    },
+    "team": {
+      "title": "إدارة الفريق",
+      "subtitle": "إدارة المشرفين وصلاحياتهم",
+      "addAdmin": "إضافة مشرف",
+      "inviteAdmin": "دعوة مشرف جديد",
+      "sendInvite": "إرسال الدعوة",
+      "inviteSent": "تم إرسال الدعوة",
+      "inviteSentDesc": "تم إرسال دعوة إلى {{email}}",
+      "searchAdmins": "البحث في المشرفين...",
+      "noAdmins": "لا يوجد مشرفون",
+      "manage": "إدارة",
+      "manageAdmin": "إدارة المشرف",
+      "permissions": "الصلاحيات",
+      "permissionsUpdated": "تم تحديث الصلاحيات",
+      "permissionsUpdatedDesc": "تم حفظ صلاحيات المشرف",
+      "removeAdmin": "إزالة المشرف",
+      "removed": "تمت إزالة المشرف",
+      "removedDesc": "تمت إزالة المشرف من الفريق",
+      "superAdminOnly": "يتطلب صلاحيات المشرف العام",
+      "superAdminOnlyDesc": "فقط المشرف العام يمكنه إدارة فريق المشرفين"
+    },
+    "notes": {
+      "title": "ملاحظات المشرف",
+      "placeholder": "أضف ملاحظة عن هذا المستخدم...",
+      "add": "إضافة ملاحظة",
+      "added": "تمت إضافة الملاحظة",
+      "addedDesc": "تم حفظ ملاحظتك",
+      "deleted": "تم حذف الملاحظة",
+      "deletedDesc": "تمت إزالة الملاحظة",
+      "empty": "لا توجد ملاحظات بعد",
+      "types": {
+        "general": "عامة",
+        "warning": "تحذير",
+        "verification": "توثيق",
+        "followUp": "متابعة"
+      }
+    },
+    "userDetail": {
+      "info": "المعلومات",
+      "documents": "المستندات",
+      "notes": "الملاحظات",
+      "joined": "انضم في",
+      "noDocuments": "لا توجد مستندات مرفوعة",
+      "previewUnavailable": "المعاينة غير متاحة",
+      "download": "تحميل",
+      "openNewTab": "فتح في نافذة جديدة",
+      "rejectionReason": "أدخل سبب الرفض...",
+      "confirmReject": "تأكيد الرفض",
+      "verifyDoc": "توثيق المستند",
+      "docVerified": "تم التحقق من هذا المستند",
+      "docRejected": "تم رفض هذا المستند"
     }
   },
   "notifications": {

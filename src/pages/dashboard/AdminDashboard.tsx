@@ -16,7 +16,8 @@ import {
   Loader2,
   AlertTriangle,
   RefreshCw,
-  Shield
+  Shield,
+  UserCog
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -26,9 +27,10 @@ import { useTranslation } from "react-i18next";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsGrid from "@/components/dashboard/StatsGrid";
 import DocumentViewer from "@/components/admin/DocumentViewer";
-import UserDetailsModal from "@/components/admin/UserDetailsModal";
-import { ListItemSkeleton, DocumentCardSkeleton } from "@/components/ui/skeleton-cards";
-import { EmptyState, InlineEmptyState } from "@/components/ui/empty-state";
+import UserDetailSheet from "@/components/admin/UserDetailSheet";
+import AdminManagement from "@/components/admin/AdminManagement";
+import { ListItemSkeleton } from "@/components/ui/skeleton-cards";
+import { InlineEmptyState } from "@/components/ui/empty-state";
 
 interface Profile {
   id: string;
@@ -348,7 +350,7 @@ const AdminDashboard = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className={`grid w-full ${isSuperAdmin ? 'grid-cols-5' : 'grid-cols-4'}`}>
             <TabsTrigger value="overview">{t("admin.tabs.overview")}</TabsTrigger>
             <TabsTrigger value="professionals">
               {t("admin.tabs.professionals")}
@@ -374,6 +376,12 @@ const AdminDashboard = () => {
                 </span>
               )}
             </TabsTrigger>
+            {isSuperAdmin && (
+              <TabsTrigger value="team">
+                <UserCog className="w-4 h-4 me-1 hidden sm:block" />
+                {t("admin.tabs.admins")}
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Overview Tab */}
@@ -742,6 +750,13 @@ const AdminDashboard = () => {
               </div>
             </div>
           </TabsContent>
+
+          {/* Team Management Tab (Super Admin Only) */}
+          {isSuperAdmin && (
+            <TabsContent value="team">
+              <AdminManagement />
+            </TabsContent>
+          )}
         </Tabs>
       </main>
 
@@ -755,11 +770,13 @@ const AdminDashboard = () => {
       )}
 
       {selectedUser && (
-        <UserDetailsModal
+        <UserDetailSheet
           type={selectedUser.type}
           user={selectedUser.data}
+          isOpen={!!selectedUser}
           onClose={() => setSelectedUser(null)}
           onVerify={(status) => handleVerifyUser(selectedUser.type, selectedUser.data.user_id, status)}
+          onDocumentVerify={handleVerifyDocument}
         />
       )}
     </div>
