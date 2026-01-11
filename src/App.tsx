@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
@@ -37,7 +38,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <AuthProvider>
-              <main id="main-content">
+              <main id="main-content" className="pb-16 md:pb-0">
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
@@ -63,6 +64,7 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
+              <MobileBottomNav />
             </AuthProvider>
           </BrowserRouter>
         </LanguageProvider>
