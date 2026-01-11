@@ -58,17 +58,58 @@ export const ProfileCardSkeleton = ({ className }: SkeletonCardProps) => (
     "bg-card rounded-2xl border border-border p-6 shadow-card animate-pulse",
     className
   )}>
-    <div className="flex items-center gap-4 mb-4">
-      <Skeleton className="w-16 h-16 rounded-full" />
-      <div className="space-y-2">
+    <div className="flex flex-col sm:flex-row gap-6 items-start">
+      <Skeleton className="w-24 h-24 rounded-full shrink-0" />
+      <div className="flex-1 space-y-3 w-full">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-7 w-40" />
+          <Skeleton className="h-5 w-20 rounded-full" />
+        </div>
         <Skeleton className="h-5 w-32" />
-        <Skeleton className="h-4 w-24" />
+        <div className="flex gap-4">
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-4 w-24" />
+        </div>
       </div>
     </div>
-    <div className="space-y-3">
+    <div className="my-6">
+      <Skeleton className="h-px w-full" />
+    </div>
+    <div className="space-y-4">
+      <Skeleton className="h-5 w-24" />
       <Skeleton className="h-4 w-full" />
       <Skeleton className="h-4 w-3/4" />
-      <Skeleton className="h-4 w-1/2" />
+    </div>
+    <div className="mt-6 space-y-3">
+      <Skeleton className="h-5 w-28" />
+      <div className="flex flex-wrap gap-2">
+        <Skeleton className="h-6 w-20 rounded-full" />
+        <Skeleton className="h-6 w-24 rounded-full" />
+        <Skeleton className="h-6 w-16 rounded-full" />
+      </div>
+    </div>
+  </div>
+);
+
+/**
+ * Skeleton for profile sidebar / contact info
+ */
+export const ProfileSidebarSkeleton = ({ className }: SkeletonCardProps) => (
+  <div className={cn(
+    "bg-card rounded-2xl border border-border p-6 shadow-card animate-pulse",
+    className
+  )}>
+    <Skeleton className="h-5 w-28 mb-6" />
+    <div className="space-y-4">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-3">
+          <Skeleton className="w-10 h-10 rounded-full" />
+          <div className="space-y-1.5 flex-1">
+            <Skeleton className="h-3 w-16" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+        </div>
+      ))}
     </div>
   </div>
 );
@@ -105,6 +146,30 @@ export const ListItemSkeleton = ({ className }: SkeletonCardProps) => (
       <Skeleton className="h-3 w-24" />
     </div>
     <Skeleton className="h-6 w-16 rounded-full" />
+  </div>
+);
+
+/**
+ * Skeleton for shift items in profile view
+ */
+export const ShiftItemSkeleton = ({ className }: SkeletonCardProps) => (
+  <div className={cn(
+    "bg-secondary/30 rounded-lg p-4 border border-border animate-pulse",
+    className
+  )}>
+    <div className="flex items-start justify-between gap-4">
+      <div className="space-y-2 flex-1">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-5 w-28" />
+          <Skeleton className="h-5 w-14 rounded-full" />
+        </div>
+        <div className="flex gap-3">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-4 w-28" />
+        </div>
+      </div>
+      <Skeleton className="h-6 w-16" />
+    </div>
   </div>
 );
 

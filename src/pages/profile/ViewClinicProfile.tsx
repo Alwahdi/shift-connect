@@ -15,16 +15,17 @@ import {
   CheckCircle2, 
   Calendar,
   Clock,
-  DollarSign,
   Building2,
-  Loader2,
-  Briefcase
+  Briefcase,
+  XCircle
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { ProfileCardSkeleton, ProfileSidebarSkeleton, ShiftItemSkeleton } from "@/components/ui/skeleton-cards";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface Clinic {
   id: string;
@@ -101,8 +102,37 @@ const ViewClinicProfile = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background" dir={isRTL ? "rtl" : "ltr"}>
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <div className="mb-6">
+            <Button variant="ghost" disabled>
+              <ArrowLeft className="w-4 h-4 me-2" aria-hidden="true" />
+              {t("common.back")}
+            </Button>
+          </div>
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              <ProfileCardSkeleton />
+              {/* Shifts skeleton */}
+              <Card>
+                <CardContent className="p-6 space-y-3">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Briefcase className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
+                    <span className="font-semibold text-muted-foreground">{t("viewProfile.openShifts")}</span>
+                  </div>
+                  {Array.from({ length: 2 }).map((_, i) => (
+                    <ShiftItemSkeleton key={i} />
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+            <div>
+              <ProfileSidebarSkeleton />
+            </div>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
@@ -112,15 +142,19 @@ const ViewClinicProfile = () => {
       <div className="min-h-screen bg-background" dir={isRTL ? "rtl" : "ltr"}>
         <Header />
         <main className="container mx-auto px-4 py-12">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-foreground mb-4">{t("viewProfile.clinicNotFound")}</h1>
-            <Button asChild>
-              <Link to="/">
-                <ArrowLeft className="w-4 h-4 me-2" />
-                {t("common.back")}
-              </Link>
-            </Button>
-          </div>
+          <EmptyState
+            icon={XCircle}
+            title={t("viewProfile.clinicNotFound")}
+            description={t("viewProfile.clinicNotFoundDescription", "This clinic profile could not be found or may have been removed.")}
+            action={
+              <Button asChild>
+                <Link to="/">
+                  <ArrowLeft className="w-4 h-4 me-2" aria-hidden="true" />
+                  {t("common.back")}
+                </Link>
+              </Button>
+            }
+          />
         </main>
         <Footer />
       </div>
