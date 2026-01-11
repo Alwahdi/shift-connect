@@ -19,41 +19,49 @@ const FeaturesSection = () => {
       icon: Shield,
       title: t("home.features.verification.title"),
       description: t("home.features.verification.desc"),
+      gradient: "gradient-primary",
     },
     {
       icon: Zap,
       title: t("home.features.matching.title"),
       description: t("home.features.matching.desc"),
+      gradient: "gradient-accent",
     },
     {
       icon: MapPin,
       title: t("professionals.benefits.verified"),
       description: t("professionals.benefits.verifiedDesc"),
+      gradient: "gradient-sky",
     },
     {
       icon: Calendar,
       title: t("professionals.benefits.flexibility"),
       description: t("professionals.benefits.flexibilityDesc"),
+      gradient: "gradient-primary",
     },
     {
       icon: Star,
       title: t("dashboard.stats.avgRating"),
       description: t("home.features.booking.desc"),
+      gradient: "gradient-accent",
     },
     {
       icon: CreditCard,
       title: t("home.features.payments.title"),
       description: t("home.features.payments.desc"),
+      gradient: "gradient-sky",
     },
     {
       icon: Clock,
       title: t("clinics.benefits.fast"),
       description: t("clinics.benefits.fastDesc"),
+      gradient: "gradient-primary",
     },
     {
       icon: FileCheck,
       title: t("profile.documents"),
       description: t("home.features.booking.desc"),
+      gradient: "gradient-accent",
     },
   ];
 
@@ -65,17 +73,17 @@ const FeaturesSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          className="text-center mb-12 md:mb-16"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
             {t("home.features.title")}
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
             {t("home.features.subtitle")}
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
@@ -83,12 +91,12 @@ const FeaturesSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group p-6 rounded-2xl bg-card border border-border shadow-card hover:shadow-card-hover hover:border-primary/20 transition-all duration-300"
+              className="group p-5 md:p-6 rounded-xl md:rounded-2xl bg-card border border-border shadow-card hover:shadow-card-hover hover:border-primary/20 transition-all duration-300 touch-manipulation"
             >
-              <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                <feature.icon className="w-6 h-6 text-primary-foreground" />
+              <div className={`w-11 h-11 md:w-12 md:h-12 rounded-lg md:rounded-xl ${feature.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-md`}>
+                <feature.icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">
+              <h3 className="text-base md:text-lg font-semibold text-foreground mb-2">
                 {feature.title}
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
