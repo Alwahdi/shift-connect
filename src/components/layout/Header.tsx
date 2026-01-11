@@ -5,19 +5,13 @@ import { Menu, X, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
+import ThemeToggle from "./ThemeToggle";
+import { SITE_CONFIG, NAV_LINKS } from "@/config/constants";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { t } = useTranslation();
-
-  const navLinks = [
-    { href: "/", label: t("nav.home") },
-    { href: "/shifts", label: t("nav.findShifts") },
-    { href: "/for-professionals", label: t("nav.forProfessionals") },
-    { href: "/for-clinics", label: t("nav.forClinics") },
-    { href: "/about", label: t("nav.about") },
-  ];
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/50 safe-area-inset">
@@ -28,12 +22,12 @@ const Header = () => {
             <div className="w-10 h-10 md:w-11 md:h-11 rounded-xl gradient-primary flex items-center justify-center shadow-md">
               <Heart className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
-            <span className="font-bold text-xl md:text-2xl text-foreground">SyndeoCare</span>
+            <span className="font-bold text-xl md:text-2xl text-foreground">{SITE_CONFIG.name}</span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
+            {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
@@ -43,13 +37,14 @@ const Header = () => {
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                 }`}
               >
-                {link.label}
+                {t(link.labelKey)}
               </Link>
             ))}
           </nav>
 
           {/* Desktop CTA */}
-          <div className="hidden lg:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-3">
+            <ThemeToggle />
             <LanguageSwitcher variant="text" />
             <Link to="/auth">
               <Button variant="ghost" size="default" className="font-medium">
@@ -64,13 +59,16 @@ const Header = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <button
-            className="lg:hidden p-3 rounded-xl hover:bg-secondary active:bg-secondary/80 transition-colors touch-manipulation"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          <div className="flex items-center gap-2 lg:hidden">
+            <ThemeToggle />
+            <button
+              className="p-3 rounded-xl hover:bg-secondary active:bg-secondary/80 transition-colors touch-manipulation"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -85,7 +83,7 @@ const Header = () => {
             className="lg:hidden bg-background/98 backdrop-blur-xl border-b border-border"
           >
             <div className="container mx-auto px-4 py-5 space-y-2 safe-area-inset-bottom">
-              {navLinks.map((link) => (
+              {NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
@@ -96,7 +94,7 @@ const Header = () => {
                       : "text-muted-foreground hover:text-foreground active:bg-secondary"
                   }`}
                 >
-                  {link.label}
+                  {t(link.labelKey)}
                 </Link>
               ))}
               
