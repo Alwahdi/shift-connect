@@ -31,6 +31,8 @@ import OnboardingBanner from "@/components/dashboard/OnboardingBanner";
 import ShiftDetailModal from "@/components/shifts/ShiftDetailModal";
 import { ShiftCardSkeleton } from "@/components/ui/skeleton-cards";
 import { EmptyState } from "@/components/ui/empty-state";
+import ActiveBookingsSection from "@/components/booking/ActiveBookingsSection";
+import { useBookingRealtime } from "@/hooks/useBookingRealtime";
 
 interface Shift {
   id: string;
@@ -330,6 +332,19 @@ const ProfessionalDashboard = () => {
 
         {/* Stats */}
         <StatsGrid stats={stats} variant="primary" />
+
+        {/* Active Bookings */}
+        {profile && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="mb-6"
+          >
+            <h2 className="text-lg font-semibold text-foreground mb-4">{t("booking.activeShifts")}</h2>
+            <ActiveBookingsSection profileId={profile.id} userType="professional" />
+          </motion.div>
+        )}
 
         {/* Available Shifts */}
         <motion.div
