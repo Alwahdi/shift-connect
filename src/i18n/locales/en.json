@@ -49,7 +49,18 @@
     "email": "Email",
     "phone": "Phone",
     "noData": "No data available",
-    "currency": "$"
+    "currency": "$",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "toggleTheme": "Toggle theme",
+    "redirecting": "Redirecting"
+  },
+  "stats": {
+    "professionals": "Professionals",
+    "facilities": "Facilities",
+    "completedShifts": "Completed Shifts",
+    "avgRating": "Avg Rating"
   },
   "nav": {
     "home": "Home",

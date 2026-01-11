@@ -49,7 +49,18 @@
     "email": "البريد الإلكتروني",
     "phone": "رقم الجوال",
     "noData": "لا توجد بيانات",
-    "currency": "ر.س"
+    "currency": "ر.س",
+    "light": "فاتح",
+    "dark": "داكن",
+    "system": "تلقائي",
+    "toggleTheme": "تغيير المظهر",
+    "redirecting": "جارٍ التحويل"
+  },
+  "stats": {
+    "professionals": "مختص صحي",
+    "facilities": "منشأة صحية",
+    "completedShifts": "وردية مكتملة",
+    "avgRating": "متوسط التقييم"
   },
   "nav": {
     "home": "الرئيسية",

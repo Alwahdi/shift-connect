@@ -3,9 +3,34 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, Users, Building2, Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { PLATFORM_STATS } from "@/config/constants";
 
 const HeroSection = () => {
   const { t } = useTranslation();
+
+  // Stats using centralized configuration
+  const stats = [
+    { 
+      value: PLATFORM_STATS.professionals.value, 
+      label: t("stats.professionals"),
+      icon: null 
+    },
+    { 
+      value: PLATFORM_STATS.facilities.value, 
+      label: t("stats.facilities"),
+      icon: null 
+    },
+    { 
+      value: PLATFORM_STATS.completedShifts.value, 
+      label: t("stats.completedShifts"),
+      icon: null 
+    },
+    { 
+      value: PLATFORM_STATS.averageRating.value, 
+      label: t("stats.avgRating"),
+      icon: Star 
+    },
+  ];
 
   return (
     <section className="relative pt-28 pb-20 md:pt-36 md:pb-28 lg:pt-44 lg:pb-36 gradient-hero overflow-hidden">
@@ -81,12 +106,7 @@ const HeroSection = () => {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-3xl mx-auto bg-white/10 backdrop-blur-xl rounded-2xl md:rounded-3xl p-6 md:p-8 border border-white/15 shadow-xl"
           >
-            {[
-              { value: "10,000+", label: t("nav.forProfessionals").replace("For ", "").replace("للمهنيين", "مهني") },
-              { value: "500+", label: t("nav.forClinics").replace("For ", "").replace("للمنشآت الصحية", "منشأة") },
-              { value: "50,000+", label: t("dashboard.completedShifts") },
-              { value: "4.9", label: t("dashboard.stats.avgRating"), icon: Star },
-            ].map((stat) => (
+            {stats.map((stat) => (
               <div key={stat.label} className="text-center py-2">
                 <div className="flex items-center justify-center gap-1.5 mb-1.5">
                   <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight">{stat.value}</span>

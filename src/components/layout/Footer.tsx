@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Heart, Mail, Phone, MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { SITE_CONFIG } from "@/config/constants";
 
 const Footer = () => {
   const { t } = useTranslation();
@@ -15,7 +16,7 @@ const Footer = () => {
               <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center shadow-lg">
                 <Heart className="w-7 h-7 text-white" />
               </div>
-              <span className="font-bold text-2xl text-white">SyndeoCare</span>
+              <span className="font-bold text-2xl text-white">{SITE_CONFIG.name}</span>
             </Link>
             <p className="text-white/70 leading-relaxed max-w-xs">
               {t("footer.tagline")}
@@ -72,15 +73,15 @@ const Footer = () => {
             <ul className="space-y-4">
               <li className="flex items-center gap-3 text-white/70">
                 <Mail className="w-5 h-5 flex-shrink-0 text-accent" />
-                support@syndeocare.ai
+                {SITE_CONFIG.supportEmail}
               </li>
               <li className="flex items-center gap-3 text-white/70">
                 <Phone className="w-5 h-5 flex-shrink-0 text-accent" />
-                1-800-SYNDEO
+                {SITE_CONFIG.supportPhone}
               </li>
               <li className="flex items-center gap-3 text-white/70">
                 <MapPin className="w-5 h-5 flex-shrink-0 text-accent" />
-                San Francisco, CA
+                {SITE_CONFIG.location}
               </li>
             </ul>
           </div>
