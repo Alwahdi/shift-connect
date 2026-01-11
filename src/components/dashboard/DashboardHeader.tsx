@@ -51,7 +51,7 @@ const DashboardHeader = ({ type, onSignOut, avatarUrl, name }: DashboardHeaderPr
     <header className="bg-card border-b border-border sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 min-h-[44px]">
             <div className={`w-8 h-8 rounded-lg ${config.gradient} flex items-center justify-center`}>
               <IconComponent className={`w-4 h-4 ${type === "admin" ? "text-background" : `text-${type === "clinic" ? "accent" : "primary"}-foreground`}`} />
             </div>
@@ -60,22 +60,26 @@ const DashboardHeader = ({ type, onSignOut, avatarUrl, name }: DashboardHeaderPr
             </span>
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <LanguageSwitcher variant="icon" />
             {type !== "admin" && (
-              <button className="relative p-2 rounded-lg hover:bg-secondary transition-colors">
+              <button 
+                className="relative p-2.5 rounded-xl hover:bg-secondary transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                aria-label={t("common.notifications")}
+              >
                 <Bell className="w-5 h-5 text-muted-foreground" />
-                <span className="absolute top-1 end-1 w-2 h-2 bg-accent rounded-full" />
+                <span className="absolute top-2 end-2 w-2 h-2 bg-accent rounded-full" aria-hidden="true" />
+                <span className="sr-only">{t("common.newNotifications")}</span>
               </button>
             )}
             <button 
               onClick={onSignOut}
-              className="flex items-center gap-2 p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
-              title={t("common.logOut")}
+              className="flex items-center gap-2 p-2.5 rounded-xl hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors min-h-[44px] min-w-[44px] justify-center"
+              aria-label={t("common.logOut")}
             >
               <LogOut className="w-5 h-5" />
             </button>
-            <Avatar className="w-8 h-8">
+            <Avatar className="w-9 h-9">
               <AvatarImage src={avatarUrl || undefined} alt={name || "User"} />
               <AvatarFallback className={`${config.avatarGradient} text-white text-xs font-medium`}>
                 {avatarUrl ? null : initials}

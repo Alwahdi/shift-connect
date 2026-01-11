@@ -98,21 +98,31 @@ const OnboardingBanner = ({
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`mb-6 p-4 rounded-xl border ${colorClasses[content.color as keyof typeof colorClasses]}`}
+      className={`mb-6 p-4 md:p-5 rounded-2xl border ${colorClasses[content.color as keyof typeof colorClasses]}`}
+      role="alert"
+      aria-live="polite"
     >
       <div className="flex items-center gap-4 flex-wrap">
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-current/10`}>
+        <div 
+          className="w-11 h-11 rounded-xl flex items-center justify-center bg-current/10"
+          aria-hidden="true"
+        >
           <IconComponent className="w-5 h-5" />
         </div>
         <div className="flex-1 min-w-[200px]">
-          <h3 className="font-medium text-foreground">{content.title}</h3>
+          <h3 className="font-semibold text-foreground">{content.title}</h3>
           <p className="text-sm text-muted-foreground">{content.description}</p>
         </div>
         {content.action && content.link && (
-          <Button asChild size="sm" variant="outline">
+          <Button 
+            asChild 
+            size="default" 
+            variant="outline"
+            className="min-h-[44px]"
+          >
             <Link to={content.link}>
               {content.action}
-              <ArrowRight className="w-4 h-4 ms-2 rtl-flip" />
+              <ArrowRight className="w-4 h-4 ms-2 rtl-flip" aria-hidden="true" />
             </Link>
           </Button>
         )}

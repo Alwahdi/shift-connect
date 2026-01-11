@@ -119,13 +119,13 @@ const ForProfessionals = () => {
         </section>
 
         {/* Benefits */}
-        <section className="py-20 md:py-28 bg-card">
+        <section className="py-16 md:py-24 lg:py-32 bg-card">
           <div className="container mx-auto px-4 sm:px-6">
-            <div className="text-center max-w-2xl mx-auto mb-14">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-5">
+            <div className="text-center max-w-2xl mx-auto mb-12 md:mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 md:mb-5 tracking-tight">
                 {t("home.features.title")}
               </h2>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                 {t("home.features.subtitle")}
               </p>
             </div>
@@ -138,12 +138,12 @@ const ForProfessionals = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="p-7 rounded-2xl bg-background border border-border hover:shadow-lg hover:border-primary/30 transition-all duration-300"
+                  className="p-6 md:p-7 rounded-2xl bg-background border border-border hover:shadow-lg hover:border-primary/30 hover:-translate-y-1 transition-all duration-300 group"
                 >
-                  <div className="w-14 h-14 rounded-xl gradient-primary flex items-center justify-center mb-5 shadow-lg">
-                    <benefit.icon className="w-7 h-7 text-white" />
+                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl gradient-primary flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <benefit.icon className="w-6 h-6 md:w-7 md:h-7 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-3">{benefit.title}</h3>
+                  <h3 className="text-lg md:text-xl font-semibold text-foreground mb-3">{benefit.title}</h3>
                   <p className="text-muted-foreground leading-relaxed">{benefit.description}</p>
                 </motion.div>
               ))}
@@ -152,18 +152,18 @@ const ForProfessionals = () => {
         </section>
 
         {/* How it Works */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
-            <div className="text-center max-w-2xl mx-auto mb-12">
-              <h2 className="text-3xl font-bold text-foreground mb-4">
+        <section className="py-16 md:py-24 lg:py-32">
+          <div className="container mx-auto px-4 sm:px-6">
+            <div className="text-center max-w-2xl mx-auto mb-12 md:mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 tracking-tight">
                 {t("home.howItWorks.title")}
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                 {t("home.howItWorks.subtitle")}
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6">
               {steps.map((step, index) => (
                 <motion.div
                   key={step.number}
@@ -173,9 +173,9 @@ const ForProfessionals = () => {
                   transition={{ delay: index * 0.1 }}
                   className="text-center"
                 >
-                  <div className="text-5xl font-bold text-primary/20 mb-4">{step.number}</div>
+                  <div className="text-4xl md:text-5xl font-bold text-primary/20 mb-4">{step.number}</div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">{step.title}</h3>
-                  <p className="text-muted-foreground">{step.description}</p>
+                  <p className="text-muted-foreground leading-relaxed">{step.description}</p>
                 </motion.div>
               ))}
             </div>
@@ -183,22 +183,22 @@ const ForProfessionals = () => {
         </section>
 
         {/* CTA */}
-        <section className="py-20 bg-card">
-          <div className="container mx-auto px-4">
+        <section className="py-16 md:py-24 lg:py-32 bg-card">
+          <div className="container mx-auto px-4 sm:px-6">
             <div className="max-w-3xl mx-auto text-center">
-              <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-6">
-                <Briefcase className="w-8 h-8 text-primary-foreground" />
+              <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-6">
+                <Briefcase className="w-7 h-7 md:w-8 md:h-8 text-primary-foreground" />
               </div>
-              <h2 className="text-3xl font-bold text-foreground mb-4">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 tracking-tight">
                 {t("home.cta.title")}
               </h2>
-              <p className="text-muted-foreground mb-8">
+              <p className="text-base md:text-lg text-muted-foreground mb-8 leading-relaxed">
                 {t("home.cta.subtitle")}
               </p>
-              <Button asChild size="lg">
+              <Button asChild size="lg" className="min-h-[48px]">
                 <Link to="/auth?mode=signup&role=professional">
                   {t("common.getStarted")}
-                  <ArrowRight className="w-5 h-5 ms-2 rtl-flip" />
+                  <ArrowRight className="w-5 h-5 ms-2 rtl-flip" aria-hidden="true" />
                 </Link>
               </Button>
             </div>
