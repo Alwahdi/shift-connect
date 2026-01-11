@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { motion } from "framer-motion";
-import { Heart, Mail, Lock, Eye, EyeOff, User, Building2, Users, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Heart, Mail, User, Building2, Users, ArrowRight, ArrowLeft, Loader2, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
@@ -11,6 +11,10 @@ import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { FormField, InputWithIcon } from "@/components/ui/form-field";
+import { PasswordInput } from "@/components/ui/password-input";
+import { LoadingButton } from "@/components/ui/loading-button";
+import { RoleSelector } from "@/components/ui/role-selector";
+import { FormFeedback, FormFeedbackContainer } from "@/components/ui/form-feedback";
 
 type UserRole = "professional" | "clinic";
 type AuthMode = "login" | "signup";
@@ -34,9 +38,10 @@ const Auth = () => {
   const [role, setRole] = useState<UserRole | null>(
     (searchParams.get("role") as UserRole) || null
   );
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -107,6 +112,7 @@ const Auth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
     
     if (!validateForm()) return;
 
@@ -117,14 +123,12 @@ const Auth = () => {
         const { error } = await signIn(formData.email, formData.password);
         
         if (error) {
-          toast({
-            variant: "destructive",
-            title: t("auth.errors.loginFailed"),
-            description: error.message === "Invalid login credentials" 
-              ? t("auth.errors.invalidCredentials")
-              : error.message,
-          });
+          const errorMessage = error.message === "Invalid login credentials" 
+            ? t("auth.errors.invalidCredentials")
+            : error.message;
+          setFormError(errorMessage);
         } else {
+          setIsSuccess(true);
           toast({
             title: t("auth.success.welcomeBack"),
             description: t("auth.success.loggedIn"),
@@ -151,12 +155,7 @@ const Auth = () => {
           if (error.message.includes("already registered")) {
             message = t("auth.errors.emailExists");
           }
-          
-          toast({
-            variant: "destructive",
-            title: t("auth.errors.signupFailed"),
-            description: message,
-          });
+          setFormError(message);
         } else if (needsEmailConfirmation) {
           toast({
             title: t("auth.verification.checkEmail"),
@@ -237,6 +236,19 @@ const Auth = () => {
                 <p className="text-muted-foreground">{t("auth.signInToContinue")}</p>
               </div>
 
+              {/* Inline error feedback */}
+              <FormFeedbackContainer>
+                {formError && (
+                  <FormFeedback
+                    variant="error"
+                    title={t("auth.errors.loginFailed")}
+                    message={formError}
+                    onDismiss={() => setFormError(null)}
+                    className="mb-5"
+                  />
+                )}
+              </FormFeedbackContainer>
+
               <form onSubmit={handleSubmit} className="space-y-5">
                 <FormField
                   label={t("auth.email")}
@@ -250,7 +262,10 @@ const Auth = () => {
                       type="email"
                       placeholder={t("auth.emailPlaceholder")}
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      onChange={(e) => {
+                        setFormData({ ...formData, email: e.target.value });
+                        setFormError(null); // Clear error on change
+                      }}
                       className="h-13 text-base"
                     />
                   </InputWithIcon>
@@ -262,30 +277,29 @@ const Auth = () => {
                   error={errors.password}
                   required
                 >
-                  <div className="relative">
-                    <Lock className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" aria-hidden="true" />
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder={t("auth.passwordPlaceholder")}
-                      value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className="ps-12 pe-12 h-13 text-base"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute end-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center -me-2"
-                      aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
-                    >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
+                  <PasswordInput
+                    id="password"
+                    placeholder={t("auth.passwordPlaceholder")}
+                    value={formData.password}
+                    onChange={(e) => {
+                      setFormData({ ...formData, password: e.target.value });
+                      setFormError(null);
+                    }}
+                    className="h-13 text-base"
+                  />
                 </FormField>
 
-                <Button type="submit" variant="hero" className="w-full h-13 text-base font-semibold" disabled={isLoading}>
-                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : t("auth.signIn")}
-                </Button>
+                <LoadingButton 
+                  type="submit" 
+                  variant="hero" 
+                  className="w-full h-13 text-base font-semibold" 
+                  isLoading={isLoading}
+                  isSuccess={isSuccess}
+                  loadingText={t("auth.signingIn")}
+                  successText={t("auth.success.loggedIn")}
+                >
+                  {t("auth.signIn")}
+                </LoadingButton>
 
                 {/* Divider */}
                 <div className="relative my-7">
@@ -344,47 +358,32 @@ const Auth = () => {
                 <p className="text-muted-foreground">{t("auth.howToGetStarted")}</p>
               </div>
 
-              <div className="space-y-4">
-                <button
-                  onClick={() => handleRoleSelect("professional")}
-                  className="w-full p-6 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all duration-200 text-start group"
-                >
-                  <div className="flex items-start gap-5">
-                    <div className="w-14 h-14 rounded-xl gradient-primary flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-lg">
-                      <Users className="w-7 h-7 text-white" />
-                    </div>
-                    <div className="pt-1">
-                      <h3 className="font-semibold text-foreground text-lg mb-1.5">{t("auth.imProfessional")}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {t("auth.professionalDesc")}
-                      </p>
-                    </div>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => handleRoleSelect("clinic")}
-                  className="w-full p-6 rounded-2xl border-2 border-border hover:border-accent hover:bg-accent/5 transition-all duration-200 text-start group"
-                >
-                  <div className="flex items-start gap-5">
-                    <div className="w-14 h-14 rounded-xl gradient-accent flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-lg">
-                      <Building2 className="w-7 h-7 text-white" />
-                    </div>
-                    <div className="pt-1">
-                      <h3 className="font-semibold text-foreground text-lg mb-1.5">{t("auth.imClinic")}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {t("auth.clinicDesc")}
-                      </p>
-                    </div>
-                  </div>
-                </button>
-              </div>
+              <RoleSelector
+                options={[
+                  {
+                    id: "professional",
+                    icon: Users,
+                    title: t("auth.imProfessional"),
+                    description: t("auth.professionalDesc"),
+                    gradient: "gradient-primary",
+                  },
+                  {
+                    id: "clinic",
+                    icon: Building2,
+                    title: t("auth.imClinic"),
+                    description: t("auth.clinicDesc"),
+                    gradient: "gradient-accent",
+                  },
+                ]}
+                selectedId={role}
+                onSelect={(id) => handleRoleSelect(id as UserRole)}
+              />
 
               <div className="mt-8 text-center text-muted-foreground">
                 {t("auth.haveAccount")}{" "}
                 <button 
                   onClick={() => setMode("login")}
-                  className="text-primary font-semibold hover:underline"
+                  className="text-primary font-semibold hover:underline min-h-[44px] inline-flex items-center"
                 >
                   {t("auth.signIn")}
                 </button>
@@ -405,6 +404,19 @@ const Auth = () => {
                 </h1>
                 <p className="text-muted-foreground">{t("auth.createAccountToStart")}</p>
               </div>
+
+              {/* Inline error feedback */}
+              <FormFeedbackContainer>
+                {formError && (
+                  <FormFeedback
+                    variant="error"
+                    title={t("auth.errors.signupFailed")}
+                    message={formError}
+                    onDismiss={() => setFormError(null)}
+                    className="mb-5"
+                  />
+                )}
+              </FormFeedbackContainer>
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 {role === "clinic" && (
@@ -457,7 +469,10 @@ const Auth = () => {
                       type="email"
                       placeholder={t("auth.emailPlaceholder")}
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      onChange={(e) => {
+                        setFormData({ ...formData, email: e.target.value });
+                        setFormError(null);
+                      }}
                       className="h-13 text-base"
                     />
                   </InputWithIcon>
@@ -467,38 +482,31 @@ const Auth = () => {
                   label={t("auth.password")}
                   htmlFor="password"
                   error={errors.password}
-                  hint={t("auth.passwordHint")}
                   required
                 >
-                  <div className="relative">
-                    <Lock className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" aria-hidden="true" />
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder={t("auth.createPasswordPlaceholder")}
-                      value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className="ps-12 pe-12 h-13 text-base"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute end-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center -me-2"
-                      aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
-                    >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
+                  <PasswordInput
+                    id="password"
+                    placeholder={t("auth.createPasswordPlaceholder")}
+                    value={formData.password}
+                    onChange={(e) => {
+                      setFormData({ ...formData, password: e.target.value });
+                      setFormError(null);
+                    }}
+                    className="h-13 text-base"
+                    showStrength
+                  />
                 </FormField>
 
-                <Button type="submit" variant="hero" className="w-full h-13 text-base font-semibold" disabled={isLoading}>
-                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
-                    <>
-                      {t("auth.createAccount")}
-                      <ArrowRight className="w-5 h-5 ms-2 rtl-flip" />
-                    </>
-                  )}
-                </Button>
+                <LoadingButton 
+                  type="submit" 
+                  variant="hero" 
+                  className="w-full h-13 text-base font-semibold" 
+                  isLoading={isLoading}
+                  loadingText={t("auth.creatingAccount")}
+                >
+                  {t("auth.createAccount")}
+                  <ArrowRight className="w-5 h-5 ms-2 rtl-flip" />
+                </LoadingButton>
 
                 {/* Divider */}
                 <div className="relative my-7">
