@@ -790,6 +790,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       longtransactionsenabled: { Args: never; Returns: boolean }
       populate_geometry_columns:
         | { Args: { tbl_oid: unknown; use_typmod?: boolean }; Returns: number }
@@ -1425,7 +1426,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "professional" | "clinic" | "admin"
+      app_role: "professional" | "clinic" | "admin" | "super_admin"
       booking_status:
         | "requested"
         | "accepted"
@@ -1579,7 +1580,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["professional", "clinic", "admin"],
+      app_role: ["professional", "clinic", "admin", "super_admin"],
       booking_status: [
         "requested",
         "accepted",

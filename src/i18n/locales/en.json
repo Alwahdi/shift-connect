@@ -33,7 +33,22 @@
     "error": "Error",
     "success": "Success",
     "required": "Required",
-    "optional": "Optional"
+    "optional": "Optional",
+    "refresh": "Refresh",
+    "view": "View",
+    "review": "Review",
+    "approve": "Approve",
+    "reject": "Reject",
+    "all": "All",
+    "complete": "Complete",
+    "incomplete": "Incomplete",
+    "actions": "Actions",
+    "status": "Status",
+    "date": "Date",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "noData": "No data available"
   },
   "nav": {
     "home": "Home",
@@ -289,7 +304,8 @@
     "decline": "Decline",
     "accepted": "Accepted",
     "declined": "Declined",
-    "pending": "Pending"
+    "pending": "Pending",
+    "viewProfile": "View Profile"
   },
   "profile": {
     "title": "Profile",
@@ -522,5 +538,66 @@
     "description": "Sorry, the page you're looking for doesn't exist or has been moved.",
     "goHome": "Go Home",
     "goBack": "Go Back"
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "subtitle": "Manage users, documents, and verifications",
+    "superAdmin": "Super Admin",
+    "reviewTeam": "Review Team",
+    "tabs": {
+      "overview": "Overview",
+      "professionals": "Professionals",
+      "clinics": "Clinics",
+      "documents": "Documents",
+      "admins": "Team Management"
+    },
+    "stats": {
+      "totalProfessionals": "Professionals",
+      "totalClinics": "Clinics",
+      "pendingVerifications": "Pending Verifications",
+      "pendingDocuments": "Pending Documents"
+    },
+    "actionRequired": "Action Required",
+    "documentsAwaiting": "{{count}} document(s) awaiting review",
+    "usersAwaiting": "{{count}} user(s) awaiting verification",
+    "recentProfessionals": "Recent Professionals",
+    "recentClinics": "Recent Clinics",
+    "documentsAwaitingReview": "Documents Awaiting Review",
+    "noProfessionalsYet": "No professionals registered yet",
+    "noClinicsYet": "No clinics registered yet",
+    "noDocumentsFound": "No documents found",
+    "searchProfessionals": "Search professionals...",
+    "searchClinics": "Search clinics...",
+    "searchDocuments": "Search documents...",
+    "allStatus": "All Status",
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "status": "Status",
+      "onboarding": "Onboarding",
+      "actions": "Actions",
+      "document": "Document",
+      "user": "User",
+      "type": "Type",
+      "uploaded": "Uploaded"
+    },
+    "verification": {
+      "userVerified": "User Verified",
+      "userRejected": "User Rejected",
+      "userVerifiedDesc": "The {{type}} has been verified successfully.",
+      "userRejectedDesc": "The {{type}} verification has been rejected.",
+      "documentVerified": "Document Verified",
+      "documentRejected": "Document Rejected",
+      "documentVerifiedDesc": "The document has been verified and approved.",
+      "documentRejectedDesc": "The document has been rejected."
+    },
+    "roles": {
+      "superAdmin": "Super Admin",
+      "superAdminDesc": "Full access to all features and settings",
+      "admin": "Admin",
+      "adminDesc": "Review and verification permissions",
+      "professional": "Professional",
+      "clinic": "Clinic"
+    }
   }
 }

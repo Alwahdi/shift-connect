@@ -13,7 +13,7 @@
     "apply": "تقديم",
     "viewAll": "عرض الكل",
     "seeMore": "المزيد",
-    "learnMore": "معرفة المزيد",
+    "learnMore": "اعرف أكثر",
     "getStarted": "ابدأ الآن",
     "signUp": "إنشاء حساب",
     "logIn": "تسجيل الدخول",
@@ -25,161 +25,176 @@
     "confirm": "تأكيد",
     "perHour": "/ساعة",
     "km": "كم",
-    "verified": "موثق",
+    "verified": "موثّق",
     "pending": "قيد المراجعة",
     "rejected": "مرفوض",
     "urgent": "عاجل",
     "new": "جديد",
     "error": "خطأ",
-    "success": "نجاح",
+    "success": "تم بنجاح",
     "required": "مطلوب",
-    "optional": "اختياري"
+    "optional": "اختياري",
+    "refresh": "تحديث",
+    "view": "عرض",
+    "review": "مراجعة",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "all": "الكل",
+    "complete": "مكتمل",
+    "incomplete": "غير مكتمل",
+    "actions": "إجراءات",
+    "status": "الحالة",
+    "date": "التاريخ",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "noData": "لا توجد بيانات"
   },
   "nav": {
     "home": "الرئيسية",
     "findShifts": "ابحث عن ورديات",
     "forProfessionals": "للمهنيين",
     "forClinics": "للعيادات",
-    "about": "عن المنصة",
+    "about": "من نحن",
     "dashboard": "لوحة التحكم",
     "profile": "الملف الشخصي",
     "settings": "الإعدادات",
     "backToDashboard": "العودة للوحة التحكم"
   },
   "auth": {
-    "welcomeBack": "مرحباً بعودتك",
-    "signInToContinue": "سجل دخولك للمتابعة",
+    "welcomeBack": "أهلاً بعودتك",
+    "signInToContinue": "سجّل دخولك للمتابعة",
     "joinSyndeoCare": "انضم إلى SyndeoCare",
-    "howToGetStarted": "كيف تريد البدء؟",
-    "professionalSignUp": "تسجيل كمهني",
-    "clinicSignUp": "تسجيل كعيادة",
-    "createAccount": "إنشاء حساب",
+    "howToGetStarted": "كيف تريد أن تبدأ؟",
+    "professionalSignUp": "التسجيل كمهني صحي",
+    "clinicSignUp": "التسجيل كعيادة",
+    "createAccount": "إنشاء حساب جديد",
     "createAccountToStart": "أنشئ حسابك للبدء",
     "signIn": "تسجيل الدخول",
     "email": "البريد الإلكتروني",
     "password": "كلمة المرور",
     "fullName": "الاسم الكامل",
-    "contactName": "اسم جهة الاتصال",
-    "organizationName": "اسم المنظمة",
-    "emailPlaceholder": "you@example.com",
+    "contactName": "اسم المسؤول",
+    "organizationName": "اسم المنشأة",
+    "emailPlaceholder": "example@email.com",
     "passwordPlaceholder": "••••••••",
     "namePlaceholder": "أحمد محمد",
-    "clinicNamePlaceholder": "اسم عيادتك",
+    "clinicNamePlaceholder": "اسم عيادتك أو منشأتك",
     "forgotPassword": "نسيت كلمة المرور؟",
     "noAccount": "ليس لديك حساب؟",
     "haveAccount": "لديك حساب بالفعل؟",
     "imProfessional": "أنا مهني صحي",
-    "professionalDesc": "ابحث عن ورديات مرنة في أفضل المرافق الصحية القريبة منك.",
-    "imClinic": "أنا عيادة",
-    "clinicDesc": "وظّف مهنيين صحيين موثقين في منشأتك.",
+    "professionalDesc": "ابحث عن ورديات مرنة في أفضل المنشآت الصحية بالقرب منك.",
+    "imClinic": "أنا عيادة أو منشأة صحية",
+    "clinicDesc": "وظّف مهنيين صحيين موثقين لتغطية احتياجاتك.",
     "benefits": {
       "freeAccount": "إنشاء حساب مجاني",
-      "quickVerification": "عملية توثيق سريعة",
+      "quickVerification": "توثيق سريع وسهل",
       "postShiftsToday": "ابدأ بنشر الورديات اليوم",
-      "cancelAnytime": "إلغاء في أي وقت"
+      "cancelAnytime": "إلغاء الاشتراك في أي وقت"
     },
     "errors": {
       "invalidEmail": "يرجى إدخال بريد إلكتروني صحيح",
       "passwordMin": "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
       "nameRequired": "الاسم مطلوب",
-      "orgNameRequired": "اسم المنظمة مطلوب",
+      "orgNameRequired": "اسم المنشأة مطلوب",
       "selectRole": "يرجى اختيار نوع الحساب",
       "loginFailed": "فشل تسجيل الدخول",
       "signupFailed": "فشل إنشاء الحساب",
       "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
-      "emailExists": "هذا البريد مسجل مسبقاً. يرجى تسجيل الدخول."
+      "emailExists": "هذا البريد مسجّل مسبقاً. يرجى تسجيل الدخول."
     },
     "success": {
-      "welcomeBack": "مرحباً بعودتك!",
+      "welcomeBack": "أهلاً بعودتك!",
       "loggedIn": "تم تسجيل دخولك بنجاح.",
-      "accountCreated": "تم إنشاء الحساب!",
+      "accountCreated": "تم إنشاء الحساب بنجاح!",
       "completeProfile": "لنكمل إعداد ملفك الشخصي."
     },
     "verification": {
       "checkEmail": "تحقق من بريدك الإلكتروني",
-      "verificationSent": "أرسلنا رابط التحقق إلى",
-      "clickLink": "انقر على الرابط في بريدك لتأكيد حسابك والمتابعة.",
+      "verificationSent": "أرسلنا رابط التفعيل إلى",
+      "clickLink": "انقر على الرابط في بريدك لتفعيل حسابك والمتابعة.",
       "didntReceive": "لم تستلم البريد؟",
-      "resendEmail": "إعادة إرسال بريد التحقق",
-      "emailResent": "تم إعادة إرسال بريد التحقق!",
+      "resendEmail": "إعادة إرسال رابط التفعيل",
+      "emailResent": "تم إعادة إرسال رابط التفعيل!",
       "checkInbox": "يرجى التحقق من صندوق الوارد.",
       "verifying": "جارٍ التحقق من بريدك...",
-      "verified": "تم التحقق!",
-      "verifiedDesc": "تم تأكيد بريدك الإلكتروني. جارٍ التحويل...",
-      "failed": "فشل التحقق",
-      "failedDesc": "لم نتمكن من التحقق من بريدك. يرجى المحاولة مرة أخرى أو التواصل مع الدعم.",
+      "verified": "تم التفعيل!",
+      "verifiedDesc": "تم تفعيل بريدك الإلكتروني. جارٍ التحويل...",
+      "failed": "فشل التفعيل",
+      "failedDesc": "لم نتمكن من تفعيل بريدك. يرجى المحاولة مرة أخرى أو التواصل مع الدعم.",
       "tryAgain": "حاول مرة أخرى",
-      "emailNotVerified": "يرجى تأكيد بريدك الإلكتروني قبل تسجيل الدخول."
+      "emailNotVerified": "يرجى تفعيل بريدك الإلكتروني قبل تسجيل الدخول."
     }
   },
   "home": {
     "hero": {
-      "title": "توظيف الكوادر الصحية بسهولة",
-      "subtitle": "اربط المهنيين الصحيين الموثقين بالعيادات فوراً. مطابقة ذكية، حجز سلس، رعاية أفضل للمرضى.",
+      "title": "توظيف الكوادر الصحية بكل سهولة",
+      "subtitle": "اربط المهنيين الصحيين الموثقين بالعيادات فوراً. مطابقة ذكية، حجز سلس، ورعاية أفضل للمرضى.",
       "findShifts": "ابحث عن ورديات",
       "hireStaff": "وظّف كوادر",
-      "trustedBy": "موثوق من قبل أكثر من 500 منشأة صحية"
+      "trustedBy": "موثوق من أكثر من 500 منشأة صحية"
     },
     "features": {
       "title": "لماذا تختار SyndeoCare؟",
-      "subtitle": "نبني مستقبل التوظيف الصحي بتقنية تناسب الجميع.",
+      "subtitle": "نبني مستقبل التوظيف الصحي بتقنية متطورة تخدم الجميع.",
       "verification": {
         "title": "مهنيون موثقون",
-        "desc": "كل مهني يخضع لفحص شامل للخلفية والتحقق من الشهادات."
+        "desc": "كل مهني يخضع لفحص شامل للخلفية والتحقق من الشهادات والمؤهلات."
       },
       "matching": {
         "title": "مطابقة ذكية",
-        "desc": "الذكاء الاصطناعي يطابق المهنيين المناسبين مع الورديات حسب المهارات والموقع."
+        "desc": "الذكاء الاصطناعي يطابق المهنيين المناسبين مع الورديات حسب المهارات والموقع الجغرافي."
       },
       "booking": {
-        "title": "حجز سلس",
-        "desc": "احجز الورديات في ثوانٍ. توفر فوري وتأكيد لحظي."
+        "title": "حجز فوري وسلس",
+        "desc": "احجز الورديات في ثوانٍ. توفّر فوري وتأكيد لحظي دون انتظار."
       },
       "payments": {
-        "title": "مدفوعات آمنة",
+        "title": "مدفوعات آمنة ومضمونة",
         "desc": "كشوف رواتب آلية ومدفوعات سريعة وموثوقة للورديات المكتملة."
       }
     },
     "howItWorks": {
-      "title": "كيف يعمل",
-      "subtitle": "ابدأ في دقائق، ليس أيام.",
+      "title": "كيف تعمل المنصة",
+      "subtitle": "ابدأ في دقائق معدودة، وليس أيام.",
       "professionals": {
         "step1": {
-          "title": "أنشئ ملفك",
-          "desc": "سجل وأكمل ملفك المهني مع الشهادات."
+          "title": "أنشئ ملفك المهني",
+          "desc": "سجّل وأكمل ملفك الشخصي مع شهاداتك ومؤهلاتك."
         },
         "step2": {
           "title": "احصل على التوثيق",
-          "desc": "قدم وثائقك للتحقق السريع."
+          "desc": "قدّم مستنداتك للتحقق السريع من قِبل فريقنا."
         },
         "step3": {
-          "title": "ابحث واحجز",
-          "desc": "تصفح الورديات المتاحة وقدم بنقرة واحدة."
+          "title": "ابحث واحجز الورديات",
+          "desc": "تصفّح الورديات المتاحة وقدّم طلبك بنقرة واحدة."
         }
       },
       "clinics": {
         "step1": {
-          "title": "سجل منشأتك",
-          "desc": "أنشئ ملف عيادتك وتحقق من منظمتك."
+          "title": "سجّل منشأتك الصحية",
+          "desc": "أنشئ ملف عيادتك وتحقق من بيانات منشأتك."
         },
         "step2": {
-          "title": "انشر الورديات",
-          "desc": "أنشئ إعلانات الورديات مع المتطلبات والأسعار."
+          "title": "انشر الورديات المطلوبة",
+          "desc": "أنشئ إعلانات الورديات مع المتطلبات والأجور المناسبة."
         },
         "step3": {
-          "title": "وظف فوراً",
-          "desc": "راجع المتقدمين وأكد الحجوزات في دقائق."
+          "title": "وظّف فوراً",
+          "desc": "راجع المتقدمين وأكّد الحجوزات في دقائق معدودة."
         }
       }
     },
     "cta": {
-      "title": "مستعد لتحويل توظيفك الصحي؟",
-      "subtitle": "انضم لآلاف المهنيين والعيادات الذين يستخدمون SyndeoCare.",
+      "title": "مستعد لتحويل طريقة التوظيف الصحي؟",
+      "subtitle": "انضم لآلاف المهنيين والعيادات الذين يستخدمون SyndeoCare بنجاح.",
       "startFree": "ابدأ مجاناً اليوم"
     }
   },
   "dashboard": {
-    "welcome": "مرحباً بعودتك",
+    "welcome": "أهلاً بعودتك",
     "overview": "نظرة عامة",
     "availableShifts": "الورديات المتاحة",
     "myShifts": "وردياتي",
@@ -196,9 +211,9 @@
       "shiftsPosted": "ورديات منشورة",
       "fillRate": "نسبة الملء"
     },
-    "noShifts": "لا توجد ورديات متاحة",
-    "noShiftsDesc": "تحقق لاحقاً أو عدّل الفلاتر.",
-    "needsVerification": "أكمل التحقق لعرض الورديات",
+    "noShifts": "لا توجد ورديات متاحة حالياً",
+    "noShiftsDesc": "تحقق لاحقاً أو عدّل معايير البحث.",
+    "needsVerification": "أكمل التوثيق لعرض الورديات المتاحة",
     "completeOnboarding": "إكمال الإعداد",
     "viewDocuments": "عرض المستندات",
     "filters": {
@@ -210,15 +225,15 @@
       "clearFilters": "مسح الفلاتر"
     },
     "search": {
-      "placeholder": "ابحث عن ورديات بالعنوان أو العيادة أو الموقع..."
+      "placeholder": "ابحث في الورديات بالعنوان أو العيادة أو الموقع..."
     }
   },
   "shifts": {
-    "apply": "تقديم الآن",
+    "apply": "تقديم طلب",
     "applied": "تم التقديم",
     "booked": "محجوز",
-    "filled": "ممتلئ",
-    "open": "مفتوح",
+    "filled": "مكتمل",
+    "open": "متاح",
     "details": "تفاصيل الوردية",
     "date": "التاريخ",
     "time": "الوقت",
@@ -230,18 +245,18 @@
     "clinic": "العيادة",
     "role": "الوظيفة",
     "applicants": "{{count}} متقدم",
-    "maxApplicants": "{{count}} حد أقصى للمتقدمين",
+    "maxApplicants": "الحد الأقصى {{count}} متقدم",
     "applySuccess": "تم تقديم طلبك بنجاح!",
     "applyError": "فشل التقديم. يرجى المحاولة مرة أخرى.",
     "manage": "إدارة الوردية",
-    "create": "إنشاء وردية",
+    "create": "إنشاء وردية جديدة",
     "edit": "تعديل الوردية",
     "delete": "حذف الوردية",
     "viewApplicants": "عرض المتقدمين",
     "postNew": "نشر وردية جديدة",
     "postNewDesc": "املأ التفاصيل أدناه للعثور على مهنيين صحيين مؤهلين.",
-    "shiftPosted": "تم نشر الوردية!",
-    "shiftPostedDesc": "تم نشر وردياتك وهي الآن مرئية للمهنيين.",
+    "shiftPosted": "تم نشر الوردية بنجاح!",
+    "shiftPostedDesc": "وردياتك الآن مرئية للمهنيين الصحيين.",
     "fields": {
       "title": "عنوان الوردية",
       "titlePlaceholder": "مثال: تغطية صباحية للعناية المركزة",
@@ -251,15 +266,15 @@
       "pickDate": "اختر تاريخاً",
       "startTime": "وقت البدء",
       "endTime": "وقت الانتهاء",
-      "hourlyRate": "الأجر بالساعة ($)",
+      "hourlyRate": "الأجر بالساعة (ريال)",
       "maxApplicants": "الحد الأقصى للمتقدمين",
       "shiftLocation": "موقع الوردية",
       "locationPlaceholder": "123 شارع المركز الطبي، الرياض",
       "locationHint": "اتركه فارغاً لاستخدام عنوان عيادتك الافتراضي",
       "descriptionPlaceholder": "صف مسؤوليات الوردية والقسم وأي متطلبات خاصة...",
       "requiredCertifications": "الشهادات المطلوبة",
-      "markUrgent": "تحديد كعاجل",
-      "urgentDesc": "الورديات العاجلة تُبرز وتُعطى الأولوية"
+      "markUrgent": "تحديد كوردية عاجلة",
+      "urgentDesc": "الورديات العاجلة تظهر بشكل بارز وتُعطى الأولوية"
     },
     "modal": {
       "manageShift": "إدارة الوردية",
@@ -272,12 +287,12 @@
       "noAccepted": "لا يوجد متقدمون مقبولون",
       "noDeclined": "لا يوجد متقدمون مرفوضون",
       "estimated": "التقدير",
-      "verificationRequired": "التحقق مطلوب",
-      "verificationRequiredDesc": "أكمل التحقق للتقديم على الورديات.",
-      "applyForShift": "تقديم على الوردية",
+      "verificationRequired": "التوثيق مطلوب",
+      "verificationRequiredDesc": "أكمل توثيق حسابك للتقديم على الورديات.",
+      "applyForShift": "تقديم طلب للوردية",
       "applying": "جارٍ التقديم...",
       "applicantAccepted": "تم قبول المتقدم",
-      "applicantAcceptedDesc": "تم إخطار المهني.",
+      "applicantAcceptedDesc": "تم إخطار المهني بقبول طلبه.",
       "applicantDeclined": "تم رفض المتقدم",
       "applicantDeclinedDesc": "تم رفض الطلب.",
       "alreadyApplied": "تم التقديم مسبقاً",
@@ -289,22 +304,23 @@
     "decline": "رفض",
     "accepted": "مقبول",
     "declined": "مرفوض",
-    "pending": "قيد الانتظار"
+    "pending": "قيد الانتظار",
+    "viewProfile": "عرض الملف الشخصي"
   },
   "profile": {
     "title": "الملف الشخصي",
     "personalInfo": "المعلومات الشخصية",
     "professionalInfo": "المعلومات المهنية",
     "clinicInfo": "معلومات العيادة",
-    "organizationInfo": "معلومات المنظمة",
+    "organizationInfo": "معلومات المنشأة",
     "documents": "المستندات",
-    "availability": "التوفر",
+    "availability": "أوقات التوفر",
     "settings": "الإعدادات",
     "uploadDocument": "رفع مستند",
     "verificationStatus": "حالة التوثيق",
     "verificationPending": "التوثيق قيد المراجعة",
-    "verificationPendingDesc": "يتم مراجعة ملفك ومستنداتك. هذا يستغرق عادة 1-2 يوم عمل.",
-    "bio": "نبذة",
+    "verificationPendingDesc": "يتم مراجعة ملفك ومستنداتك. هذا يستغرق عادةً 1-2 يوم عمل.",
+    "bio": "نبذة تعريفية",
     "specialties": "التخصصات",
     "qualifications": "المؤهلات",
     "hourlyRate": "الأجر بالساعة",
@@ -318,11 +334,11 @@
     "uploadPhoto": "رفع صورة",
     "changePhoto": "تغيير الصورة",
     "photoUploaded": "تم رفع الصورة",
-    "photoUploadedDesc": "تم تحديث صورة ملفك الشخصي.",
+    "photoUploadedDesc": "تم تحديث صورة ملفك الشخصي بنجاح.",
     "profileUpdated": "تم تحديث الملف",
-    "profileUpdatedDesc": "تم حفظ تغييراتك.",
-    "clinicUpdated": "تم تحديث العيادة",
-    "clinicUpdatedDesc": "تم حفظ تغييراتك.",
+    "profileUpdatedDesc": "تم حفظ التغييرات بنجاح.",
+    "clinicUpdated": "تم تحديث بيانات العيادة",
+    "clinicUpdatedDesc": "تم حفظ التغييرات بنجاح.",
     "tabs": {
       "profile": "الملف الشخصي",
       "qualifications": "المؤهلات",
@@ -337,34 +353,34 @@
     "basicInfo": "المعلومات الأساسية",
     "professionalDetails": "التفاصيل المهنية",
     "documents": "المستندات",
-    "availability": "التوفر",
+    "availability": "أوقات التوفر",
     "review": "المراجعة",
     "complete": "إكمال الإعداد",
     "skip": "تخطي الآن",
     "incomplete": "الإعداد غير مكتمل",
-    "incompleteDesc": "أكمل ملفك للوصول لجميع الميزات.",
+    "incompleteDesc": "أكمل ملفك للوصول لجميع مميزات المنصة.",
     "pendingVerification": "التوثيق قيد المراجعة",
-    "pendingVerificationDesc": "يتم مراجعة مستنداتك.",
+    "pendingVerificationDesc": "يتم مراجعة مستنداتك من قِبل فريقنا.",
     "professional": {
       "profileTitle": "أكمل ملفك الشخصي",
-      "profileDesc": "أخبرنا عن نفسك حتى تتمكن العيادات من إيجادك.",
-      "qualificationsTitle": "مؤهلاتك",
-      "qualificationsDesc": "أضف تخصصاتك وشهاداتك.",
-      "documentsTitle": "رفع المستندات",
-      "documentsDesc": "ارفع المستندات المطلوبة للتحقق.",
-      "completeTitle": "أنت جاهز!",
-      "completeDesc": "ملفك قيد المراجعة. سنخطرك فور التوثيق.",
+      "profileDesc": "أخبرنا عن نفسك حتى تتمكن العيادات من إيجادك بسهولة.",
+      "qualificationsTitle": "مؤهلاتك وتخصصاتك",
+      "qualificationsDesc": "أضف تخصصاتك وشهاداتك المهنية.",
+      "documentsTitle": "رفع المستندات المطلوبة",
+      "documentsDesc": "ارفع المستندات اللازمة للتحقق من هويتك ومؤهلاتك.",
+      "completeTitle": "تهانينا! أنت جاهز",
+      "completeDesc": "ملفك قيد المراجعة. سنُخطرك فور إتمام التوثيق.",
       "goToDashboard": "الذهاب للوحة التحكم"
     },
     "clinic": {
-      "orgTitle": "تفاصيل المنظمة",
-      "orgDesc": "أخبرنا عن منشأتك الصحية.",
-      "locationTitle": "الموقع والاتصال",
-      "locationDesc": "أين تقع منشأتك؟",
+      "orgTitle": "تفاصيل المنشأة",
+      "orgDesc": "أخبرنا عن منشأتك الصحية وخدماتها.",
+      "locationTitle": "الموقع ومعلومات الاتصال",
+      "locationDesc": "أين تقع منشأتك الصحية؟",
       "documentsTitle": "رفع مستندات العمل",
-      "documentsDesc": "ارفع المستندات المطلوبة للتحقق.",
-      "completeTitle": "أنت جاهز!",
-      "completeDesc": "عيادتك قيد المراجعة. سنخطرك فور التوثيق.",
+      "documentsDesc": "ارفع المستندات المطلوبة لتوثيق منشأتك.",
+      "completeTitle": "تهانينا! أنت جاهز",
+      "completeDesc": "عيادتك قيد المراجعة. سنُخطرك فور إتمام التوثيق.",
       "goToDashboard": "الذهاب للوحة التحكم"
     },
     "fields": {
@@ -373,25 +389,25 @@
       "phone": "رقم الهاتف",
       "phonePlaceholder": "+966 55 123 4567",
       "location": "الموقع",
-      "locationPlaceholder": "الرياض، السعودية",
-      "hourlyRate": "الأجر المفضل بالساعة ($)",
-      "hourlyRatePlaceholder": "55",
-      "bio": "نبذة",
+      "locationPlaceholder": "الرياض، المملكة العربية السعودية",
+      "hourlyRate": "الأجر المفضل بالساعة (ريال)",
+      "hourlyRatePlaceholder": "150",
+      "bio": "نبذة تعريفية",
       "bioPlaceholder": "أخبر العيادات عن خبرتك وما يميزك كمهني صحي...",
       "specialties": "التخصصات",
       "qualifications": "المؤهلات",
-      "addSpecialty": "أضف تخصص",
-      "addQualification": "أضف مؤهل",
-      "orgName": "اسم المنظمة",
-      "orgNamePlaceholder": "المركز الطبي",
-      "contactEmail": "بريد الاتصال",
+      "addSpecialty": "إضافة تخصص",
+      "addQualification": "إضافة مؤهل",
+      "orgName": "اسم المنشأة",
+      "orgNamePlaceholder": "المركز الطبي التخصصي",
+      "contactEmail": "البريد الإلكتروني للتواصل",
       "contactEmailPlaceholder": "contact@clinic.com",
       "taxId": "الرقم الضريبي",
-      "taxIdPlaceholder": "XX-XXXXXXX",
-      "description": "الوصف",
-      "descriptionPlaceholder": "أخبر المهنيين عن منشأتك ونوع الرعاية التي تقدمها وما يجعلك مكاناً رائعاً للعمل...",
+      "taxIdPlaceholder": "300xxxxxxx",
+      "description": "وصف المنشأة",
+      "descriptionPlaceholder": "أخبر المهنيين عن منشأتك ونوع الرعاية التي تقدمها وما يجعلها مكاناً مميزاً للعمل...",
       "fullAddress": "العنوان الكامل",
-      "fullAddressPlaceholder": "123 شارع المركز الطبي\nالرياض، السعودية 12345",
+      "fullAddressPlaceholder": "123 شارع المركز الطبي\nالرياض، المملكة العربية السعودية",
       "website": "الموقع الإلكتروني",
       "websitePlaceholder": "https://www.yourclinic.com"
     },
@@ -400,91 +416,91 @@
       "qualifications": "المؤهلات",
       "documents": "المستندات",
       "complete": "إكمال",
-      "organization": "المنظمة",
+      "organization": "المنشأة",
       "location": "الموقع"
     }
   },
   "documents": {
-    "governmentId": "الهوية الحكومية",
+    "governmentId": "الهوية الرسمية",
     "governmentIdDesc": "جواز السفر أو رخصة القيادة أو الهوية الوطنية",
-    "professionalLicense": "الرخصة المهنية",
-    "professionalLicenseDesc": "رخصة التمريض أو الرعاية الصحية الخاصة بك",
-    "certifications": "الشهادات",
-    "certificationsDesc": "ACLS، BLS، أو شهادات أخرى",
-    "businessLicense": "رخصة العمل",
-    "businessLicenseDesc": "رخصة منشأتك الصحية",
-    "insurance": "تأمين المسؤولية",
-    "insuranceDesc": "شهادة تأمين المسؤولية المهنية",
+    "professionalLicense": "الترخيص المهني",
+    "professionalLicenseDesc": "ترخيص مزاولة المهنة الصادر من الجهة المختصة",
+    "certifications": "الشهادات المهنية",
+    "certificationsDesc": "شهادات الإنعاش القلبي ACLS/BLS أو شهادات أخرى",
+    "businessLicense": "السجل التجاري",
+    "businessLicenseDesc": "السجل التجاري ورخصة المنشأة الصحية",
+    "insurance": "تأمين المسؤولية المهنية",
+    "insuranceDesc": "شهادة تأمين المسؤولية المهنية السارية",
     "upload": "رفع",
     "uploaded": "تم الرفع",
     "required": "مطلوب",
     "selectFile": "اختر ملف",
     "changeFile": "تغيير الملف",
     "reUpload": "إعادة الرفع",
-    "pendingVerification": "قيد التحقق من المشرف",
+    "pendingVerification": "قيد التحقق من فريق المراجعة",
     "verifiedApproved": "تم التحقق والموافقة",
     "documentUploaded": "تم رفع المستند",
-    "documentUploadedDesc": "تم رفع {{name}} للتحقق.",
-    "uploadFailed": "فشل الرفع",
+    "documentUploadedDesc": "تم رفع {{name}} وهو الآن قيد التحقق.",
+    "uploadFailed": "فشل رفع الملف",
     "missingDocuments": "المستندات المطلوبة ناقصة",
     "missingDocumentsDesc": "يرجى رفع جميع المستندات المطلوبة قبل الإكمال."
   },
   "footer": {
-    "tagline": "نربط المهنيين الصحيين بالعيادات. نبني قوى عاملة صحية، وردية واحدة في كل مرة.",
+    "tagline": "نربط المهنيين الصحيين بالمنشآت الصحية. نبني قوى عاملة صحية أفضل، وردية تلو الأخرى.",
     "forProfessionals": "للمهنيين",
     "findShifts": "البحث عن ورديات",
     "resources": "الموارد",
     "forClinics": "للعيادات",
     "postShifts": "نشر الورديات",
-    "enterprise": "المؤسسات",
-    "contact": "اتصل بنا",
-    "privacy": "الخصوصية",
-    "terms": "الشروط",
-    "help": "المساعدة",
+    "enterprise": "حلول المؤسسات",
+    "contact": "تواصل معنا",
+    "privacy": "سياسة الخصوصية",
+    "terms": "الشروط والأحكام",
+    "help": "المساعدة والدعم",
     "copyright": "© {{year}} SyndeoCare.ai. جميع الحقوق محفوظة."
   },
   "about": {
-    "title": "عن SyndeoCare",
+    "title": "من نحن - SyndeoCare",
     "mission": "مهمتنا",
-    "missionText": "تحويل توظيف الرعاية الصحية من خلال ربط المهنيين المؤهلين بالمنشآت التي تحتاجهم، عندما تحتاجهم.",
+    "missionText": "تحويل قطاع التوظيف الصحي من خلال ربط المهنيين المؤهلين بالمنشآت التي تحتاجهم، في الوقت المناسب.",
     "story": "قصتنا",
-    "storyText": "تأسست SyndeoCare على يد مهنيين صحيين فهموا تحديات التوظيف من التجربة. بنينا المنصة التي تمنيناها.",
+    "storyText": "تأسست SyndeoCare على يد مهنيين صحيين عايشوا تحديات التوظيف من التجربة المباشرة. بنينا المنصة التي تمنّينا وجودها.",
     "values": {
       "title": "قيمنا",
       "quality": "رعاية عالية الجودة",
-      "qualityDesc": "نضع سلامة المرضى أولاً من خلال التوثيق الدقيق.",
-      "flexibility": "المرونة",
-      "flexibilityDesc": "اعمل متى وأين تريد، بشروطك.",
-      "trust": "الثقة",
-      "trustDesc": "شفافون وموثوقون ودائماً هنا عندما تحتاجنا."
+      "qualityDesc": "نضع سلامة المرضى في المقام الأول من خلال التوثيق الدقيق.",
+      "flexibility": "المرونة الكاملة",
+      "flexibilityDesc": "اعمل متى وأين تريد، بشروطك أنت.",
+      "trust": "الثقة والشفافية",
+      "trustDesc": "شفافون وموثوقون، ودائماً هنا عندما تحتاجنا."
     }
   },
   "professionals": {
     "hero": {
-      "title": "مسيرتك المهنية، جدولك",
-      "subtitle": "ابحث عن ورديات صحية مرنة تناسبك. انضم لآلاف المهنيين الذين تحكموا بمسيرتهم."
+      "title": "مسيرتك المهنية، بجدولك الخاص",
+      "subtitle": "ابحث عن ورديات صحية مرنة تناسب حياتك. انضم لآلاف المهنيين الذين تحكّموا بمسيرتهم المهنية."
     },
     "benefits": {
       "flexibility": "جدولة مرنة",
-      "flexibilityDesc": "اعمل متى تريد، وأين تريد.",
-      "topPay": "أفضل الأجور",
+      "flexibilityDesc": "اعمل متى تشاء، وأين تشاء.",
+      "topPay": "أفضل معدلات الأجور",
       "topPayDesc": "أسعار تنافسية للمهنيين المؤهلين.",
       "verified": "منشآت موثقة",
-      "verifiedDesc": "جميع العيادات الشريكة فُحصت بدقة."
+      "verifiedDesc": "جميع العيادات الشريكة تم التحقق منها بدقة."
     }
   },
   "clinics": {
     "hero": {
-      "title": "وظّف بثقة في منشأتك",
-      "subtitle": "الوصول لشبكة من المهنيين الصحيين الموثقين الجاهزين لملء وردياتك."
+      "title": "وظّف بثقة في منشأتك الصحية",
+      "subtitle": "احصل على شبكة من المهنيين الصحيين الموثقين الجاهزين لتغطية وردياتك."
     },
     "benefits": {
       "verified": "مهنيون موثقون",
-      "verifiedDesc": "كل مهني تم فحص خلفيته والتحقق من شهاداته.",
+      "verifiedDesc": "كل مهني خضع لفحص الخلفية والتحقق من الشهادات.",
       "fast": "توظيف سريع",
-      "fastDesc": "املأ الورديات في ساعات، ليس أيام.",
+      "fastDesc": "املأ الورديات في ساعات، وليس أيام.",
       "flexible": "حلول مرنة",
-      "flexibleDesc": "من المناوبات اليومية إلى المهام طويلة الأجل."
+      "flexibleDesc": "من المناوبات اليومية إلى التعاقدات طويلة الأجل."
     }
   },
   "location": {
@@ -493,25 +509,25 @@
     "searchPlaceholder": "ابحث عن عنوان...",
     "detecting": "جارٍ تحديد الموقع...",
     "locationError": "تعذر تحديد الموقع",
-    "permissionDenied": "تم رفض إذن الموقع",
+    "permissionDenied": "تم رفض إذن الوصول للموقع",
     "noResults": "لا توجد نتائج"
   },
   "viewProfile": {
-    "notFound": "لم يتم العثور على المهني",
-    "clinicNotFound": "لم يتم العثور على العيادة",
-    "about": "نبذة",
+    "notFound": "لم يتم العثور على الملف المطلوب",
+    "clinicNotFound": "لم يتم العثور على العيادة المطلوبة",
+    "about": "نبذة تعريفية",
     "aboutClinic": "عن هذه العيادة",
     "contactInfo": "معلومات الاتصال",
-    "reviews": "تقييمات",
+    "reviews": "تقييم",
     "openShifts": "الورديات المتاحة",
     "availableForShifts": "متاح للورديات",
-    "viewProfile": "عرض الملف"
+    "viewProfile": "عرض الملف الشخصي"
   },
   "shiftSearch": {
     "title": "ابحث عن ورديات",
-    "subtitle": "تصفح الورديات المتاحة من المنشآت الصحية الموثقة القريبة منك.",
+    "subtitle": "تصفح الورديات المتاحة من المنشآت الصحية الموثقة بالقرب منك.",
     "resultsCount": "تم العثور على {{count}} وردية",
-    "noResults": "جرب تعديل الفلاتر أو كلمات البحث.",
+    "noResults": "جرب تعديل معايير البحث أو الفلاتر.",
     "allUpcoming": "كل القادم",
     "today": "اليوم",
     "thisWeek": "هذا الأسبوع",
@@ -520,7 +536,68 @@
   "notFound": {
     "title": "الصفحة غير موجودة",
     "description": "عذراً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
-    "goHome": "الرئيسية",
+    "goHome": "العودة للرئيسية",
     "goBack": "رجوع"
+  },
+  "admin": {
+    "title": "لوحة تحكم المشرفين",
+    "subtitle": "إدارة المستخدمين والمستندات والتوثيق",
+    "superAdmin": "المشرف الرئيسي",
+    "reviewTeam": "فريق المراجعة",
+    "tabs": {
+      "overview": "نظرة عامة",
+      "professionals": "المهنيون",
+      "clinics": "العيادات",
+      "documents": "المستندات",
+      "admins": "إدارة الفريق"
+    },
+    "stats": {
+      "totalProfessionals": "المهنيون",
+      "totalClinics": "العيادات",
+      "pendingVerifications": "بانتظار التوثيق",
+      "pendingDocuments": "مستندات قيد المراجعة"
+    },
+    "actionRequired": "إجراء مطلوب",
+    "documentsAwaiting": "{{count}} مستند بانتظار المراجعة",
+    "usersAwaiting": "{{count}} مستخدم بانتظار التوثيق",
+    "recentProfessionals": "أحدث المهنيين المسجلين",
+    "recentClinics": "أحدث العيادات المسجلة",
+    "documentsAwaitingReview": "المستندات بانتظار المراجعة",
+    "noProfessionalsYet": "لا يوجد مهنيون مسجلون بعد",
+    "noClinicsYet": "لا توجد عيادات مسجلة بعد",
+    "noDocumentsFound": "لا توجد مستندات",
+    "searchProfessionals": "البحث في المهنيين...",
+    "searchClinics": "البحث في العيادات...",
+    "searchDocuments": "البحث في المستندات...",
+    "allStatus": "كل الحالات",
+    "table": {
+      "name": "الاسم",
+      "email": "البريد الإلكتروني",
+      "status": "الحالة",
+      "onboarding": "الإعداد",
+      "actions": "الإجراءات",
+      "document": "المستند",
+      "user": "المستخدم",
+      "type": "النوع",
+      "uploaded": "تاريخ الرفع"
+    },
+    "verification": {
+      "userVerified": "تم توثيق المستخدم",
+      "userRejected": "تم رفض المستخدم",
+      "userVerifiedDesc": "تم توثيق {{type}} بنجاح.",
+      "userRejectedDesc": "تم رفض توثيق {{type}}.",
+      "documentVerified": "تم توثيق المستند",
+      "documentRejected": "تم رفض المستند",
+      "documentVerifiedDesc": "تم التحقق من المستند والموافقة عليه.",
+      "documentRejectedDesc": "تم رفض المستند."
+    },
+    "roles": {
+      "superAdmin": "المشرف الرئيسي",
+      "superAdminDesc": "صلاحيات كاملة لجميع المميزات والإعدادات",
+      "admin": "مشرف",
+      "adminDesc": "صلاحيات المراجعة والتوثيق",
+      "professional": "مهني صحي",
+      "clinic": "عيادة"
+    }
   }
 }
