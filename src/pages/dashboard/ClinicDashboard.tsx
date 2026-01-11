@@ -26,6 +26,8 @@ import StatsGrid from "@/components/dashboard/StatsGrid";
 import OnboardingBanner from "@/components/dashboard/OnboardingBanner";
 import CreateShiftModal from "@/components/clinic/CreateShiftModal";
 import ShiftManageModal from "@/components/clinic/ShiftManageModal";
+import { ShiftCardSkeleton } from "@/components/ui/skeleton-cards";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface Shift {
   id: string;
@@ -277,29 +279,33 @@ const ClinicDashboard = () => {
             <h2 className="text-lg font-semibold text-foreground">{t("dashboard.myShifts")}</h2>
           </div>
 
-          {shifts.length === 0 ? (
-            <div className="bg-card rounded-xl border border-border p-8 text-center shadow-card">
-              <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-medium text-foreground mb-2">{t("dashboard.noShifts")}</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                {canPostShifts 
-                  ? t("dashboard.noShiftsDesc")
-                  : t("dashboard.needsVerification")}
-              </p>
-              {canPostShifts ? (
-                <Button className="bg-accent hover:bg-accent/90" onClick={() => setShowCreateShift(true)}>
-                  <Plus className="w-4 h-4 me-2" />
-                  {t("shifts.create")}
-                </Button>
-              ) : (
-                <Button asChild className="bg-accent hover:bg-accent/90">
-                  <Link to="/profile/clinic?tab=documents">
-                    <FileText className="w-4 h-4 me-2" />
-                    {t("dashboard.completeOnboarding")}
-                  </Link>
-                </Button>
-              )}
+          {isLoading ? (
+            <div className="space-y-3">
+              <ShiftCardSkeleton />
+              <ShiftCardSkeleton />
+              <ShiftCardSkeleton />
             </div>
+          ) : shifts.length === 0 ? (
+            <EmptyState
+              icon={Calendar}
+              title={t("dashboard.noShifts")}
+              description={canPostShifts ? t("dashboard.noShiftsDesc") : t("dashboard.needsVerification")}
+              action={
+                canPostShifts ? (
+                  <Button className="bg-accent hover:bg-accent/90" onClick={() => setShowCreateShift(true)}>
+                    <Plus className="w-4 h-4 me-2" />
+                    {t("shifts.create")}
+                  </Button>
+                ) : (
+                  <Button asChild className="bg-accent hover:bg-accent/90">
+                    <Link to="/profile/clinic?tab=documents">
+                      <FileText className="w-4 h-4 me-2" />
+                      {t("dashboard.completeOnboarding")}
+                    </Link>
+                  </Button>
+                )
+              }
+            />
           ) : (
             <div className="space-y-3">
               {shifts.map((shift, index) => (

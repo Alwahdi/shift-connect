@@ -27,6 +27,8 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsGrid from "@/components/dashboard/StatsGrid";
 import DocumentViewer from "@/components/admin/DocumentViewer";
 import UserDetailsModal from "@/components/admin/UserDetailsModal";
+import { ListItemSkeleton, DocumentCardSkeleton } from "@/components/ui/skeleton-cards";
+import { EmptyState, InlineEmptyState } from "@/components/ui/empty-state";
 
 interface Profile {
   id: string;
@@ -406,21 +408,31 @@ const AdminDashboard = () => {
                   {t("admin.recentProfessionals")}
                 </h3>
                 <div className="space-y-3">
-                  {professionals.slice(0, 5).map((prof) => (
-                    <div
-                      key={prof.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary cursor-pointer transition-colors"
-                      onClick={() => setSelectedUser({ type: "professional", data: prof })}
-                    >
-                      <div className="min-w-0 flex-1">
-                        <p className="font-medium text-foreground truncate">{prof.full_name}</p>
-                        <p className="text-sm text-muted-foreground truncate">{prof.email}</p>
+                  {isLoading ? (
+                    <>
+                      <ListItemSkeleton />
+                      <ListItemSkeleton />
+                      <ListItemSkeleton />
+                    </>
+                  ) : professionals.length === 0 ? (
+                    <InlineEmptyState icon={Users} message={t("admin.noProfessionalsYet")} />
+                  ) : (
+                    professionals.slice(0, 5).map((prof) => (
+                      <div
+                        key={prof.id}
+                        className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary cursor-pointer transition-colors min-h-[52px]"
+                        onClick={() => setSelectedUser({ type: "professional", data: prof })}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === 'Enter' && setSelectedUser({ type: "professional", data: prof })}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-foreground truncate">{prof.full_name}</p>
+                          <p className="text-sm text-muted-foreground truncate">{prof.email}</p>
+                        </div>
+                        {getStatusBadge(prof.verification_status)}
                       </div>
-                      {getStatusBadge(prof.verification_status)}
-                    </div>
-                  ))}
-                  {professionals.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-4">{t("admin.noProfessionalsYet")}</p>
+                    ))
                   )}
                 </div>
               </div>
@@ -431,21 +443,31 @@ const AdminDashboard = () => {
                   {t("admin.recentClinics")}
                 </h3>
                 <div className="space-y-3">
-                  {clinics.slice(0, 5).map((clinic) => (
-                    <div
-                      key={clinic.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary cursor-pointer transition-colors"
-                      onClick={() => setSelectedUser({ type: "clinic", data: clinic })}
-                    >
-                      <div className="min-w-0 flex-1">
-                        <p className="font-medium text-foreground truncate">{clinic.name}</p>
-                        <p className="text-sm text-muted-foreground truncate">{clinic.email}</p>
+                  {isLoading ? (
+                    <>
+                      <ListItemSkeleton />
+                      <ListItemSkeleton />
+                      <ListItemSkeleton />
+                    </>
+                  ) : clinics.length === 0 ? (
+                    <InlineEmptyState icon={Building2} message={t("admin.noClinicsYet")} />
+                  ) : (
+                    clinics.slice(0, 5).map((clinic) => (
+                      <div
+                        key={clinic.id}
+                        className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary cursor-pointer transition-colors min-h-[52px]"
+                        onClick={() => setSelectedUser({ type: "clinic", data: clinic })}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === 'Enter' && setSelectedUser({ type: "clinic", data: clinic })}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-foreground truncate">{clinic.name}</p>
+                          <p className="text-sm text-muted-foreground truncate">{clinic.email}</p>
+                        </div>
+                        {getStatusBadge(clinic.verification_status)}
                       </div>
-                      {getStatusBadge(clinic.verification_status)}
-                    </div>
-                  ))}
-                  {clinics.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-4">{t("admin.noClinicsYet")}</p>
+                    ))
                   )}
                 </div>
               </div>

@@ -113,16 +113,24 @@ export const ListItemSkeleton = ({ className }: SkeletonCardProps) => (
  */
 export const SkeletonGrid = ({ 
   count = 4, 
-  columns = "grid-cols-2 md:grid-cols-4",
-  CardComponent = StatsCardSkeleton,
+  columns = "grid-cols-1",
+  children,
+  CardComponent,
 }: { 
   count?: number;
   columns?: string;
+  children?: React.ReactNode;
   CardComponent?: React.ComponentType<SkeletonCardProps>;
 }) => (
   <div className={cn("grid gap-4", columns)}>
     {Array.from({ length: count }).map((_, i) => (
-      <CardComponent key={i} />
+      children ? (
+        <div key={i}>{children}</div>
+      ) : CardComponent ? (
+        <CardComponent key={i} />
+      ) : (
+        <StatsCardSkeleton key={i} />
+      )
     ))}
   </div>
 );
