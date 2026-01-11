@@ -48,7 +48,8 @@
     "name": "Name",
     "email": "Email",
     "phone": "Phone",
-    "noData": "No data available"
+    "noData": "No data available",
+    "currency": "$"
   },
   "nav": {
     "home": "Home",
@@ -87,6 +88,8 @@
     "professionalDesc": "Find flexible shifts at top healthcare facilities near you.",
     "imClinic": "I'm a Clinic",
     "clinicDesc": "Staff your facility with verified healthcare professionals.",
+    "orContinueWith": "or continue with",
+    "continueWithGoogle": "Continue with Google",
     "benefits": {
       "freeAccount": "Free to create account",
       "quickVerification": "Quick verification process",
