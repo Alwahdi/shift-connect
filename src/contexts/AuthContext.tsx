@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const checkOnboardingStatus = async (userId: string, role: UserRole | null) => {
-    if (!role || role === "admin") {
+    if (!role || role === "admin" || role === "super_admin") {
       setIsOnboardingComplete(true);
       return true;
     }
