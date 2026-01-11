@@ -9,17 +9,17 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm hover:shadow-md active:scale-[0.98]",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm active:scale-[0.98]",
-        outline: "border border-input bg-background hover:bg-secondary hover:border-primary/30 active:scale-[0.98]",
+        default: "bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg active:scale-[0.98]",
+        destructive: "bg-destructive text-destructive-foreground shadow-md hover:bg-destructive/90 active:scale-[0.98]",
+        outline: "border-2 border-input bg-background hover:bg-secondary hover:border-primary/30 active:scale-[0.98]",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 active:scale-[0.98]",
         ghost: "hover:bg-secondary hover:text-foreground active:bg-secondary/80",
         link: "text-primary underline-offset-4 hover:underline",
-        accent: "gradient-accent text-accent-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-transform",
-        hero: "gradient-primary text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-transform",
+        accent: "gradient-accent text-white font-bold shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all",
+        hero: "gradient-primary text-white font-bold shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all",
         "hero-outline": "border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground active:scale-[0.98]",
-        success: "bg-success text-success-foreground hover:bg-success/90 shadow-sm active:scale-[0.98]",
-        sky: "gradient-sky text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-transform",
+        success: "bg-success text-success-foreground shadow-md hover:bg-success/90 active:scale-[0.98]",
+        sky: "gradient-sky text-white font-bold shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all",
       },
       size: {
         default: "h-10 px-5 py-2",
