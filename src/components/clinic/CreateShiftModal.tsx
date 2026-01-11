@@ -310,23 +310,28 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
 
           {/* Required Certifications */}
           <div className="space-y-3">
-            <Label>{t("shifts.fields.requiredCertifications")}</Label>
-            <div className="flex flex-wrap gap-2">
+            <Label id="certifications-label">{t("shifts.fields.requiredCertifications")}</Label>
+            <div 
+              className="flex flex-wrap gap-2"
+              role="group"
+              aria-labelledby="certifications-label"
+            >
               {CERTIFICATION_OPTIONS.map(cert => (
                 <button
                   key={cert}
                   type="button"
                   onClick={() => toggleCertification(cert)}
+                  aria-pressed={formData.required_certifications.includes(cert)}
                   className={cn(
-                    "px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+                    "px-4 py-2 min-h-[44px] rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                     formData.required_certifications.includes(cert)
                       ? "bg-accent text-accent-foreground"
-                      : "bg-secondary text-muted-foreground hover:text-foreground"
+                      : "bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80"
                   )}
                 >
                   {cert}
                   {formData.required_certifications.includes(cert) && (
-                    <X className="w-3 h-3 ms-1 inline" />
+                    <X className="w-3 h-3 ms-1 inline" aria-hidden="true" />
                   )}
                 </button>
               ))}
@@ -353,14 +358,14 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
             <Button
               type="button"
               variant="outline"
-              className="flex-1"
+              className="flex-1 min-h-[48px]"
               onClick={() => onOpenChange(false)}
             >
               {t("common.cancel")}
             </Button>
             <Button
               type="submit"
-              className="flex-1 bg-accent hover:bg-accent/90"
+              className="flex-1 min-h-[48px] bg-accent hover:bg-accent/90"
               disabled={isSubmitting}
             >
               {isSubmitting ? (

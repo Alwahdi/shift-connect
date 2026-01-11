@@ -210,11 +210,11 @@ const ShiftManageModal = ({
         </DialogHeader>
 
         {/* Shift Summary */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-          <div className="bg-secondary/50 rounded-lg p-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4" role="list" aria-label={t("shifts.modal.details")}>
+          <div className="bg-secondary/50 rounded-lg p-3 min-h-[64px]" role="listitem">
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-              <Calendar className="w-3 h-3" />
-              {t("shifts.date")}
+              <Calendar className="w-3 h-3" aria-hidden="true" />
+              <span>{t("shifts.date")}</span>
             </div>
             <p className="text-sm font-medium text-foreground">
               {new Date(shift.shift_date).toLocaleDateString(isRTL ? "ar-SA" : "en-US", {
@@ -223,26 +223,26 @@ const ShiftManageModal = ({
               })}
             </p>
           </div>
-          <div className="bg-secondary/50 rounded-lg p-3">
+          <div className="bg-secondary/50 rounded-lg p-3 min-h-[64px]" role="listitem">
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-              <Clock className="w-3 h-3" />
-              {t("shifts.time")}
+              <Clock className="w-3 h-3" aria-hidden="true" />
+              <span>{t("shifts.time")}</span>
             </div>
             <p className="text-sm font-medium text-foreground">
               {shift.start_time} - {shift.end_time}
             </p>
           </div>
-          <div className="bg-secondary/50 rounded-lg p-3">
+          <div className="bg-secondary/50 rounded-lg p-3 min-h-[64px]" role="listitem">
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-              <DollarSign className="w-3 h-3" />
-              {t("shifts.rate")}
+              <DollarSign className="w-3 h-3" aria-hidden="true" />
+              <span>{t("shifts.rate")}</span>
             </div>
             <p className="text-sm font-medium text-foreground">${shift.hourly_rate}{t("common.perHour")}</p>
           </div>
-          <div className="bg-secondary/50 rounded-lg p-3">
+          <div className="bg-secondary/50 rounded-lg p-3 min-h-[64px]" role="listitem">
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-              <Users className="w-3 h-3" />
-              {t("dashboard.applicants")}
+              <Users className="w-3 h-3" aria-hidden="true" />
+              <span>{t("dashboard.applicants")}</span>
             </div>
             <p className="text-sm font-medium text-foreground">{applicants.length}</p>
           </div>
@@ -261,17 +261,18 @@ const ShiftManageModal = ({
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            <span className="sr-only">{t("common.loading")}</span>
           </div>
         ) : applicants.length === 0 ? (
-          <div className="text-center py-8">
-            <Users className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">{t("shifts.modal.noApplicantsYet")}</p>
+          <div className="text-center py-8" role="status">
+            <Users className="w-10 h-10 text-muted-foreground mx-auto mb-3" aria-hidden="true" />
+            <p className="text-muted-foreground font-medium">{t("shifts.modal.noApplicantsYet")}</p>
             <p className="text-sm text-muted-foreground">{t("shifts.modal.noApplicantsDesc")}</p>
           </div>
         ) : (
           <Tabs defaultValue="pending" className="mt-4">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="pending">
+            <TabsList className="grid w-full grid-cols-3 min-h-[44px]">
+              <TabsTrigger value="pending" className="min-h-[40px]">
                 {t("shifts.modal.pendingTab")}
                 {pendingApplicants.length > 0 && (
                   <span className="ms-2 px-1.5 py-0.5 text-xs bg-warning text-warning-foreground rounded-full">
@@ -279,7 +280,7 @@ const ShiftManageModal = ({
                   </span>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="accepted">
+              <TabsTrigger value="accepted" className="min-h-[40px]">
                 {t("shifts.modal.acceptedTab")}
                 {acceptedApplicants.length > 0 && (
                   <span className="ms-2 px-1.5 py-0.5 text-xs bg-success text-success-foreground rounded-full">
@@ -287,7 +288,7 @@ const ShiftManageModal = ({
                   </span>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="declined">{t("shifts.modal.declinedTab")} ({declinedApplicants.length})</TabsTrigger>
+              <TabsTrigger value="declined" className="min-h-[40px]">{t("shifts.modal.declinedTab")} ({declinedApplicants.length})</TabsTrigger>
             </TabsList>
 
             <TabsContent value="pending" className="space-y-3 mt-4">
