@@ -29,6 +29,8 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsGrid from "@/components/dashboard/StatsGrid";
 import OnboardingBanner from "@/components/dashboard/OnboardingBanner";
 import ShiftDetailModal from "@/components/shifts/ShiftDetailModal";
+import { ShiftCardSkeleton } from "@/components/ui/skeleton-cards";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface Shift {
   id: string;
@@ -414,18 +416,33 @@ const ProfessionalDashboard = () => {
           </div>
 
           {/* Shift Cards */}
-          {shifts.length === 0 ? (
-            <div className="bg-card rounded-xl border border-border p-8 text-center shadow-card">
-              <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-medium text-foreground mb-2">{t("dashboard.noShifts")}</h3>
-              <p className="text-sm text-muted-foreground">
-                {profile?.verification_status !== "verified" 
-                  ? t("dashboard.needsVerification")
-                  : hasActiveFilters
-                    ? t("dashboard.noShiftsDesc")
-                    : t("dashboard.noShiftsDesc")}
-              </p>
+          {isLoading ? (
+            <div className="space-y-3">
+              <ShiftCardSkeleton />
+              <ShiftCardSkeleton />
+              <ShiftCardSkeleton />
+              <ShiftCardSkeleton />
             </div>
+          ) : shifts.length === 0 ? (
+            <EmptyState
+              icon={Calendar}
+              title={t("dashboard.noShifts")}
+              description={
+                profile?.verification_status !== "verified" 
+                  ? t("dashboard.needsVerification")
+                  : t("dashboard.noShiftsDesc")
+              }
+              action={
+                profile?.verification_status !== "verified" ? (
+                  <Button asChild>
+                    <Link to="/profile/professional?tab=documents">
+                      <Upload className="w-4 h-4 me-2" />
+                      {t("profile.uploadDocument")}
+                    </Link>
+                  </Button>
+                ) : undefined
+              }
+            />
           ) : (
             <div className="space-y-3">
               {shifts.filter(shift => 

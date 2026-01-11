@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { Heart, Mail, Lock, Eye, EyeOff, User, Building2, Users, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { FormField, InputWithIcon } from "@/components/ui/form-field";
 
 type UserRole = "professional" | "clinic";
 type AuthMode = "login" | "signup";
@@ -238,44 +238,50 @@ const Auth = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium">{t("auth.email")}</Label>
-                  <div className="relative">
-                    <Mail className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <FormField
+                  label={t("auth.email")}
+                  htmlFor="email"
+                  error={errors.email}
+                  required
+                >
+                  <InputWithIcon icon={Mail}>
                     <Input
                       id="email"
                       type="email"
                       placeholder={t("auth.emailPlaceholder")}
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className={`ps-12 h-13 text-base ${errors.email ? "border-destructive" : ""}`}
+                      className="h-13 text-base"
                     />
-                  </div>
-                  {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-                </div>
+                  </InputWithIcon>
+                </FormField>
 
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium">{t("auth.password")}</Label>
+                <FormField
+                  label={t("auth.password")}
+                  htmlFor="password"
+                  error={errors.password}
+                  required
+                >
                   <div className="relative">
-                    <Lock className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Lock className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" aria-hidden="true" />
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
                       placeholder={t("auth.passwordPlaceholder")}
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className={`ps-12 pe-12 h-13 text-base ${errors.password ? "border-destructive" : ""}`}
+                      className="ps-12 pe-12 h-13 text-base"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute end-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      className="absolute end-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center -me-2"
+                      aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
-                  {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
-                </div>
+                </FormField>
 
                 <Button type="submit" variant="hero" className="w-full h-13 text-base font-semibold" disabled={isLoading}>
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : t("auth.signIn")}
@@ -402,77 +408,88 @@ const Auth = () => {
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 {role === "clinic" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="organizationName" className="text-sm font-medium">{t("auth.organizationName")}</Label>
-                    <div className="relative">
-                      <Building2 className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <FormField
+                    label={t("auth.organizationName")}
+                    htmlFor="organizationName"
+                    error={errors.organizationName}
+                    required
+                  >
+                    <InputWithIcon icon={Building2}>
                       <Input
                         id="organizationName"
                         type="text"
                         placeholder={t("auth.clinicNamePlaceholder")}
                         value={formData.organizationName}
                         onChange={(e) => setFormData({ ...formData, organizationName: e.target.value })}
-                        className={`ps-12 h-13 text-base ${errors.organizationName ? "border-destructive" : ""}`}
+                        className="h-13 text-base"
                       />
-                    </div>
-                    {errors.organizationName && <p className="text-sm text-destructive">{errors.organizationName}</p>}
-                  </div>
+                    </InputWithIcon>
+                  </FormField>
                 )}
 
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-medium">{role === "professional" ? t("auth.fullName") : t("auth.contactName")}</Label>
-                  <div className="relative">
-                    <User className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <FormField
+                  label={role === "professional" ? t("auth.fullName") : t("auth.contactName")}
+                  htmlFor="name"
+                  error={errors.name}
+                  required
+                >
+                  <InputWithIcon icon={User}>
                     <Input
                       id="name"
                       type="text"
                       placeholder={t("auth.namePlaceholder")}
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className={`ps-12 h-13 text-base ${errors.name ? "border-destructive" : ""}`}
+                      className="h-13 text-base"
                     />
-                  </div>
-                  {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
-                </div>
+                  </InputWithIcon>
+                </FormField>
 
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium">{t("auth.email")}</Label>
-                  <div className="relative">
-                    <Mail className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <FormField
+                  label={t("auth.email")}
+                  htmlFor="email"
+                  error={errors.email}
+                  required
+                >
+                  <InputWithIcon icon={Mail}>
                     <Input
                       id="email"
                       type="email"
                       placeholder={t("auth.emailPlaceholder")}
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className={`ps-12 h-13 text-base ${errors.email ? "border-destructive" : ""}`}
+                      className="h-13 text-base"
                     />
-                  </div>
-                  {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-                </div>
+                  </InputWithIcon>
+                </FormField>
 
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium">{t("auth.password")}</Label>
+                <FormField
+                  label={t("auth.password")}
+                  htmlFor="password"
+                  error={errors.password}
+                  hint={t("auth.passwordHint")}
+                  required
+                >
                   <div className="relative">
-                    <Lock className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Lock className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" aria-hidden="true" />
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
                       placeholder={t("auth.createPasswordPlaceholder")}
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className={`ps-12 pe-12 h-13 text-base ${errors.password ? "border-destructive" : ""}`}
+                      className="ps-12 pe-12 h-13 text-base"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute end-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      className="absolute end-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center -me-2"
+                      aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
-                  {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
-                </div>
+                </FormField>
 
                 <Button type="submit" variant="hero" className="w-full h-13 text-base font-semibold" disabled={isLoading}>
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
