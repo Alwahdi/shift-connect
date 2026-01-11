@@ -16,12 +16,13 @@ import {
   Loader2,
   AlertTriangle,
   RefreshCw,
-  Filter
+  Shield
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsGrid from "@/components/dashboard/StatsGrid";
 import DocumentViewer from "@/components/admin/DocumentViewer";
@@ -69,6 +70,9 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const { user, userRole, signOut, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
+  const isSuperAdmin = userRole === "super_admin";
 
   const [activeTab, setActiveTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
@@ -91,12 +95,12 @@ const AdminDashboard = () => {
   });
 
   useEffect(() => {
-    if (!authLoading && (!user || userRole !== "admin")) {
+    if (!authLoading && (!user || (userRole !== "admin" && userRole !== "super_admin"))) {
       navigate("/auth");
       return;
     }
 
-    if (user && userRole === "admin") {
+    if (user && (userRole === "admin" || userRole === "super_admin")) {
       fetchData();
     }
   }, [user, userRole, authLoading, navigate]);
@@ -190,8 +194,10 @@ const AdminDashboard = () => {
       if (error) throw error;
 
       toast({
-        title: status === "verified" ? "User Verified" : "User Rejected",
-        description: `The ${type} has been ${status}.`,
+        title: status === "verified" ? t("admin.verification.userVerified") : t("admin.verification.userRejected"),
+        description: status === "verified" 
+          ? t("admin.verification.userVerifiedDesc", { type: type === "professional" ? t("admin.roles.professional") : t("admin.roles.clinic") })
+          : t("admin.verification.userRejectedDesc", { type: type === "professional" ? t("admin.roles.professional") : t("admin.roles.clinic") }),
       });
 
       fetchData();
@@ -199,7 +205,7 @@ const AdminDashboard = () => {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: t("common.error"),
         description: error.message,
       });
     }
@@ -225,8 +231,8 @@ const AdminDashboard = () => {
       if (error) throw error;
 
       toast({
-        title: status === "verified" ? "Document Verified" : "Document Rejected",
-        description: `The document has been ${status}.`,
+        title: status === "verified" ? t("admin.verification.documentVerified") : t("admin.verification.documentRejected"),
+        description: status === "verified" ? t("admin.verification.documentVerifiedDesc") : t("admin.verification.documentRejectedDesc"),
       });
 
       fetchData();
@@ -234,7 +240,7 @@ const AdminDashboard = () => {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: t("common.error"),
         description: error.message,
       });
     }
@@ -248,11 +254,11 @@ const AdminDashboard = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "verified":
-        return <Badge className="bg-success/10 text-success border-success/20"><CheckCircle2 className="w-3 h-3 mr-1" />Verified</Badge>;
+        return <Badge className="bg-success/10 text-success border-success/20"><CheckCircle2 className="w-3 h-3 me-1" />{t("common.verified")}</Badge>;
       case "rejected":
-        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />Rejected</Badge>;
+        return <Badge variant="destructive"><XCircle className="w-3 h-3 me-1" />{t("common.rejected")}</Badge>;
       default:
-        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
+        return <Badge variant="secondary"><Clock className="w-3 h-3 me-1" />{t("common.pending")}</Badge>;
     }
   };
 
@@ -299,22 +305,30 @@ const AdminDashboard = () => {
   }
 
   const adminStats = [
-    { label: "Professionals", value: stats.totalProfessionals.toString(), icon: Users },
-    { label: "Clinics", value: stats.totalClinics.toString(), icon: Building2 },
-    { label: "Pending Verifications", value: stats.pendingVerifications.toString(), icon: Clock },
-    { label: "Pending Documents", value: stats.pendingDocuments.toString(), icon: FileText },
+    { label: t("admin.stats.totalProfessionals"), value: stats.totalProfessionals.toString(), icon: Users },
+    { label: t("admin.stats.totalClinics"), value: stats.totalClinics.toString(), icon: Building2 },
+    { label: t("admin.stats.pendingVerifications"), value: stats.pendingVerifications.toString(), icon: Clock },
+    { label: t("admin.stats.pendingDocuments"), value: stats.pendingDocuments.toString(), icon: FileText },
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" dir={isRTL ? "rtl" : "ltr"}>
       <DashboardHeader type="admin" onSignOut={handleSignOut} />
 
       <main className="container mx-auto px-4 py-6">
         {/* Title and Refresh */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Manage users, documents, and verifications.</p>
+            <div className="flex items-center gap-2 mb-1">
+              <h1 className="text-2xl font-bold text-foreground">{t("admin.title")}</h1>
+              {isSuperAdmin && (
+                <Badge className="bg-primary/10 text-primary border-primary/20">
+                  <Shield className="w-3 h-3 me-1" />
+                  {t("admin.superAdmin")}
+                </Badge>
+              )}
+            </div>
+            <p className="text-muted-foreground">{t("admin.subtitle")}</p>
           </div>
           <Button
             variant="outline"
@@ -322,8 +336,8 @@ const AdminDashboard = () => {
             onClick={handleRefresh}
             disabled={isRefreshing}
           >
-            <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
-            Refresh
+            <RefreshCw className={`w-4 h-4 me-2 ${isRefreshing ? "animate-spin" : ""}`} />
+            {t("common.refresh")}
           </Button>
         </div>
 
@@ -333,27 +347,27 @@ const AdminDashboard = () => {
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="overview">{t("admin.tabs.overview")}</TabsTrigger>
             <TabsTrigger value="professionals">
-              Professionals
+              {t("admin.tabs.professionals")}
               {professionals.filter(p => p.verification_status === "pending").length > 0 && (
-                <span className="ml-2 px-1.5 py-0.5 text-xs bg-warning text-warning-foreground rounded-full">
+                <span className="ms-2 px-1.5 py-0.5 text-xs bg-warning text-warning-foreground rounded-full">
                   {professionals.filter(p => p.verification_status === "pending").length}
                 </span>
               )}
             </TabsTrigger>
             <TabsTrigger value="clinics">
-              Clinics
+              {t("admin.tabs.clinics")}
               {clinics.filter(c => c.verification_status === "pending").length > 0 && (
-                <span className="ml-2 px-1.5 py-0.5 text-xs bg-warning text-warning-foreground rounded-full">
+                <span className="ms-2 px-1.5 py-0.5 text-xs bg-warning text-warning-foreground rounded-full">
                   {clinics.filter(c => c.verification_status === "pending").length}
                 </span>
               )}
             </TabsTrigger>
             <TabsTrigger value="documents">
-              Documents
+              {t("admin.tabs.documents")}
               {stats.pendingDocuments > 0 && (
-                <span className="ml-2 px-1.5 py-0.5 text-xs bg-destructive text-destructive-foreground rounded-full">
+                <span className="ms-2 px-1.5 py-0.5 text-xs bg-destructive text-destructive-foreground rounded-full">
                   {stats.pendingDocuments}
                 </span>
               )}
@@ -371,14 +385,14 @@ const AdminDashboard = () => {
               >
                 <div className="flex items-center gap-3 mb-3">
                   <AlertTriangle className="w-5 h-5 text-warning" />
-                  <h3 className="font-semibold text-foreground">Action Required</h3>
+                  <h3 className="font-semibold text-foreground">{t("admin.actionRequired")}</h3>
                 </div>
                 <div className="space-y-2 text-sm text-muted-foreground">
                   {stats.pendingDocuments > 0 && (
-                    <p>• {stats.pendingDocuments} document(s) awaiting review</p>
+                    <p>• {t("admin.documentsAwaiting", { count: stats.pendingDocuments })}</p>
                   )}
                   {stats.pendingVerifications > 0 && (
-                    <p>• {stats.pendingVerifications} user(s) awaiting verification</p>
+                    <p>• {t("admin.usersAwaiting", { count: stats.pendingVerifications })}</p>
                   )}
                 </div>
               </motion.div>
@@ -389,7 +403,7 @@ const AdminDashboard = () => {
               <div className="bg-card rounded-xl border border-border p-4 shadow-card">
                 <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                   <Users className="w-5 h-5 text-primary" />
-                  Recent Professionals
+                  {t("admin.recentProfessionals")}
                 </h3>
                 <div className="space-y-3">
                   {professionals.slice(0, 5).map((prof) => (
@@ -406,7 +420,7 @@ const AdminDashboard = () => {
                     </div>
                   ))}
                   {professionals.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-4">No professionals yet</p>
+                    <p className="text-sm text-muted-foreground text-center py-4">{t("admin.noProfessionalsYet")}</p>
                   )}
                 </div>
               </div>
@@ -414,7 +428,7 @@ const AdminDashboard = () => {
               <div className="bg-card rounded-xl border border-border p-4 shadow-card">
                 <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                   <Building2 className="w-5 h-5 text-accent" />
-                  Recent Clinics
+                  {t("admin.recentClinics")}
                 </h3>
                 <div className="space-y-3">
                   {clinics.slice(0, 5).map((clinic) => (
@@ -431,7 +445,7 @@ const AdminDashboard = () => {
                     </div>
                   ))}
                   {clinics.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-4">No clinics yet</p>
+                    <p className="text-sm text-muted-foreground text-center py-4">{t("admin.noClinicsYet")}</p>
                   )}
                 </div>
               </div>
@@ -442,7 +456,7 @@ const AdminDashboard = () => {
               <div className="bg-card rounded-xl border border-border p-4 shadow-card">
                 <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                   <FileText className="w-5 h-5 text-warning" />
-                  Documents Awaiting Review
+                  {t("admin.documentsAwaitingReview")}
                 </h3>
                 <div className="space-y-3">
                   {pendingDocuments.slice(0, 5).map((doc) => (
@@ -463,8 +477,8 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                       <Button size="sm" variant="outline">
-                        <Eye className="w-4 h-4 mr-1" />
-                        Review
+                        <Eye className="w-4 h-4 me-1" />
+                        {t("common.review")}
                       </Button>
                     </div>
                   ))}
@@ -477,12 +491,12 @@ const AdminDashboard = () => {
           <TabsContent value="professionals" className="space-y-4">
             <div className="flex gap-3">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
                 <Input
-                  placeholder="Search professionals..."
+                  placeholder={t("admin.searchProfessionals")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
+                  className={isRTL ? "pr-9" : "pl-9"}
                 />
               </div>
               <select
@@ -490,10 +504,10 @@ const AdminDashboard = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-3 py-2 rounded-md border border-input bg-background text-sm"
               >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="verified">Verified</option>
-                <option value="rejected">Rejected</option>
+                <option value="all">{t("admin.allStatus")}</option>
+                <option value="pending">{t("common.pending")}</option>
+                <option value="verified">{t("common.verified")}</option>
+                <option value="rejected">{t("common.rejected")}</option>
               </select>
             </div>
 
@@ -502,11 +516,11 @@ const AdminDashboard = () => {
                 <table className="w-full">
                   <thead className="bg-secondary/50">
                     <tr>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Name</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Email</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Onboarding</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} p-4 font-medium text-muted-foreground`}>{t("admin.table.name")}</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} p-4 font-medium text-muted-foreground`}>{t("admin.table.email")}</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} p-4 font-medium text-muted-foreground`}>{t("admin.table.status")}</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} p-4 font-medium text-muted-foreground`}>{t("admin.table.onboarding")}</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} p-4 font-medium text-muted-foreground`}>{t("admin.table.actions")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -519,9 +533,9 @@ const AdminDashboard = () => {
                         <td className="p-4">{getStatusBadge(prof.verification_status)}</td>
                         <td className="p-4">
                           {prof.onboarding_completed ? (
-                            <Badge className="bg-success/10 text-success border-success/20">Complete</Badge>
+                            <Badge className="bg-success/10 text-success border-success/20">{t("common.complete")}</Badge>
                           ) : (
-                            <Badge variant="secondary">Incomplete</Badge>
+                            <Badge variant="secondary">{t("common.incomplete")}</Badge>
                           )}
                         </td>
                         <td className="p-4">
@@ -530,8 +544,8 @@ const AdminDashboard = () => {
                             variant="outline"
                             onClick={() => setSelectedUser({ type: "professional", data: prof })}
                           >
-                            <Eye className="w-4 h-4 mr-1" />
-                            View
+                            <Eye className="w-4 h-4 me-1" />
+                            {t("common.view")}
                           </Button>
                         </td>
                       </tr>
@@ -539,7 +553,7 @@ const AdminDashboard = () => {
                     {filteredProfessionals.length === 0 && (
                       <tr>
                         <td colSpan={5} className="p-8 text-center text-muted-foreground">
-                          No professionals found
+                          {t("admin.noProfessionalsYet")}
                         </td>
                       </tr>
                     )}
@@ -553,12 +567,12 @@ const AdminDashboard = () => {
           <TabsContent value="clinics" className="space-y-4">
             <div className="flex gap-3">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
                 <Input
-                  placeholder="Search clinics..."
+                  placeholder={t("admin.searchClinics")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
+                  className={isRTL ? "pr-9" : "pl-9"}
                 />
               </div>
               <select
@@ -566,10 +580,10 @@ const AdminDashboard = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-3 py-2 rounded-md border border-input bg-background text-sm"
               >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="verified">Verified</option>
-                <option value="rejected">Rejected</option>
+                <option value="all">{t("admin.allStatus")}</option>
+                <option value="pending">{t("common.pending")}</option>
+                <option value="verified">{t("common.verified")}</option>
+                <option value="rejected">{t("common.rejected")}</option>
               </select>
             </div>
 
@@ -578,11 +592,11 @@ const AdminDashboard = () => {
                 <table className="w-full">
                   <thead className="bg-secondary/50">
                     <tr>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Name</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Email</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Onboarding</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} p-4 font-medium text-muted-foreground`}>{t("admin.table.name")}</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} p-4 font-medium text-muted-foreground`}>{t("admin.table.email")}</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} p-4 font-medium text-muted-foreground`}>{t("admin.table.status")}</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} p-4 font-medium text-muted-foreground`}>{t("admin.table.onboarding")}</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} p-4 font-medium text-muted-foreground`}>{t("admin.table.actions")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -595,9 +609,9 @@ const AdminDashboard = () => {
                         <td className="p-4">{getStatusBadge(clinic.verification_status)}</td>
                         <td className="p-4">
                           {clinic.onboarding_completed ? (
-                            <Badge className="bg-success/10 text-success border-success/20">Complete</Badge>
+                            <Badge className="bg-success/10 text-success border-success/20">{t("common.complete")}</Badge>
                           ) : (
-                            <Badge variant="secondary">Incomplete</Badge>
+                            <Badge variant="secondary">{t("common.incomplete")}</Badge>
                           )}
                         </td>
                         <td className="p-4">
@@ -606,8 +620,8 @@ const AdminDashboard = () => {
                             variant="outline"
                             onClick={() => setSelectedUser({ type: "clinic", data: clinic })}
                           >
-                            <Eye className="w-4 h-4 mr-1" />
-                            View
+                            <Eye className="w-4 h-4 me-1" />
+                            {t("common.view")}
                           </Button>
                         </td>
                       </tr>
@@ -615,7 +629,7 @@ const AdminDashboard = () => {
                     {filteredClinics.length === 0 && (
                       <tr>
                         <td colSpan={5} className="p-8 text-center text-muted-foreground">
-                          No clinics found
+                          {t("admin.noClinicsYet")}
                         </td>
                       </tr>
                     )}
@@ -629,12 +643,12 @@ const AdminDashboard = () => {
           <TabsContent value="documents" className="space-y-4">
             <div className="flex gap-3">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
                 <Input
-                  placeholder="Search documents..."
+                  placeholder={t("admin.searchDocuments")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
+                  className={isRTL ? "pr-9" : "pl-9"}
                 />
               </div>
               <select
@@ -642,10 +656,10 @@ const AdminDashboard = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-3 py-2 rounded-md border border-input bg-background text-sm"
               >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="verified">Verified</option>
-                <option value="rejected">Rejected</option>
+                <option value="all">{t("admin.allStatus")}</option>
+                <option value="pending">{t("common.pending")}</option>
+                <option value="verified">{t("common.verified")}</option>
+                <option value="rejected">{t("common.rejected")}</option>
               </select>
             </div>
 
@@ -654,12 +668,12 @@ const AdminDashboard = () => {
                 <table className="w-full">
                   <thead className="bg-secondary/50">
                     <tr>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Document</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">User</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Type</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Uploaded</th>
-                      <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} p-4 font-medium text-muted-foreground`}>{t("admin.table.document")}</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} p-4 font-medium text-muted-foreground`}>{t("admin.table.user")}</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} p-4 font-medium text-muted-foreground`}>{t("admin.table.type")}</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} p-4 font-medium text-muted-foreground`}>{t("admin.table.status")}</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} p-4 font-medium text-muted-foreground`}>{t("admin.table.uploaded")}</th>
+                      <th className={`${isRTL ? 'text-right' : 'text-left'} p-4 font-medium text-muted-foreground`}>{t("admin.table.actions")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -680,7 +694,7 @@ const AdminDashboard = () => {
                         <td className="p-4 text-muted-foreground capitalize">{doc.document_type.replace("_", " ")}</td>
                         <td className="p-4">{getStatusBadge(doc.status)}</td>
                         <td className="p-4 text-muted-foreground">
-                          {new Date(doc.created_at).toLocaleDateString()}
+                          {new Date(doc.created_at).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US')}
                         </td>
                         <td className="p-4">
                           <Button
@@ -688,8 +702,8 @@ const AdminDashboard = () => {
                             variant={doc.status === "pending" ? "default" : "outline"}
                             onClick={() => setSelectedDocument(doc)}
                           >
-                            <Eye className="w-4 h-4 mr-1" />
-                            {doc.status === "pending" ? "Review" : "View"}
+                            <Eye className="w-4 h-4 me-1" />
+                            {doc.status === "pending" ? t("common.review") : t("common.view")}
                           </Button>
                         </td>
                       </tr>
@@ -697,7 +711,7 @@ const AdminDashboard = () => {
                     {filteredDocuments.length === 0 && (
                       <tr>
                         <td colSpan={6} className="p-8 text-center text-muted-foreground">
-                          No documents found
+                          {t("admin.noDocumentsFound")}
                         </td>
                       </tr>
                     )}
