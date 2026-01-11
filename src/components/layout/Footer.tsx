@@ -6,38 +6,38 @@ const Footer = () => {
   const { t } = useTranslation();
 
   return (
-    <footer className="bg-primary text-primary-foreground">
-      <div className="container mx-auto px-4 py-12 md:py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+    <footer className="gradient-hero text-white">
+      <div className="container mx-auto px-4 sm:px-6 py-14 md:py-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12">
           {/* Brand */}
-          <div className="space-y-4 sm:col-span-2 lg:col-span-1">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center shadow-lg">
-                <Heart className="w-6 h-6 text-accent-foreground" />
+          <div className="space-y-5 sm:col-span-2 lg:col-span-1">
+            <Link to="/" className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center shadow-lg">
+                <Heart className="w-7 h-7 text-white" />
               </div>
-              <span className="font-bold text-xl text-primary-foreground">SyndeoCare</span>
+              <span className="font-bold text-2xl text-white">SyndeoCare</span>
             </Link>
-            <p className="text-primary-foreground/70 text-sm leading-relaxed max-w-xs">
+            <p className="text-white/70 leading-relaxed max-w-xs">
               {t("footer.tagline")}
             </p>
           </div>
 
           {/* For Professionals */}
           <div>
-            <h4 className="font-semibold text-primary-foreground mb-4">{t("footer.forProfessionals")}</h4>
-            <ul className="space-y-3">
+            <h4 className="font-semibold text-white text-lg mb-5">{t("footer.forProfessionals")}</h4>
+            <ul className="space-y-4">
               <li>
-                <Link to="/for-professionals" className="text-sm text-primary-foreground/70 hover:text-accent transition-colors">
+                <Link to="/for-professionals" className="text-white/70 hover:text-accent transition-colors">
                   {t("footer.findShifts")}
                 </Link>
               </li>
               <li>
-                <Link to="/auth?mode=signup&role=professional" className="text-sm text-primary-foreground/70 hover:text-accent transition-colors">
+                <Link to="/auth?mode=signup&role=professional" className="text-white/70 hover:text-accent transition-colors">
                   {t("common.signUp")}
                 </Link>
               </li>
               <li>
-                <Link to="/resources" className="text-sm text-primary-foreground/70 hover:text-accent transition-colors">
+                <Link to="/resources" className="text-white/70 hover:text-accent transition-colors">
                   {t("footer.resources")}
                 </Link>
               </li>
@@ -46,20 +46,20 @@ const Footer = () => {
 
           {/* For Clinics */}
           <div>
-            <h4 className="font-semibold text-primary-foreground mb-4">{t("footer.forClinics")}</h4>
-            <ul className="space-y-3">
+            <h4 className="font-semibold text-white text-lg mb-5">{t("footer.forClinics")}</h4>
+            <ul className="space-y-4">
               <li>
-                <Link to="/for-clinics" className="text-sm text-primary-foreground/70 hover:text-accent transition-colors">
+                <Link to="/for-clinics" className="text-white/70 hover:text-accent transition-colors">
                   {t("footer.postShifts")}
                 </Link>
               </li>
               <li>
-                <Link to="/auth?mode=signup&role=clinic" className="text-sm text-primary-foreground/70 hover:text-accent transition-colors">
+                <Link to="/auth?mode=signup&role=clinic" className="text-white/70 hover:text-accent transition-colors">
                   {t("common.signUp")}
                 </Link>
               </li>
               <li>
-                <Link to="/enterprise" className="text-sm text-primary-foreground/70 hover:text-accent transition-colors">
+                <Link to="/enterprise" className="text-white/70 hover:text-accent transition-colors">
                   {t("footer.enterprise")}
                 </Link>
               </li>
@@ -68,36 +68,36 @@ const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="font-semibold text-primary-foreground mb-4">{t("footer.contact")}</h4>
-            <ul className="space-y-3">
-              <li className="flex items-center gap-2 text-sm text-primary-foreground/70">
-                <Mail className="w-4 h-4 flex-shrink-0 text-accent" />
+            <h4 className="font-semibold text-white text-lg mb-5">{t("footer.contact")}</h4>
+            <ul className="space-y-4">
+              <li className="flex items-center gap-3 text-white/70">
+                <Mail className="w-5 h-5 flex-shrink-0 text-accent" />
                 support@syndeocare.ai
               </li>
-              <li className="flex items-center gap-2 text-sm text-primary-foreground/70">
-                <Phone className="w-4 h-4 flex-shrink-0 text-accent" />
+              <li className="flex items-center gap-3 text-white/70">
+                <Phone className="w-5 h-5 flex-shrink-0 text-accent" />
                 1-800-SYNDEO
               </li>
-              <li className="flex items-center gap-2 text-sm text-primary-foreground/70">
-                <MapPin className="w-4 h-4 flex-shrink-0 text-accent" />
+              <li className="flex items-center gap-3 text-white/70">
+                <MapPin className="w-5 h-5 flex-shrink-0 text-accent" />
                 San Francisco, CA
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-primary-foreground/10 mt-10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-primary-foreground/60">
+        <div className="border-t border-white/10 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-5">
+          <p className="text-sm text-white/50">
             {t("footer.copyright", { year: new Date().getFullYear() })}
           </p>
-          <div className="flex items-center gap-4 md:gap-6">
-            <Link to="/privacy" className="text-sm text-primary-foreground/60 hover:text-accent transition-colors">
+          <div className="flex items-center gap-6 md:gap-8">
+            <Link to="/privacy" className="text-sm text-white/50 hover:text-accent transition-colors">
               {t("footer.privacy")}
             </Link>
-            <Link to="/terms" className="text-sm text-primary-foreground/60 hover:text-accent transition-colors">
+            <Link to="/terms" className="text-sm text-white/50 hover:text-accent transition-colors">
               {t("footer.terms")}
             </Link>
-            <Link to="/help" className="text-sm text-primary-foreground/60 hover:text-accent transition-colors">
+            <Link to="/help" className="text-sm text-white/50 hover:text-accent transition-colors">
               {t("footer.help")}
             </Link>
           </div>
