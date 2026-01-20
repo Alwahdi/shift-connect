@@ -1,0 +1,65 @@
+{/* Introduction.mdx */}
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Introduction" />
+
+# SyndeoCare Design System
+
+Welcome to the **SyndeoCare Design System** — the single source of truth for building consistent, accessible, and scalable healthcare interfaces.
+
+## 🏗️ Architecture (DTCG Standard)
+
+Our design tokens follow the **W3C Design Tokens Community Group** specification:
+
+| Layer | Purpose | Example |
+|-------|---------|---------|
+| **Primitives** | Raw values | `color.green.500`, `spacing.4` |
+| **Semantics** | Intent-based | `action.primary`, `feedback.error` |
+| **Components** | Component-specific | `button.size.lg`, `card.padding` |
+
+## 🎨 Brand Identity
+
+<div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", marginTop: "1rem" }}>
+  <div style={{ padding: "1rem", background: "#7CB53D", color: "white", borderRadius: "8px", textAlign: "center" }}>
+    <strong>Primary</strong><br />
+    #7CB53D
+  </div>
+  <div style={{ padding: "1rem", background: "#3BC4C3", color: "white", borderRadius: "8px", textAlign: "center" }}>
+    <strong>Accent</strong><br />
+    #3BC4C3
+  </div>
+  <div style={{ padding: "1rem", background: "#10B981", color: "white", borderRadius: "8px", textAlign: "center" }}>
+    <strong>Success</strong><br />
+    #10B981
+  </div>
+  <div style={{ padding: "1rem", background: "#1E2939", color: "white", borderRadius: "8px", textAlign: "center" }}>
+    <strong>Charcoal</strong><br />
+    #1E2939
+  </div>
+</div>
+
+## 📚 Structure
+
+- **Foundations** — Colors, Typography, Spacing, Shadows
+- **Components** — Button, Card, Badge, Input, Form
+- **Patterns** — Forms, Loading States, Navigation
+- **Accessibility** — WCAG 2.2 compliance, ARIA patterns
+
+## 🚀 Quick Start
+
+```tsx
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { FormField, InputWithIcon } from "@/components/ui/form-field";
+
+// Use semantic design tokens
+<Button variant="hero">Get Started</Button>
+<Card interactive>Interactive Card</Card>
+```
+
+## 📖 Resources
+
+- [Design Tokens](/docs/foundations-design-tokens--docs)
+- [Color System](/docs/foundations-colors--docs)
+- [Button Component](/docs/components-button--docs)
+- [Form Patterns](/docs/patterns-forms--docs)
