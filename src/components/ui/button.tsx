@@ -9,16 +9,40 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        // Default: Brand Green
         default: "bg-primary text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg active:scale-[0.98]",
+        
+        // Destructive: Red for dangerous actions
         destructive: "bg-destructive text-destructive-foreground shadow-md hover:bg-destructive/90 active:scale-[0.98]",
+        
+        // Outline: Green border
         outline: "border-2 border-input bg-background hover:bg-secondary hover:border-primary/30 active:scale-[0.98]",
+        
+        // Secondary: Light green background
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 active:scale-[0.98]",
+        
+        // Ghost: Subtle hover
         ghost: "hover:bg-secondary hover:text-foreground active:bg-secondary/80",
+        
+        // Link: Text link style
         link: "text-primary underline-offset-4 hover:underline",
+        
+        // Accent: Teal gradient (secondary brand color)
         accent: "gradient-accent text-white font-bold shadow-xl hover:shadow-2xl hover:opacity-95 active:scale-[0.98] transition-all",
+        
+        // Hero: Primary green gradient (main CTA)
         hero: "gradient-primary text-white font-bold shadow-xl hover:shadow-2xl hover:opacity-95 active:scale-[0.98] transition-all",
+        
+        // Brand: Green-to-Teal signature gradient
+        brand: "gradient-brand text-white font-bold shadow-xl hover:shadow-2xl hover:opacity-95 active:scale-[0.98] transition-all",
+        
+        // Hero Outline: Green border with transparent background
         "hero-outline": "border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground active:scale-[0.98]",
+        
+        // Success: Teal for positive actions
         success: "bg-success text-success-foreground shadow-md hover:bg-success/90 active:scale-[0.98]",
+        
+        // Sky: Blue gradient for informational actions
         sky: "gradient-sky text-white font-bold shadow-xl hover:shadow-2xl hover:opacity-95 active:scale-[0.98] transition-all",
       },
       size: {

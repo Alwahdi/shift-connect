@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { Heart, Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SITE_CONFIG } from "@/config/constants";
+import syndeoCareLogoWhite from "@/assets/syndeocare-logo-white.png";
 
 const Footer = () => {
   const { t } = useTranslation();
@@ -13,10 +14,11 @@ const Footer = () => {
           {/* Brand */}
           <div className="space-y-5 sm:col-span-2 lg:col-span-1">
             <Link to="/" className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center shadow-lg">
-                <Heart className="w-7 h-7 text-white" />
-              </div>
-              <span className="font-bold text-2xl text-white">{SITE_CONFIG.name}</span>
+              <img 
+                src={syndeoCareLogoWhite} 
+                alt="SyndeoCare Logo" 
+                className="h-12 w-auto object-contain"
+              />
             </Link>
             <p className="text-white/70 leading-relaxed max-w-xs">
               {t("footer.tagline")}

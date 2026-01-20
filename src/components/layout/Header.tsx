@@ -2,12 +2,13 @@ import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { SkipLink } from "@/components/ui/skip-link";
-import { Menu, X, Heart } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
 import { SITE_CONFIG, NAV_LINKS } from "@/config/constants";
+import syndeoCarelogo from "@/assets/syndeocare-logo.png";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -57,10 +58,11 @@ const Header = () => {
           <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 touch-manipulation">
-            <div className="w-10 h-10 md:w-11 md:h-11 rounded-xl gradient-primary flex items-center justify-center shadow-md">
-              <Heart className="w-5 h-5 md:w-6 md:h-6 text-white" />
-            </div>
-            <span className="font-bold text-xl md:text-2xl text-foreground">{SITE_CONFIG.name}</span>
+            <img 
+              src={syndeoCarelogo} 
+              alt="SyndeoCare Logo" 
+              className="h-10 md:h-11 w-auto object-contain"
+            />
           </Link>
 
           {/* Desktop Navigation */}
