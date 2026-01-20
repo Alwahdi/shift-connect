@@ -1,0 +1,105 @@
+{/* GettingStarted.mdx */}
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Docs/Getting Started" />
+
+# Getting Started
+
+Welcome to the **SyndeoCare Design System**! This guide will help you get up and running quickly.
+
+## 📦 Installation
+
+The design system is built into the SyndeoCare application. All components are available via imports:
+
+```tsx
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { FormField, InputWithIcon } from "@/components/ui/form-field";
+```
+
+## 🎨 Using Design Tokens
+
+Our design tokens are organized in three layers:
+
+### 1. Primitives (Raw Values)
+```tsx
+import { primitiveTokens } from "@/design-system/tokens";
+
+// Colors: primitiveTokens.color.green[500]
+// Spacing: primitiveTokens.spacing[4]
+// Typography: primitiveTokens.font.size.lg
+```
+
+### 2. Semantics (Intent-Based)
+```tsx
+import { semanticTokens } from "@/design-system/tokens";
+
+// Actions: semanticTokens.action.primary
+// Feedback: semanticTokens.feedback.success
+// Surfaces: semanticTokens.surface.card
+```
+
+### 3. Components (Component-Specific)
+```tsx
+import { componentTokens } from "@/design-system/tokens";
+
+// Button sizes: componentTokens.button.size.lg
+// Card styles: componentTokens.card.padding
+```
+
+## 🌍 Internationalization
+
+The system supports **English (LTR)** and **Arabic (RTL)**:
+
+```tsx
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const { language, setLanguage, isRTL } = useLanguage();
+
+// Toggle language
+setLanguage(isRTL ? 'en' : 'ar');
+```
+
+## 🌓 Theming
+
+Dark mode is supported out of the box:
+
+```tsx
+import { useTheme } from "@/contexts/ThemeContext";
+
+const { theme, setTheme, toggleTheme } = useTheme();
+
+// Toggle theme
+toggleTheme();
+```
+
+## ♿ Accessibility
+
+All components follow WCAG 2.2 AA guidelines:
+
+- Proper ARIA attributes
+- Keyboard navigation
+- Focus management
+- Color contrast ratios ≥ 4.5:1
+
+```tsx
+// Example: Accessible form field
+<FormField 
+  label="Email"
+  required
+  hint="We'll never share your email"
+>
+  <Input 
+    type="email" 
+    aria-describedby="email-hint"
+  />
+</FormField>
+```
+
+## 📚 Next Steps
+
+- [Colors](/docs/foundations-colors--docs) - Explore the color system
+- [Typography](/docs/foundations-typography--docs) - Font scales and styles
+- [Button](/docs/components-button--docs) - Button variants and sizes
+- [Forms](/docs/patterns-forms--docs) - Form patterns and validation
