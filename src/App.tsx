@@ -25,7 +25,7 @@ import ClinicProfile from "./pages/profile/ClinicProfile";
 import ViewProfessionalProfile from "./pages/profile/ViewProfessionalProfile";
 import ViewClinicProfile from "./pages/profile/ViewClinicProfile";
 import ShiftSearch from "./pages/shifts/ShiftSearch";
-
+import DesignSystem from "./pages/DesignSystem";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -61,9 +61,9 @@ const App = () => (
                   <Route path="/clinic/:id" element={<ViewClinicProfile />} />
                   <Route path="/shifts" element={<ShiftSearch />} />
                   <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/design-system" element={<DesignSystem />} />
                   
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
