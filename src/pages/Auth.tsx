@@ -221,10 +221,15 @@ const Auth = () => {
 
         {/* Logo */}
         <Link to="/" className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-14 h-14 rounded-2xl gradient-accent flex items-center justify-center shadow-xl">
-            <Heart className="w-8 h-8 text-white" />
-          </div>
-          <span className="font-bold text-3xl text-white drop-shadow-lg">SyndeoCare</span>
+          <img 
+            src="/syndeocare-logo-white.png" 
+            alt="SyndeoCare Logo" 
+            className="h-14 w-auto object-contain drop-shadow-lg"
+            onError={(e) => {
+              // Fallback to text if image fails
+              e.currentTarget.style.display = 'none';
+            }}
+          />
         </Link>
 
         {/* Card */}
