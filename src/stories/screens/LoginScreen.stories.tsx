@@ -55,14 +55,16 @@ const LoginScreenComponent = ({ isLoading = false, hasError = false }) => {
             )}
 
             <FormField label="Email" htmlFor="email" required>
-              <InputWithIcon
-                id="email"
-                icon={Mail}
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={hasError ? "border-destructive" : ""}
-              />
+              <InputWithIcon icon={Mail}>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${hasError ? "border-destructive" : ""}`}
+                />
+              </InputWithIcon>
             </FormField>
 
             <FormField label="Password" htmlFor="password" required>
