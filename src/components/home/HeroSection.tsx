@@ -8,7 +8,7 @@ import { useRef } from "react";
 
 const HeroSection = () => {
   const { t } = useTranslation();
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
   
   // Parallax scroll effect
   const { scrollYProgress } = useScroll({
@@ -57,10 +57,11 @@ const HeroSection = () => {
   };
 
   return (
-    <section 
-      ref={sectionRef}
-      className="relative pt-28 pb-20 md:pt-36 md:pb-28 lg:pt-44 lg:pb-36 gradient-hero overflow-hidden min-h-[90vh] flex items-center"
-    >
+    <section aria-label="Hero">
+      <div 
+        ref={sectionRef}
+        className="relative pt-28 pb-20 md:pt-36 md:pb-28 lg:pt-44 lg:pb-36 gradient-hero overflow-hidden min-h-[90vh] flex items-center"
+      >
       {/* Animated Background Grid Pattern */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
         <div className="absolute inset-0" style={{
@@ -236,6 +237,7 @@ const HeroSection = () => {
             </motion.div>
           </motion.div>
         </div>
+      </div>
       </div>
     </section>
   );

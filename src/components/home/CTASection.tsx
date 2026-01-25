@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { motion, useInView } from "framer-motion";
-import { ArrowRight, Sparkles, CheckCircle2, Users, Building2, Shield } from "lucide-react";
+import { ArrowRight, Sparkles, CheckCircle2, Users, Shield } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useRef } from "react";
+import { useRef, forwardRef } from "react";
 
-const CTASection = () => {
+const CTASection = forwardRef<HTMLElement>((_, ref) => {
   const { t } = useTranslation();
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
@@ -158,6 +158,8 @@ const CTASection = () => {
       </div>
     </section>
   );
-};
+});
+
+CTASection.displayName = "CTASection";
 
 export default CTASection;
