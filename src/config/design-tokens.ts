@@ -54,8 +54,8 @@ export const TOUCH_TARGETS = {
  */
 export const TYPOGRAPHY = {
   fontFamily: {
-    sans: "'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-    arabic: "'Cairo', 'DM Sans', system-ui, sans-serif",
+    sans: "'Ubuntu', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    arabic: "'Cairo', 'Ubuntu', system-ui, sans-serif",
   },
   sizes: {
     /** 12px */
