@@ -65,11 +65,14 @@ const HowItWorksSection = () => {
   };
 
   return (
-    <section className="py-20 md:py-28 lg:py-32 bg-gradient-to-b from-background via-secondary/30 to-background relative overflow-hidden">
+    <section 
+      aria-label="How it works"
+      className="py-16 md:py-24 lg:py-32 bg-gradient-to-b from-background via-secondary/30 to-background relative overflow-hidden"
+    >
       {/* Background decorative elements */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
+        <div className="absolute top-20 start-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 end-10 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
@@ -78,7 +81,7 @@ const HowItWorksSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-14 md:mb-20"
+          className="text-center mb-12 md:mb-16 lg:mb-20"
         >
           {/* Badge */}
           <motion.div
