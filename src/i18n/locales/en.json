@@ -147,7 +147,7 @@
     "createPasswordPlaceholder": "Create a secure password",
     "passwordHint": "Use at least 6 characters",
     "termsAgreement": "By creating an account, you agree to our Terms of Service and Privacy Policy",
-    "password": {
+    "passwordRequirements": {
       "minLength": "At least 6 characters",
       "hasNumber": "Contains a number",
       "hasUppercase": "Contains uppercase letter",
@@ -197,6 +197,10 @@
         "step3": {
           "title": "Find & Book Shifts",
           "desc": "Browse available shifts and apply with one click."
+        },
+        "step4": {
+          "title": "Start Working",
+          "desc": "Get confirmed and start earning at top healthcare facilities."
         }
       },
       "clinics": {

@@ -16,7 +16,7 @@ import { useRef, useState } from "react";
 
 const FeaturesSection = () => {
   const { t } = useTranslation();
-  const sectionRef = useRef(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
