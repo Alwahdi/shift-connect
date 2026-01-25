@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build-storybook && npm run build",
+  "buildCommand": "npx storybook build -o public/storybook && npm run build",
   "rewrites": [
     { "source": "/storybook", "destination": "/storybook/index.html" },
     { "source": "/storybook/(.*)", "destination": "/storybook/$1" },
