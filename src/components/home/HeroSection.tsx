@@ -57,11 +57,11 @@ const HeroSection = () => {
   };
 
   return (
-    <section aria-label="Hero">
-      <div 
-        ref={sectionRef}
-        className="relative pt-28 pb-20 md:pt-36 md:pb-28 lg:pt-44 lg:pb-36 gradient-hero overflow-hidden min-h-[90vh] flex items-center"
-      >
+    <section 
+      ref={sectionRef}
+      aria-label="Hero"
+      className="relative pt-24 pb-16 md:pt-32 md:pb-24 lg:pt-40 lg:pb-32 gradient-hero overflow-hidden min-h-[85vh] md:min-h-[90vh] flex items-center"
+    >
       {/* Animated Background Grid Pattern */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
         <div className="absolute inset-0" style={{
@@ -237,7 +237,6 @@ const HeroSection = () => {
             </motion.div>
           </motion.div>
         </div>
-      </div>
       </div>
     </section>
   );

@@ -7,7 +7,7 @@ import { useRef, forwardRef } from "react";
 
 const CTASection = forwardRef<HTMLElement>((_, ref) => {
   const { t } = useTranslation();
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
   const benefits = [
@@ -17,7 +17,11 @@ const CTASection = forwardRef<HTMLElement>((_, ref) => {
   ];
 
   return (
-    <section ref={sectionRef} className="py-16 md:py-24 lg:py-28 bg-background">
+    <section 
+      ref={sectionRef}
+      aria-label="Call to action"
+      className="py-12 md:py-20 lg:py-24 bg-background"
+    >
       <div className="container mx-auto px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 20, scale: 0.98 }}

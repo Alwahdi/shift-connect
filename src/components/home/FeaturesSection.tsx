@@ -101,11 +101,11 @@ const FeaturesSection = () => {
   };
 
   return (
-    <section aria-label="Features">
-      <div 
-        ref={sectionRef}
-        className="py-20 md:py-28 lg:py-32 bg-gradient-to-b from-background via-secondary/20 to-background relative overflow-hidden"
-      >
+    <section 
+      ref={sectionRef}
+      aria-label="Features"
+      className="py-16 md:py-24 lg:py-32 bg-gradient-to-b from-background via-secondary/20 to-background relative overflow-hidden"
+    >
       {/* Animated background elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <motion.div 
@@ -214,7 +214,6 @@ const FeaturesSection = () => {
             </motion.div>
           ))}
         </motion.div>
-      </div>
       </div>
     </section>
   );
