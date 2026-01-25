@@ -1,13 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormField, InputWithIcon } from "@/components/ui/form-field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Lock } from "lucide-react";
+import { Mail } from "lucide-react";
 
 const meta: Meta = {
   title: "Screens/Authentication/Login",
@@ -56,13 +57,13 @@ const LoginScreenComponent = ({ isLoading = false, hasError = false }) => {
 
             <FormField label="Email" htmlFor="email" required>
               <InputWithIcon icon={Mail}>
-                <input
+                <Input
                   id="email"
                   type="email"
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${hasError ? "border-destructive" : ""}`}
+                  className={hasError ? "border-destructive" : ""}
                 />
               </InputWithIcon>
             </FormField>

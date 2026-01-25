@@ -26,9 +26,9 @@ export const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputPro
     const [isFocused, setIsFocused] = React.useState(false);
 
     const strengthChecks: StrengthCheck[] = React.useMemo(() => [
-      { label: t("auth.password.minLength", "At least 6 characters"), valid: value.length >= 6 },
-      { label: t("auth.password.hasNumber", "Contains a number"), valid: /\d/.test(value) },
-      { label: t("auth.password.hasUppercase", "Contains uppercase"), valid: /[A-Z]/.test(value) },
+      { label: t("auth.passwordRequirements.minLength", "At least 6 characters"), valid: value.length >= 6 },
+      { label: t("auth.passwordRequirements.hasNumber", "Contains a number"), valid: /\d/.test(value) },
+      { label: t("auth.passwordRequirements.hasUppercase", "Contains uppercase"), valid: /[A-Z]/.test(value) },
     ], [value, t]);
 
     const strength = strengthChecks.filter(c => c.valid).length;
@@ -74,7 +74,7 @@ export const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputPro
           <div 
             className="space-y-2 p-3 bg-secondary/50 rounded-lg animate-in fade-in slide-in-from-top-1 duration-200"
             role="status"
-            aria-label={t("auth.password.strength", "Password strength")}
+            aria-label={t("auth.passwordRequirements.strength", "Password strength")}
           >
             {/* Strength bar */}
             <div className="h-1.5 bg-muted rounded-full overflow-hidden">

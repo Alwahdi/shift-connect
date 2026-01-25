@@ -23,8 +23,8 @@ const HowItWorksSection = () => {
     },
     {
       icon: CalendarCheck,
-      title: t("onboarding.complete"),
-      description: t("home.howItWorks.professionals.step3.desc"),
+      title: t("home.howItWorks.professionals.step4.title"),
+      description: t("home.howItWorks.professionals.step4.desc"),
     },
   ];
 

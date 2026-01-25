@@ -207,33 +207,49 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen gradient-hero flex items-center justify-center p-4 py-10 md:py-16">
+    <div className="min-h-screen gradient-hero flex items-center justify-center p-4 py-10 md:py-16 relative overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div 
+          animate={{ scale: [1, 1.1, 1], opacity: [0.15, 0.25, 0.15] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-10 end-0 w-64 md:w-96 h-64 md:h-96 bg-accent/20 rounded-full blur-[100px]" 
+        />
+        <motion.div 
+          animate={{ scale: [1, 1.15, 1], opacity: [0.1, 0.2, 0.1] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          className="absolute bottom-10 start-0 w-72 md:w-[30rem] h-72 md:h-[30rem] bg-primary/15 rounded-full blur-[120px]" 
+        />
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md relative z-10"
       >
         {/* Language Switcher */}
         <div className="flex justify-end mb-6">
           <LanguageSwitcher variant="text" />
         </div>
 
-        {/* Logo */}
-        <Link to="/" className="flex items-center justify-center gap-3 mb-8">
-          <img 
-            src="/syndeocare-logo-white.png" 
+        {/* Logo - use imported logo with brightness invert for white */}
+        <Link to="/" className="flex items-center justify-center gap-3 mb-8 group">
+          <motion.img 
+            whileHover={{ scale: 1.05 }}
+            src="/syndeocare-logo.png" 
             alt="SyndeoCare Logo" 
-            className="h-14 w-auto object-contain drop-shadow-lg"
-            onError={(e) => {
-              // Fallback to text if image fails
-              e.currentTarget.style.display = 'none';
-            }}
+            className="h-14 w-auto object-contain drop-shadow-lg brightness-0 invert transition-transform"
           />
         </Link>
 
         {/* Card */}
-        <div className="bg-card backdrop-blur-sm rounded-3xl border border-border/50 shadow-2xl p-7 md:p-9">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="bg-card/95 backdrop-blur-xl rounded-3xl border border-border/50 shadow-2xl p-7 md:p-9"
+        >
           {mode === "login" ? (
             <>
               <div className="text-center mb-8">
@@ -568,7 +584,7 @@ const Auth = () => {
               </p>
             </>
           )}
-        </div>
+        </motion.div>
       </motion.div>
     </div>
   );
