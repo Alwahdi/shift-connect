@@ -34,14 +34,17 @@ const HeroSection = () => {
 
   return (
     <section className="relative pt-28 pb-20 md:pt-36 md:pb-28 lg:pt-44 lg:pb-36 gradient-hero overflow-hidden">
-      {/* Background decoration - Updated with brand colors */}
+      {/* Background decoration - Brand Purple & Teal */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Teal accent glow */}
-        <div className="absolute top-20 end-10 w-56 md:w-80 h-56 md:h-80 bg-accent/15 rounded-full blur-3xl" />
-        {/* Green primary glow */}
-        <div className="absolute bottom-20 start-10 w-72 md:w-[28rem] h-72 md:h-[28rem] bg-primary/10 rounded-full blur-3xl" />
-        {/* Center subtle glow */}
-        <div className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-accent/5 rounded-full blur-3xl" />
+        {/* Teal accent glow - top right */}
+        <div className="absolute top-10 end-0 w-64 md:w-96 h-64 md:h-96 bg-accent/20 rounded-full blur-[100px] animate-pulse" />
+        {/* Purple primary glow - bottom left */}
+        <div className="absolute bottom-10 start-0 w-72 md:w-[30rem] h-72 md:h-[30rem] bg-primary/15 rounded-full blur-[120px]" />
+        {/* Center blend glow */}
+        <div className="absolute top-1/3 start-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-br from-primary/10 via-accent/8 to-transparent rounded-full blur-3xl" />
+        {/* Floating orbs */}
+        <div className="absolute top-1/4 start-1/4 w-32 h-32 bg-accent/10 rounded-full blur-2xl animate-bounce" style={{ animationDuration: '6s' }} />
+        <div className="absolute bottom-1/3 end-1/4 w-24 h-24 bg-primary/10 rounded-full blur-2xl animate-bounce" style={{ animationDuration: '8s', animationDelay: '2s' }} />
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
@@ -49,42 +52,44 @@ const HeroSection = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-8"
+            transition={{ duration: 0.6 }}
+            className="mb-10"
           >
-            <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-md text-white text-sm font-medium border border-white/20 shadow-lg">
-              <CheckCircle2 className="w-4 h-4 text-primary" />
+            <span className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white/10 backdrop-blur-xl text-white text-sm font-medium border border-white/25 shadow-2xl">
+              <CheckCircle2 className="w-4 h-4 text-accent" />
               {t("home.hero.trustedBy")}
             </span>
           </motion.div>
 
           <motion.h1
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-[1.15] mb-8 tracking-tight"
+            transition={{ duration: 0.7, delay: 0.15 }}
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-[1.1] mb-8 tracking-tight"
           >
             {t("home.hero.title").split(",")[0]},{" "}
-            <span className="text-gradient-brand">{t("home.hero.title").split(",")[1] || "Simplified"}</span>
+            <span className="relative">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-accent to-sky">{t("home.hero.title").split(",")[1] || "Simplified"}</span>
+            </span>
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-base sm:text-lg md:text-xl text-white/80 mb-10 md:mb-12 max-w-2xl mx-auto leading-relaxed px-4"
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="text-base sm:text-lg md:text-xl text-white/85 mb-12 md:mb-14 max-w-2xl mx-auto leading-relaxed px-4"
           >
             {t("home.hero.subtitle")}
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ duration: 0.6, delay: 0.35 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 md:mb-20 px-4"
           >
             <Link to="/auth?mode=signup&role=professional" className="w-full sm:w-auto">
-              <Button variant="hero" size="xl" className="w-full sm:w-auto shadow-xl hover:shadow-2xl transition-all duration-300 min-w-[200px]">
+              <Button variant="accent" size="xl" className="w-full sm:w-auto shadow-2xl hover:shadow-glow-teal transition-all duration-300 min-w-[220px] border border-white/20">
                 <Users className="w-5 h-5 me-2" />
                 {t("auth.imProfessional")}
                 <ArrowRight className="w-5 h-5 ms-2 rtl-flip" />
@@ -94,7 +99,7 @@ const HeroSection = () => {
               <Button 
                 variant="outline" 
                 size="xl" 
-                className="w-full sm:w-auto border-2 border-white/30 text-white hover:bg-white hover:text-primary bg-white/5 backdrop-blur-sm transition-all duration-300 min-w-[200px]"
+                className="w-full sm:w-auto border-2 border-white/40 text-white hover:bg-white hover:text-primary bg-white/10 backdrop-blur-md transition-all duration-300 min-w-[220px]"
               >
                 <Building2 className="w-5 h-5 me-2" />
                 {t("auth.imClinic")}
@@ -102,21 +107,27 @@ const HeroSection = () => {
             </Link>
           </motion.div>
 
-          {/* Stats - Updated with brand accent colors */}
+          {/* Stats - Brand glassmorphism card */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-3xl mx-auto bg-white/10 backdrop-blur-xl rounded-2xl md:rounded-3xl p-6 md:p-8 border border-white/15 shadow-xl"
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.5 }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-3xl mx-auto bg-white/10 backdrop-blur-2xl rounded-2xl md:rounded-3xl p-6 md:p-10 border border-white/20 shadow-2xl"
           >
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center py-2">
-                <div className="flex items-center justify-center gap-1.5 mb-1.5">
+            {stats.map((stat, index) => (
+              <motion.div 
+                key={stat.label} 
+                className="text-center py-2"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.6 + index * 0.1 }}
+              >
+                <div className="flex items-center justify-center gap-1.5 mb-2">
                   <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight">{stat.value}</span>
-                  {stat.icon && <stat.icon className="w-5 h-5 md:w-6 md:h-6 text-primary fill-primary" />}
+                  {stat.icon && <stat.icon className="w-5 h-5 md:w-6 md:h-6 text-accent fill-accent" />}
                 </div>
-                <div className="text-xs sm:text-sm text-white/70 font-medium">{stat.label}</div>
-              </div>
+                <div className="text-xs sm:text-sm text-white/75 font-medium">{stat.label}</div>
+              </motion.div>
             ))}
           </motion.div>
         </div>

@@ -57,11 +57,11 @@ const Header = () => {
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 touch-manipulation">
+          <Link to="/" className="flex items-center gap-2.5 touch-manipulation group">
             <img 
               src={syndeoCarelogo} 
               alt="SyndeoCare Logo" 
-              className="h-10 md:h-11 w-auto object-contain"
+              className="h-9 md:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
             />
           </Link>
 
