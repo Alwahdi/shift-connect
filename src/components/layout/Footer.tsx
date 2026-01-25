@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SITE_CONFIG } from "@/config/constants";
-import syndeoCareLogoWhite from "@/assets/syndeocare-logo-white.png";
+import syndeoCarelogo from "@/assets/syndeocare-logo.png";
 
 const Footer = () => {
   const { t } = useTranslation();
@@ -13,11 +13,11 @@ const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12">
           {/* Brand */}
           <div className="space-y-5 sm:col-span-2 lg:col-span-1">
-            <Link to="/" className="flex items-center gap-3">
+            <Link to="/" className="flex items-center gap-3 group">
               <img 
-                src={syndeoCareLogoWhite} 
+                src={syndeoCarelogo} 
                 alt="SyndeoCare Logo" 
-                className="h-12 w-auto object-contain"
+                className="h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105 brightness-0 invert"
               />
             </Link>
             <p className="text-white/70 leading-relaxed max-w-xs">

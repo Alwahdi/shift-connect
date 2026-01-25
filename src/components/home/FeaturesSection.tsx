@@ -66,20 +66,29 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <section className="py-20 md:py-28 lg:py-32 bg-background">
-      <div className="container mx-auto px-4 sm:px-6">
+    <section className="py-20 md:py-28 lg:py-32 bg-background relative overflow-hidden">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 start-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[150px]" />
+        <div className="absolute bottom-0 end-1/4 w-96 h-96 bg-accent/5 rounded-full blur-[150px]" />
+      </div>
+      
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6 }}
           className="text-center mb-14 md:mb-20"
         >
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-5 tracking-tight">
+          <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6">
             {t("home.features.title")}
+          </span>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 tracking-tight">
+            {t("home.features.subtitle")}
           </h2>
           <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed px-4">
-            {t("home.features.subtitle")}
+            Everything you need to streamline dental staffing
           </p>
         </motion.div>
 
@@ -87,19 +96,22 @@ const FeaturesSection = () => {
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 25 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.08 }}
-              className="group p-6 md:p-7 rounded-2xl md:rounded-3xl bg-card border border-border/80 shadow-card hover:shadow-lg hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 touch-manipulation"
+              className="group relative p-6 md:p-7 rounded-2xl md:rounded-3xl bg-card border border-border/60 shadow-card hover:shadow-xl hover:border-primary/30 hover:-translate-y-2 transition-all duration-300 touch-manipulation overflow-hidden"
             >
-              <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl ${feature.gradient} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+              {/* Hover gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl md:rounded-3xl" />
+              
+              <div className={`relative w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl ${feature.gradient} flex items-center justify-center mb-5 group-hover:scale-110 group-hover:shadow-glow transition-all duration-300 shadow-lg`}>
                 <feature.icon className="w-6 h-6 md:w-7 md:h-7 text-white" />
               </div>
-              <h3 className="text-lg md:text-xl font-semibold text-foreground mb-3">
+              <h3 className="relative text-lg md:text-xl font-semibold text-foreground mb-3">
                 {feature.title}
               </h3>
-              <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+              <p className="relative text-sm md:text-base text-muted-foreground leading-relaxed">
                 {feature.description}
               </p>
             </motion.div>
