@@ -16,7 +16,7 @@ import { useRef, useState } from "react";
 
 const FeaturesSection = () => {
   const { t } = useTranslation();
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
@@ -101,10 +101,11 @@ const FeaturesSection = () => {
   };
 
   return (
-    <section 
-      ref={sectionRef}
-      className="py-20 md:py-28 lg:py-32 bg-gradient-to-b from-background via-secondary/20 to-background relative overflow-hidden"
-    >
+    <section aria-label="Features">
+      <div 
+        ref={sectionRef}
+        className="py-20 md:py-28 lg:py-32 bg-gradient-to-b from-background via-secondary/20 to-background relative overflow-hidden"
+      >
       {/* Animated background elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <motion.div 
@@ -213,6 +214,7 @@ const FeaturesSection = () => {
             </motion.div>
           ))}
         </motion.div>
+      </div>
       </div>
     </section>
   );

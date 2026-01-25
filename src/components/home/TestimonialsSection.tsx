@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 
 const TestimonialsSection = () => {
   const { t } = useTranslation();
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
@@ -80,10 +80,11 @@ const TestimonialsSection = () => {
   };
 
   return (
-    <section 
-      ref={sectionRef}
-      className="py-20 md:py-28 lg:py-32 bg-gradient-to-b from-background to-secondary/30 relative overflow-hidden"
-    >
+    <section aria-label="Testimonials">
+      <div 
+        ref={sectionRef}
+        className="py-20 md:py-28 lg:py-32 bg-gradient-to-b from-background to-secondary/30 relative overflow-hidden"
+      >
       {/* Background decorations */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 start-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
@@ -270,6 +271,7 @@ const TestimonialsSection = () => {
             <p className="text-sm text-muted-foreground">Shifts Completed</p>
           </div>
         </motion.div>
+      </div>
       </div>
     </section>
   );

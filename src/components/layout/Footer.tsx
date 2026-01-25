@@ -4,8 +4,9 @@ import { useTranslation } from "react-i18next";
 import { SITE_CONFIG } from "@/config/constants";
 import syndeoCarelogo from "@/assets/syndeocare-logo.png";
 import { motion } from "framer-motion";
+import { forwardRef } from "react";
 
-const Footer = () => {
+const Footer = forwardRef<HTMLElement>((_, ref) => {
   const { t } = useTranslation();
 
   const scrollToTop = () => {
@@ -155,6 +156,8 @@ const Footer = () => {
       </div>
     </footer>
   );
-};
+});
+
+Footer.displayName = "Footer";
 
 export default Footer;
