@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -32,45 +32,53 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchUserRole = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .single();
+  const fetchUserRole = useCallback(async (userId: string): Promise<UserRole | null> => {
+    try {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .single();
 
-    if (!error && data) {
-      setUserRole(data.role as UserRole);
-      return data.role as UserRole;
+      if (!error && data) {
+        return data.role as UserRole;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error fetching user role:", error);
+      return null;
     }
-    return null;
-  };
+  }, []);
 
-  const checkOnboardingStatus = async (userId: string, role: UserRole | null) => {
+  const checkOnboardingStatus = useCallback(async (userId: string, role: UserRole | null): Promise<boolean> => {
     if (!role || role === "admin" || role === "super_admin") {
-      setIsOnboardingComplete(true);
       return true;
     }
 
-    const table = role === "professional" ? "profiles" : "clinics";
-    const { data, error } = await supabase
-      .from(table)
-      .select("onboarding_completed")
-      .eq("user_id", userId)
-      .single();
+    try {
+      const table = role === "professional" ? "profiles" : "clinics";
+      const { data, error } = await supabase
+        .from(table)
+        .select("onboarding_completed")
+        .eq("user_id", userId)
+        .single();
 
-    if (!error && data) {
-      setIsOnboardingComplete(data.onboarding_completed);
-      return data.onboarding_completed;
+      if (!error && data) {
+        return data.onboarding_completed ?? false;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error checking onboarding status:", error);
+      return false;
     }
-    return false;
-  };
+  }, []);
 
-  const refreshOnboardingStatus = async () => {
+  const refreshOnboardingStatus = useCallback(async () => {
     if (user && userRole) {
-      await checkOnboardingStatus(user.id, userRole);
+      const status = await checkOnboardingStatus(user.id, userRole);
+      setIsOnboardingComplete(status);
     }
-  };
+  }, [user, userRole, checkOnboardingStatus]);
 
   useEffect(() => {
     let isMounted = true;
@@ -78,18 +86,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Initial session check - this is the primary initialization
     const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
         
         if (!isMounted) return;
         
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          const role = await fetchUserRole(session.user.id);
-          if (isMounted) {
-            await checkOnboardingStatus(session.user.id, role);
-          }
+        if (currentSession?.user) {
+          setSession(currentSession);
+          setUser(currentSession.user);
+          
+          const role = await fetchUserRole(currentSession.user.id);
+          if (!isMounted) return;
+          
+          setUserRole(role);
+          
+          const onboardingStatus = await checkOnboardingStatus(currentSession.user.id, role);
+          if (!isMounted) return;
+          
+          setIsOnboardingComplete(onboardingStatus);
+        } else {
+          setSession(null);
+          setUser(null);
+          setUserRole(null);
+          setIsOnboardingComplete(false);
         }
       } catch (error) {
         console.error("Auth initialization error:", error);
@@ -100,30 +118,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    // Set up auth state listener for ongoing changes (sign in, sign out, token refresh)
+    // Set up auth state listener for ongoing changes
+    // CRITICAL: Do NOT use async callback - it causes deadlocks!
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, newSession) => {
         if (!isMounted) return;
         
-        setSession(session);
-        setUser(session?.user ?? null);
+        // Synchronously update session and user
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
         
-        if (session?.user) {
-          // For sign in events, fetch role and onboarding status
+        // Use setTimeout to defer async operations and prevent deadlock
+        if (newSession?.user) {
           if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-            const role = await fetchUserRole(session.user.id);
-            if (isMounted) {
-              await checkOnboardingStatus(session.user.id, role);
-            }
+            setTimeout(async () => {
+              if (!isMounted) return;
+              
+              try {
+                const role = await fetchUserRole(newSession.user.id);
+                if (!isMounted) return;
+                setUserRole(role);
+                
+                const onboardingStatus = await checkOnboardingStatus(newSession.user.id, role);
+                if (!isMounted) return;
+                setIsOnboardingComplete(onboardingStatus);
+              } catch (error) {
+                console.error("Error in auth state change handler:", error);
+              }
+            }, 0);
           }
         } else {
           setUserRole(null);
           setIsOnboardingComplete(false);
-        }
-        
-        // Only set loading false for sign in/out events after initial load
-        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-          setIsLoading(false);
         }
       }
     );
@@ -135,14 +161,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [fetchUserRole, checkOnboardingStatus]);
 
-  const signUp = async (
+  const signUp = useCallback(async (
     email: string, 
     password: string, 
     role: UserRole, 
     metadata: Record<string, string>
-  ) => {
+  ): Promise<SignUpResult> => {
     try {
       const redirectUrl = `${window.location.origin}/verify-callback`;
       
@@ -161,11 +187,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (error) throw error;
 
       // Check if user needs email confirmation
-      // If identities is empty, user already exists or email confirmation is required
       const needsEmailConfirmation = data.user && (!data.user.identities || data.user.identities.length === 0);
-      
-      // The database trigger (handle_new_user) automatically creates user_roles and profiles/clinics
-      // So we don't need to insert them manually here
       
       if (data.user && !needsEmailConfirmation) {
         setUserRole(role);
@@ -181,29 +203,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       return { error: error as Error, needsOnboarding: false, needsEmailConfirmation: false, email: "" };
     }
-  };
+  }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string): Promise<{ error: Error | null }> => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
+      
+      // After successful sign in, immediately fetch role and onboarding status
+      // This ensures the Auth page can redirect correctly
+      if (data.user) {
+        const role = await fetchUserRole(data.user.id);
+        setUserRole(role);
+        
+        const onboardingStatus = await checkOnboardingStatus(data.user.id, role);
+        setIsOnboardingComplete(onboardingStatus);
+      }
+      
       return { error: null };
     } catch (error) {
       return { error: error as Error };
     }
-  };
+  }, [fetchUserRole, checkOnboardingStatus]);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
     setUserRole(null);
     setIsOnboardingComplete(false);
-  };
+  }, []);
 
   return (
     <AuthContext.Provider
