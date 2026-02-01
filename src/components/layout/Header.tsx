@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
+import { UserProfileMenu } from "./UserProfileMenu";
 import { useAuth } from "@/contexts/AuthContext";
 import { SITE_CONFIG, NAV_LINKS } from "@/config/constants";
 import syndeoCarelogo from "@/assets/syndeocare-logo.png";
@@ -97,11 +98,7 @@ const Header = () => {
                   </Button>
                 </Link>
                 <NotificationCenter />
-                <Link to="/dashboard/professional">
-                  <Button variant="hero" size="default" className="font-medium shadow-lg">
-                    {t("nav.dashboard")}
-                  </Button>
-                </Link>
+                <UserProfileMenu />
               </>
             ) : (
               <>

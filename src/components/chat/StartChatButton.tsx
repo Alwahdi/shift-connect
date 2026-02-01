@@ -80,6 +80,8 @@ export const StartChatButton = ({
     }
   };
 
+  const isIconOnly = size === "icon";
+
   return (
     <Button
       variant={variant}
@@ -87,9 +89,12 @@ export const StartChatButton = ({
       onClick={handleStartChat}
       disabled={loading}
       className={className}
+      aria-label={t("chat.startChat")}
     >
       {loading ? (
         <Loader2 className="h-4 w-4 animate-spin" />
+      ) : isIconOnly ? (
+        <MessageCircle className="h-4 w-4" />
       ) : (
         <>
           <MessageCircle className="h-4 w-4 me-2" />

@@ -372,12 +372,15 @@ const ClinicDashboard = () => {
       )}
 
       {/* Manage Shift Modal */}
-      <ShiftManageModal
-        open={showManageShift}
-        onOpenChange={setShowManageShift}
-        shift={selectedShift}
-        onUpdate={fetchShifts}
-      />
+      {clinic && (
+        <ShiftManageModal
+          open={showManageShift}
+          onOpenChange={setShowManageShift}
+          shift={selectedShift}
+          clinicId={clinic.id}
+          onUpdate={fetchShifts}
+        />
+      )}
     </div>
   );
 };

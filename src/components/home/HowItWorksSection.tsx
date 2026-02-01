@@ -1,8 +1,9 @@
+import { forwardRef } from "react";
 import { motion } from "framer-motion";
 import { UserPlus, FileCheck, Search, CalendarCheck, ArrowRight, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-const HowItWorksSection = () => {
+const HowItWorksSection = forwardRef<HTMLElement>((_, ref) => {
   const { t } = useTranslation();
 
   const professionalSteps = [
@@ -66,6 +67,7 @@ const HowItWorksSection = () => {
 
   return (
     <section 
+      ref={ref}
       aria-label="How it works"
       className="py-16 md:py-24 lg:py-32 bg-gradient-to-b from-background via-secondary/30 to-background relative overflow-hidden"
     >
@@ -208,6 +210,8 @@ const HowItWorksSection = () => {
       </div>
     </section>
   );
-};
+});
+
+HowItWorksSection.displayName = "HowItWorksSection";
 
 export default HowItWorksSection;
