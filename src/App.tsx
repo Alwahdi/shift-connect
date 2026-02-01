@@ -26,6 +26,7 @@ import ViewProfessionalProfile from "./pages/profile/ViewProfessionalProfile";
 import ViewClinicProfile from "./pages/profile/ViewClinicProfile";
 import ShiftSearch from "./pages/shifts/ShiftSearch";
 import DesignSystem from "./pages/DesignSystem";
+import Messages from "./pages/Messages";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,6 +61,7 @@ const App = () => (
                   <Route path="/professional/:id" element={<ViewProfessionalProfile />} />
                   <Route path="/clinic/:id" element={<ViewClinicProfile />} />
                   <Route path="/shifts" element={<ShiftSearch />} />
+                  <Route path="/messages" element={<Messages />} />
                   <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/design-system" element={<DesignSystem />} />
                   

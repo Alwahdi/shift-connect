@@ -327,7 +327,10 @@
       "applicantDeclined": "Applicant Declined",
       "applicantDeclinedDesc": "The application has been declined.",
       "alreadyApplied": "Already Applied",
-      "alreadyAppliedDesc": "You have already applied for this shift."
+      "alreadyAppliedDesc": "You have already applied for this shift.",
+      "conflictTitle": "Schedule Conflict",
+      "conflictDesc": "You already have a booking during this time slot.",
+      "timeConflict": "Time Conflict"
     }
   },
   "applicant": {
@@ -776,5 +779,25 @@
     "submittedDesc": "Thank you for your feedback!",
     "submitError": "Failed to submit rating. Please try again."
   },
-  "today": "Today"
+  "today": "Today",
+  "chat": {
+    "messages": "Messages",
+    "messagesDescription": "Chat with clinics and professionals",
+    "noConversations": "No conversations yet",
+    "noMessages": "No messages yet",
+    "selectConversation": "Select a conversation to start chatting",
+    "startConversation": "Start the conversation by sending a message",
+    "typePlaceholder": "Type a message...",
+    "sendError": "Failed to send message",
+    "startChat": "Send Message",
+    "startError": "Failed to start chat",
+    "professional": "Professional",
+    "clinic": "Clinic"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet",
+    "markAllRead": "Mark all read",
+    "clearAll": "Clear all"
+  }
 }

@@ -327,7 +327,10 @@
       "applicantDeclined": "تم رفض المتقدم",
       "applicantDeclinedDesc": "تم رفض الطلب.",
       "alreadyApplied": "سبق التقديم",
-      "alreadyAppliedDesc": "لقد تقدمت بالفعل لهذه الوردية."
+      "alreadyAppliedDesc": "لقد تقدمت بالفعل لهذه الوردية.",
+      "conflictTitle": "تعارض في الجدول",
+      "conflictDesc": "لديك حجز بالفعل خلال هذا الوقت.",
+      "timeConflict": "تعارض الوقت"
     }
   },
   "applicant": {
@@ -776,5 +779,25 @@
     "submittedDesc": "شكراً على ملاحظاتك!",
     "submitError": "فشل إرسال التقييم. يرجى المحاولة مرة أخرى."
   },
-  "today": "اليوم"
+  "today": "اليوم",
+  "chat": {
+    "messages": "الرسائل",
+    "messagesDescription": "تحدث مع العيادات والمهنيين",
+    "noConversations": "لا توجد محادثات بعد",
+    "noMessages": "لا توجد رسائل بعد",
+    "selectConversation": "اختر محادثة لبدء الدردشة",
+    "startConversation": "ابدأ المحادثة بإرسال رسالة",
+    "typePlaceholder": "اكتب رسالة...",
+    "sendError": "فشل إرسال الرسالة",
+    "startChat": "إرسال رسالة",
+    "startError": "فشل بدء المحادثة",
+    "professional": "المهني",
+    "clinic": "العيادة"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "empty": "لا توجد إشعارات بعد",
+    "markAllRead": "تحديد الكل كمقروء",
+    "clearAll": "مسح الكل"
+  }
 }
