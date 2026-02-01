@@ -99,10 +99,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           
           setUserRole(role);
           
-          const onboardingStatus = await checkOnboardingStatus(currentSession.user.id, role);
-          if (!isMounted) return;
-          
-          setIsOnboardingComplete(onboardingStatus);
+          // Only check onboarding if user has a role
+          if (role) {
+            const onboardingStatus = await checkOnboardingStatus(currentSession.user.id, role);
+            if (!isMounted) return;
+            setIsOnboardingComplete(onboardingStatus);
+          } else {
+            // User exists but has no role - they need to complete signup
+            setIsOnboardingComplete(false);
+          }
         } else {
           setSession(null);
           setUser(null);
