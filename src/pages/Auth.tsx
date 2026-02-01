@@ -52,26 +52,44 @@ const Auth = () => {
 
   // Redirect if already logged in
   useEffect(() => {
-    if (user && userRole) {
-      if (!isOnboardingComplete) {
-        if (userRole === "professional") {
-          navigate("/onboarding/professional");
-        } else if (userRole === "clinic") {
-          navigate("/onboarding/clinic");
+    // Don't redirect while auth is still loading
+    if (authLoading) return;
+    
+    if (user) {
+      // If user has a role, redirect appropriately
+      if (userRole) {
+        if (!isOnboardingComplete) {
+          if (userRole === "professional") {
+            navigate("/onboarding/professional");
+          } else if (userRole === "clinic") {
+            navigate("/onboarding/clinic");
+          }
+        } else {
+          if (userRole === "professional") {
+            navigate("/dashboard/professional");
+          } else if (userRole === "clinic") {
+            navigate("/dashboard/clinic");
+          } else if (userRole === "admin" || userRole === "super_admin") {
+            navigate("/admin");
+          } else {
+            navigate("/");
+          }
         }
       } else {
-        if (userRole === "professional") {
-          navigate("/dashboard/professional");
-        } else if (userRole === "clinic") {
-          navigate("/dashboard/clinic");
-        } else if (userRole === "admin" || userRole === "super_admin") {
-          navigate("/admin");
-        } else {
-          navigate("/");
+        // User is logged in but has no role - they need to complete signup
+        // This can happen if signup was interrupted or role assignment failed
+        // Switch to signup mode so they can select a role
+        if (mode === "login") {
+          setMode("signup");
+          setStep("role");
+          toast({
+            title: t("auth.completeSetup"),
+            description: t("auth.selectRoleToContinue"),
+          });
         }
       }
     }
-  }, [user, userRole, isOnboardingComplete, navigate]);
+  }, [user, userRole, isOnboardingComplete, authLoading, navigate, mode, toast, t]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -105,9 +123,71 @@ const Auth = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleRoleSelect = (selectedRole: UserRole) => {
+  const handleRoleSelect = async (selectedRole: UserRole) => {
     setRole(selectedRole);
-    setStep("details");
+    
+    // If user is already logged in but has no role, create their role and profile now
+    if (user && !userRole) {
+      setIsLoading(true);
+      try {
+        // Get user metadata for name
+        const userName = user.user_metadata?.name || user.email?.split('@')[0] || 'User';
+        const orgName = user.user_metadata?.organizationName || '';
+        
+        // Create user role
+        const { error: roleError } = await supabase
+          .from("user_roles")
+          .insert({ user_id: user.id, role: selectedRole });
+        
+        if (roleError) throw roleError;
+        
+        // Create profile or clinic based on role
+        if (selectedRole === "professional") {
+          const { error: profileError } = await supabase
+            .from("profiles")
+            .insert({
+              user_id: user.id,
+              email: user.email!,
+              full_name: userName,
+              onboarding_completed: false,
+            });
+          if (profileError) throw profileError;
+        } else {
+          const { error: clinicError } = await supabase
+            .from("clinics")
+            .insert({
+              user_id: user.id,
+              email: user.email!,
+              name: orgName || userName,
+              onboarding_completed: false,
+            });
+          if (clinicError) throw clinicError;
+        }
+        
+        toast({
+          title: t("auth.success.accountCreated"),
+          description: t("auth.success.completeProfile"),
+        });
+        
+        // Navigate to onboarding
+        if (selectedRole === "professional") {
+          navigate("/onboarding/professional");
+        } else {
+          navigate("/onboarding/clinic");
+        }
+      } catch (error: any) {
+        console.error("Error creating role:", error);
+        toast({
+          variant: "destructive",
+          title: t("auth.errors.signupFailed"),
+          description: error.message,
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setStep("details");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -375,40 +455,52 @@ const Auth = () => {
           ) : step === "role" ? (
             <>
               <div className="text-center mb-8">
-                <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">{t("auth.joinSyndeoCare")}</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+                  {user && !userRole ? t("auth.completeSetup") : t("auth.joinSyndeoCare")}
+                </h1>
                 <p className="text-muted-foreground">{t("auth.howToGetStarted")}</p>
               </div>
 
-              <RoleSelector
-                options={[
-                  {
-                    id: "professional",
-                    icon: Users,
-                    title: t("auth.imProfessional"),
-                    description: t("auth.professionalDesc"),
-                    gradient: "gradient-primary",
-                  },
-                  {
-                    id: "clinic",
-                    icon: Building2,
-                    title: t("auth.imClinic"),
-                    description: t("auth.clinicDesc"),
-                    gradient: "gradient-accent",
-                  },
-                ]}
-                selectedId={role}
-                onSelect={(id) => handleRoleSelect(id as UserRole)}
-              />
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
+                  <p className="text-muted-foreground">{t("common.loading")}</p>
+                </div>
+              ) : (
+                <RoleSelector
+                  options={[
+                    {
+                      id: "professional",
+                      icon: Users,
+                      title: t("auth.imProfessional"),
+                      description: t("auth.professionalDesc"),
+                      gradient: "gradient-primary",
+                    },
+                    {
+                      id: "clinic",
+                      icon: Building2,
+                      title: t("auth.imClinic"),
+                      description: t("auth.clinicDesc"),
+                      gradient: "gradient-accent",
+                    },
+                  ]}
+                  selectedId={role}
+                  onSelect={(id) => handleRoleSelect(id as UserRole)}
+                />
+              )}
 
-              <div className="mt-8 text-center text-muted-foreground">
-                {t("auth.haveAccount")}{" "}
-                <button 
-                  onClick={() => setMode("login")}
-                  className="text-primary font-semibold hover:underline min-h-[44px] inline-flex items-center"
-                >
-                  {t("auth.signIn")}
-                </button>
-              </div>
+              {/* Only show login link if user is not already logged in */}
+              {!user && (
+                <div className="mt-8 text-center text-muted-foreground">
+                  {t("auth.haveAccount")}{" "}
+                  <button 
+                    onClick={() => setMode("login")}
+                    className="text-primary font-semibold hover:underline min-h-[44px] inline-flex items-center"
+                  >
+                    {t("auth.signIn")}
+                  </button>
+                </div>
+              )}
             </>
           ) : (
             <>

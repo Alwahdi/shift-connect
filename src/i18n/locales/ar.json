@@ -152,7 +152,10 @@
       "hasNumber": "يحتوي على رقم",
       "hasUppercase": "يحتوي على حرف كبير",
       "strength": "قوة كلمة المرور"
-    }
+    },
+    "completeSetup": "أكمل إعداد حسابك",
+    "selectRoleToContinue": "يرجى اختيار نوع الحساب للمتابعة.",
+    "verifying": "جارٍ التحقق"
   },
   "home": {
     "hero": {

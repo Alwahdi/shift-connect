@@ -152,7 +152,10 @@
       "hasNumber": "Contains a number",
       "hasUppercase": "Contains uppercase letter",
       "strength": "Password strength"
-    }
+    },
+    "completeSetup": "Complete your setup",
+    "selectRoleToContinue": "Please select your account type to continue.",
+    "verifying": "Verifying"
   },
   "home": {
     "hero": {
