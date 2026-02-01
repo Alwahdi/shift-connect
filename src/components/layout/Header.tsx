@@ -2,11 +2,13 @@ import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { SkipLink } from "@/components/ui/skip-link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
+import { NotificationCenter } from "@/components/notifications/NotificationCenter";
+import { useAuth } from "@/contexts/AuthContext";
 import { SITE_CONFIG, NAV_LINKS } from "@/config/constants";
 import syndeoCarelogo from "@/assets/syndeocare-logo.png";
 
@@ -14,6 +16,7 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -86,16 +89,34 @@ const Header = () => {
           <div className="hidden lg:flex items-center gap-3">
             <ThemeToggle />
             <LanguageSwitcher variant="text" />
-            <Link to="/auth">
-              <Button variant="ghost" size="default" className="font-medium">
-                {t("common.logIn")}
-              </Button>
-            </Link>
-            <Link to="/auth?mode=signup">
-              <Button variant="hero" size="default" className="font-medium shadow-lg">
-                {t("common.getStarted")}
-              </Button>
-            </Link>
+            {user ? (
+              <>
+                <Link to="/messages">
+                  <Button variant="ghost" size="icon">
+                    <MessageCircle className="h-5 w-5" />
+                  </Button>
+                </Link>
+                <NotificationCenter />
+                <Link to="/dashboard/professional">
+                  <Button variant="hero" size="default" className="font-medium shadow-lg">
+                    {t("nav.dashboard")}
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/auth">
+                  <Button variant="ghost" size="default" className="font-medium">
+                    {t("common.logIn")}
+                  </Button>
+                </Link>
+                <Link to="/auth?mode=signup">
+                  <Button variant="hero" size="default" className="font-medium shadow-lg">
+                    {t("common.getStarted")}
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}

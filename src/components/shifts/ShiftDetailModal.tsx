@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -62,11 +62,25 @@ const ShiftDetailModal = ({
   const isRTL = i18n.language === "ar";
   const [isApplying, setIsApplying] = useState(false);
   const [hasApplied, setHasApplied] = useState(false);
+  const [hasConflict, setHasConflict] = useState(false);
   const { toast } = useToast();
 
   if (!shift) return null;
 
   const isVerified = verificationStatus === "verified";
+
+  // Check for shift overlap on mount
+  useEffect(() => {
+    const checkOverlap = async () => {
+      if (!profileId || !shift) return;
+      const { data } = await supabase.rpc("check_shift_overlap", {
+        p_professional_id: profileId,
+        p_shift_id: shift.id,
+      });
+      setHasConflict(data === true);
+    };
+    checkOverlap();
+  }, [profileId, shift]);
 
   const handleApply = async () => {
     if (!isVerified) {
@@ -74,6 +88,15 @@ const ShiftDetailModal = ({
         variant: "destructive",
         title: t("shifts.modal.verificationRequired"),
         description: t("shifts.modal.verificationRequiredDesc"),
+      });
+      return;
+    }
+
+    if (hasConflict) {
+      toast({
+        variant: "destructive",
+        title: t("shifts.modal.conflictTitle"),
+        description: t("shifts.modal.conflictDesc"),
       });
       return;
     }
@@ -275,6 +298,23 @@ const ShiftDetailModal = ({
             </div>
           )}
 
+          {/* Conflict Warning */}
+          {hasConflict && (
+            <div 
+              id="conflict-warning"
+              role="alert"
+              className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 flex items-start gap-3"
+            >
+              <AlertCircle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" aria-hidden="true" />
+              <div>
+                <p className="text-sm font-medium text-foreground">{t("shifts.modal.conflictTitle")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("shifts.modal.conflictDesc")}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Action Button */}
           <div className="flex gap-3 pt-2">
             <Button 
@@ -286,9 +326,9 @@ const ShiftDetailModal = ({
             </Button>
             <Button
               className="flex-1 min-h-[48px]"
-              disabled={!isVerified || isApplying || hasApplied}
+              disabled={!isVerified || isApplying || hasApplied || hasConflict}
               onClick={handleApply}
-              aria-describedby={!isVerified ? "verification-warning" : undefined}
+              aria-describedby={!isVerified ? "verification-warning" : hasConflict ? "conflict-warning" : undefined}
             >
               {isApplying ? (
                 <>
@@ -300,6 +340,8 @@ const ShiftDetailModal = ({
                   <CheckCircle2 className="w-4 h-4 me-2" />
                   {t("shifts.applied")}
                 </>
+              ) : hasConflict ? (
+                t("shifts.modal.timeConflict")
               ) : (
                 t("shifts.modal.applyForShift")
               )}

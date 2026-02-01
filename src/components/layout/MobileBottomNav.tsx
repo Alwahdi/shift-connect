@@ -1,6 +1,6 @@
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, Search, User } from "lucide-react";
+import { LayoutDashboard, Search, User, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const MobileBottomNav = () => {
@@ -32,6 +32,11 @@ export const MobileBottomNav = () => {
       label: "Shifts",
       icon: Search,
       path: "/shifts",
+    },
+    {
+      label: "Messages",
+      icon: MessageCircle,
+      path: "/messages",
     },
     {
       label: "Profile",
