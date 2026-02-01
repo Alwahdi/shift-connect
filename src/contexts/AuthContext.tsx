@@ -73,41 +73,68 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+    let isMounted = true;
+
+    // Initial session check - this is the primary initialization
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!isMounted) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Defer the role fetch to avoid deadlock
-          setTimeout(async () => {
-            const role = await fetchUserRole(session.user.id);
+          const role = await fetchUserRole(session.user.id);
+          if (isMounted) {
             await checkOnboardingStatus(session.user.id, role);
-          }, 0);
+          }
+        }
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    // Set up auth state listener for ongoing changes (sign in, sign out, token refresh)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (!isMounted) return;
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          // For sign in events, fetch role and onboarding status
+          if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+            const role = await fetchUserRole(session.user.id);
+            if (isMounted) {
+              await checkOnboardingStatus(session.user.id, role);
+            }
+          }
         } else {
           setUserRole(null);
           setIsOnboardingComplete(false);
         }
         
-        setIsLoading(false);
+        // Only set loading false for sign in/out events after initial load
+        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+          setIsLoading(false);
+        }
       }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        const role = await fetchUserRole(session.user.id);
-        await checkOnboardingStatus(session.user.id, role);
-      }
-      
-      setIsLoading(false);
-    });
+    // Run initialization
+    initializeAuth();
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (
