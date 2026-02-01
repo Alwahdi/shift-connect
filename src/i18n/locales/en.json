@@ -71,7 +71,8 @@
     "dashboard": "Dashboard",
     "profile": "Profile",
     "settings": "Settings",
-    "backToDashboard": "Back to Dashboard"
+    "backToDashboard": "Back to Dashboard",
+    "adminPanel": "Admin Panel"
   },
   "auth": {
     "welcomeBack": "Welcome back",
@@ -558,7 +559,9 @@
     "reviews": "reviews",
     "openShifts": "Open Shifts",
     "availableForShifts": "Available for Shifts",
-    "viewProfile": "View Profile"
+    "viewProfile": "View Profile",
+    "contactHidden": "Use chat to communicate",
+    "loginToContact": "Log in to send a message"
   },
   "shiftSearch": {
     "title": "Find Shifts",

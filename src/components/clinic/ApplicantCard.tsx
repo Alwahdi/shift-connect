@@ -7,10 +7,12 @@ import {
   Star, 
   MapPin,
   Loader2,
-  ExternalLink
+  ExternalLink,
+  MessageCircle
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { StartChatButton } from "@/components/chat/StartChatButton";
 
 interface Applicant {
   id: string;
@@ -29,13 +31,15 @@ interface Applicant {
 
 interface ApplicantCardProps {
   applicant: Applicant;
+  clinicId: string;
   isUpdating: boolean;
   onAccept: (bookingId: string) => void;
   onDecline: (bookingId: string) => void;
 }
 
-const ApplicantCard = ({ applicant, isUpdating, onAccept, onDecline }: ApplicantCardProps) => {
+const ApplicantCard = ({ applicant, clinicId, isUpdating, onAccept, onDecline }: ApplicantCardProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { professional } = applicant;
   
   const getStatusBadge = () => {
@@ -126,35 +130,48 @@ const ApplicantCard = ({ applicant, isUpdating, onAccept, onDecline }: Applicant
         </div>
 
         {/* Actions */}
-        {isPending && (
-          <div className="flex gap-2 flex-shrink-0">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => onDecline(applicant.id)}
-              disabled={isUpdating}
-              className="h-11 w-11 text-destructive hover:text-destructive hover:bg-destructive/10"
-              aria-label={t("applicant.decline")}
-            >
-              {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-5 h-5" />}
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => onAccept(applicant.id)}
-              disabled={isUpdating}
-              className="h-11 min-w-[100px] bg-success hover:bg-success/90"
-            >
-              {isUpdating ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <>
-                  <CheckCircle2 className="w-4 h-4 me-1" aria-hidden="true" />
-                  {t("applicant.accept")}
-                </>
-              )}
-            </Button>
-          </div>
-        )}
+        <div className="flex gap-2 flex-shrink-0 items-center">
+          {/* Chat button - always visible */}
+          <StartChatButton
+            targetType="professional"
+            targetId={professional.id}
+            currentProfileId={clinicId}
+            currentUserType="clinic"
+            variant="outline"
+            size="icon"
+            className="h-11 w-11"
+          />
+          
+          {isPending && (
+            <>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => onDecline(applicant.id)}
+                disabled={isUpdating}
+                className="h-11 w-11 text-destructive hover:text-destructive hover:bg-destructive/10"
+                aria-label={t("applicant.decline")}
+              >
+                {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-5 h-5" />}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => onAccept(applicant.id)}
+                disabled={isUpdating}
+                className="h-11 min-w-[100px] bg-success hover:bg-success/90"
+              >
+                {isUpdating ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 me-1" aria-hidden="true" />
+                    {t("applicant.accept")}
+                  </>
+                )}
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

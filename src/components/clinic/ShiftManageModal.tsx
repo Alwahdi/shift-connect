@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import ApplicantCard from "./ApplicantCard";
+import { notifyBookingAccepted, notifyBookingDeclined } from "@/lib/notifications";
 
 interface Shift {
   id: string;
@@ -51,6 +52,7 @@ interface ShiftManageModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   shift: Shift | null;
+  clinicId: string;
   onUpdate?: () => void;
 }
 
@@ -58,6 +60,7 @@ const ShiftManageModal = ({
   open,
   onOpenChange,
   shift,
+  clinicId,
   onUpdate,
 }: ShiftManageModalProps) => {
   const { t, i18n } = useTranslation();
@@ -113,6 +116,9 @@ const ShiftManageModal = ({
   const handleAccept = async (bookingId: string) => {
     setUpdatingId(bookingId);
     try {
+      // Find the applicant to get their user_id for notification
+      const acceptedApplicant = applicants.find(a => a.id === bookingId);
+      
       // Accept this booking
       const { error: acceptError } = await supabase
         .from("bookings")
@@ -120,6 +126,11 @@ const ShiftManageModal = ({
         .eq("id", bookingId);
 
       if (acceptError) throw acceptError;
+
+      // Get other pending applicants before declining them
+      const otherPending = applicants.filter(
+        a => a.status === "requested" && a.id !== bookingId
+      );
 
       // Decline all other pending bookings for this shift
       const { error: declineError } = await supabase
@@ -138,6 +149,55 @@ const ShiftManageModal = ({
         .eq("id", shift!.id);
 
       if (fillError) throw fillError;
+
+      // Send notification to accepted applicant
+      if (acceptedApplicant) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("user_id")
+          .eq("id", acceptedApplicant.professional.id)
+          .single();
+        
+        if (profileData) {
+          // Get clinic name for notification
+          const { data: clinicData } = await supabase
+            .from("clinics")
+            .select("name")
+            .eq("id", clinicId)
+            .single();
+
+          await notifyBookingAccepted(
+            profileData.user_id,
+            clinicData?.name || "The clinic",
+            shift!.title,
+            bookingId
+          );
+        }
+      }
+
+      // Send notifications to declined applicants
+      for (const applicant of otherPending) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("user_id")
+          .eq("id", applicant.professional.id)
+          .single();
+        
+        if (profileData) {
+          const { data: clinicData } = await supabase
+            .from("clinics")
+            .select("name")
+            .eq("id", clinicId)
+            .single();
+
+          await notifyBookingDeclined(
+            profileData.user_id,
+            clinicData?.name || "The clinic",
+            shift!.title,
+            applicant.id
+          );
+        }
+      }
 
       toast({
         title: t("shifts.modal.applicantAccepted"),
@@ -160,12 +220,39 @@ const ShiftManageModal = ({
   const handleDecline = async (bookingId: string) => {
     setUpdatingId(bookingId);
     try {
+      // Find the applicant to get their user_id for notification
+      const declinedApplicant = applicants.find(a => a.id === bookingId);
+      
       const { error } = await supabase
         .from("bookings")
         .update({ status: "declined" })
         .eq("id", bookingId);
 
       if (error) throw error;
+
+      // Send notification to declined applicant
+      if (declinedApplicant) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("user_id")
+          .eq("id", declinedApplicant.professional.id)
+          .single();
+        
+        if (profileData) {
+          const { data: clinicData } = await supabase
+            .from("clinics")
+            .select("name")
+            .eq("id", clinicId)
+            .single();
+
+          await notifyBookingDeclined(
+            profileData.user_id,
+            clinicData?.name || "The clinic",
+            shift!.title,
+            bookingId
+          );
+        }
+      }
 
       toast({
         title: t("shifts.modal.applicantDeclined"),
@@ -299,6 +386,7 @@ const ShiftManageModal = ({
                   <ApplicantCard
                     key={applicant.id}
                     applicant={applicant}
+                    clinicId={clinicId}
                     isUpdating={updatingId === applicant.id}
                     onAccept={handleAccept}
                     onDecline={handleDecline}
@@ -315,6 +403,7 @@ const ShiftManageModal = ({
                   <ApplicantCard
                     key={applicant.id}
                     applicant={applicant}
+                    clinicId={clinicId}
                     isUpdating={false}
                     onAccept={handleAccept}
                     onDecline={handleDecline}
@@ -331,6 +420,7 @@ const ShiftManageModal = ({
                   <ApplicantCard
                     key={applicant.id}
                     applicant={applicant}
+                    clinicId={clinicId}
                     isUpdating={false}
                     onAccept={handleAccept}
                     onDecline={handleDecline}

@@ -10,14 +10,15 @@ import {
   ArrowLeft, 
   Star, 
   MapPin, 
-  Phone, 
   Mail, 
   CheckCircle2, 
   Calendar,
   Clock,
   Building2,
   Briefcase,
-  XCircle
+  XCircle,
+  Lock,
+  MessageCircle
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
@@ -26,6 +27,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { ProfileCardSkeleton, ProfileSidebarSkeleton, ShiftItemSkeleton } from "@/components/ui/skeleton-cards";
 import { EmptyState } from "@/components/ui/empty-state";
+import { StartChatButton } from "@/components/chat/StartChatButton";
 
 interface Clinic {
   id: string;
@@ -57,10 +59,11 @@ const ViewClinicProfile = () => {
   const isRTL = i18n.language === "ar";
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { userRole } = useAuth();
+  const { user, userRole } = useAuth();
   const [clinic, setClinic] = useState<Clinic | null>(null);
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [professionalId, setProfessionalId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -90,6 +93,19 @@ const ViewClinicProfile = () => {
         if (!shiftsError && shiftsData) {
           setShifts(shiftsData);
         }
+
+        // If user is a professional, fetch their profile ID for chat functionality
+        if (user && userRole === "professional") {
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("user_id", user.id)
+            .single();
+          
+          if (profileData) {
+            setProfessionalId(profileData.id);
+          }
+        }
       } catch (error) {
         console.error("Error fetching clinic:", error);
       } finally {
@@ -98,7 +114,7 @@ const ViewClinicProfile = () => {
     };
 
     fetchData();
-  }, [id]);
+  }, [id, user, userRole]);
 
   if (isLoading) {
     return (
@@ -298,25 +314,37 @@ const ViewClinicProfile = () => {
                 <CardTitle className="text-lg">{t("viewProfile.contactInfo")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {clinic.phone && (
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-                      <Phone className="w-5 h-5 text-accent" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">{t("profile.phone")}</p>
-                      <p className="font-medium text-foreground">{clinic.phone}</p>
-                    </div>
-                  </div>
+                {/* Chat Button - Primary action for professionals */}
+                {userRole === "professional" && professionalId && clinic && (
+                  <StartChatButton
+                    targetType="clinic"
+                    targetId={clinic.id}
+                    currentProfileId={professionalId}
+                    currentUserType="professional"
+                    variant="default"
+                    className="w-full"
+                  />
                 )}
+
+                {/* Phone number hidden for privacy */}
+                <div className="flex items-center gap-3 opacity-60">
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                    <Lock className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">{t("profile.phone")}</p>
+                    <p className="text-sm text-muted-foreground italic">{t("viewProfile.contactHidden")}</p>
+                  </div>
+                </div>
                 
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-                    <Mail className="w-5 h-5 text-accent" />
+                {/* Email hidden for privacy */}
+                <div className="flex items-center gap-3 opacity-60">
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                    <Lock className="w-5 h-5 text-muted-foreground" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">{t("auth.email")}</p>
-                    <p className="font-medium text-foreground">{clinic.email}</p>
+                    <p className="text-sm text-muted-foreground italic">{t("viewProfile.contactHidden")}</p>
                   </div>
                 </div>
 
@@ -329,6 +357,16 @@ const ViewClinicProfile = () => {
                       <p className="text-sm text-muted-foreground">{t("profile.address")}</p>
                       <p className="font-medium text-foreground">{clinic.address}</p>
                     </div>
+                  </div>
+                )}
+
+                {/* Login prompt for non-logged users */}
+                {!user && (
+                  <div className="pt-4 border-t">
+                    <p className="text-sm text-muted-foreground mb-3">{t("viewProfile.loginToContact")}</p>
+                    <Button asChild className="w-full">
+                      <Link to="/auth">{t("common.logIn")}</Link>
+                    </Button>
                   </div>
                 )}
               </CardContent>

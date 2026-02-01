@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -5,7 +6,7 @@ import { useRef, useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
-const TestimonialsSection = () => {
+const TestimonialsSection = forwardRef<HTMLElement>((_, forwardedRef) => {
   const { t } = useTranslation();
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
@@ -79,9 +80,19 @@ const TestimonialsSection = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
   };
 
+  // Combine forwarded ref with internal ref
+  const combinedRef = (node: HTMLElement | null) => {
+    (sectionRef as React.MutableRefObject<HTMLElement | null>).current = node;
+    if (typeof forwardedRef === 'function') {
+      forwardedRef(node);
+    } else if (forwardedRef) {
+      forwardedRef.current = node;
+    }
+  };
+
   return (
     <section 
-      ref={sectionRef}
+      ref={combinedRef}
       aria-label="Testimonials"
       className="py-16 md:py-24 lg:py-32 bg-gradient-to-b from-background to-secondary/30 relative overflow-hidden"
     >
@@ -274,6 +285,8 @@ const TestimonialsSection = () => {
       </div>
     </section>
   );
-};
+});
+
+TestimonialsSection.displayName = "TestimonialsSection";
 
 export default TestimonialsSection;

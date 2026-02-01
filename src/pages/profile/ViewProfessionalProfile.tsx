@@ -10,19 +10,22 @@ import {
   ArrowLeft, 
   Star, 
   MapPin, 
-  Phone, 
   CheckCircle2, 
   Clock, 
   Award,
   Briefcase,
-  UserX
+  UserX,
+  MessageCircle,
+  Lock
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { ProfileCardSkeleton, ProfileSidebarSkeleton } from "@/components/ui/skeleton-cards";
 import { EmptyState } from "@/components/ui/empty-state";
+import { StartChatButton } from "@/components/chat/StartChatButton";
 
 interface Profile {
   id: string;
@@ -46,11 +49,13 @@ const ViewProfessionalProfile = () => {
   const isRTL = i18n.language === "ar";
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user, userRole } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [clinicId, setClinicId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       if (!id) return;
 
       try {
@@ -62,6 +67,19 @@ const ViewProfessionalProfile = () => {
 
         if (error) throw error;
         setProfile(data);
+
+        // If user is a clinic, fetch their clinic ID for chat functionality
+        if (user && userRole === "clinic") {
+          const { data: clinicData } = await supabase
+            .from("clinics")
+            .select("id")
+            .eq("user_id", user.id)
+            .single();
+          
+          if (clinicData) {
+            setClinicId(clinicData.id);
+          }
+        }
       } catch (error) {
         console.error("Error fetching profile:", error);
       } finally {
@@ -69,8 +87,8 @@ const ViewProfessionalProfile = () => {
       }
     };
 
-    fetchProfile();
-  }, [id]);
+    fetchData();
+  }, [id, user, userRole]);
 
   if (isLoading) {
     return (
@@ -257,17 +275,28 @@ const ViewProfessionalProfile = () => {
                 <CardTitle className="text-lg">{t("viewProfile.contactInfo")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {profile.phone && (
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Phone className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">{t("profile.phone")}</p>
-                      <p className="font-medium text-foreground">{profile.phone}</p>
-                    </div>
-                  </div>
+                {/* Chat Button - Primary action */}
+                {userRole === "clinic" && clinicId && profile && (
+                  <StartChatButton
+                    targetType="professional"
+                    targetId={profile.id}
+                    currentProfileId={clinicId}
+                    currentUserType="clinic"
+                    variant="default"
+                    className="w-full"
+                  />
                 )}
+
+                {/* Phone number hidden for privacy */}
+                <div className="flex items-center gap-3 opacity-60">
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                    <Lock className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">{t("profile.phone")}</p>
+                    <p className="text-sm text-muted-foreground italic">{t("viewProfile.contactHidden")}</p>
+                  </div>
+                </div>
                 
                 {profile.location_address && (
                   <div className="flex items-center gap-3">
@@ -290,6 +319,16 @@ const ViewProfessionalProfile = () => {
                       <p className="text-sm text-muted-foreground">{t("profile.hourlyRate")}</p>
                       <p className="font-medium text-foreground">${profile.hourly_rate}{t("common.perHour")}</p>
                     </div>
+                  </div>
+                )}
+
+                {/* Login prompt for non-clinics */}
+                {!user && (
+                  <div className="pt-4 border-t">
+                    <p className="text-sm text-muted-foreground mb-3">{t("viewProfile.loginToContact")}</p>
+                    <Button asChild className="w-full">
+                      <Link to="/auth">{t("common.logIn")}</Link>
+                    </Button>
                   </div>
                 )}
               </CardContent>

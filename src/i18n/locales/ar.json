@@ -71,7 +71,8 @@
     "dashboard": "لوحة التحكم",
     "profile": "الملف الشخصي",
     "settings": "الإعدادات",
-    "backToDashboard": "العودة للوحة التحكم"
+    "backToDashboard": "العودة للوحة التحكم",
+    "adminPanel": "لوحة الإدارة"
   },
   "auth": {
     "welcomeBack": "مرحباً بعودتك",
@@ -558,7 +559,9 @@
     "reviews": "تقييم",
     "openShifts": "الورديات المتاحة",
     "availableForShifts": "متاح للورديات",
-    "viewProfile": "عرض الملف"
+    "viewProfile": "عرض الملف",
+    "contactHidden": "استخدم المحادثة للتواصل",
+    "loginToContact": "سجّل الدخول لإرسال رسالة"
   },
   "shiftSearch": {
     "title": "البحث عن ورديات",
