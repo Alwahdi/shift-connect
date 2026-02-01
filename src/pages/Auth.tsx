@@ -233,13 +233,13 @@ const Auth = () => {
           <LanguageSwitcher variant="text" />
         </div>
 
-        {/* Logo - use imported logo with brightness invert for white */}
+        {/* Logo - use white logo for dark gradient background */}
         <Link to="/" className="flex items-center justify-center gap-3 mb-8 group">
           <motion.img 
             whileHover={{ scale: 1.05 }}
-            src="/syndeocare-logo.png" 
+            src="/syndeocare-logo-white.png" 
             alt="SyndeoCare Logo" 
-            className="h-14 w-auto object-contain drop-shadow-lg brightness-0 invert transition-transform"
+            className="h-14 w-auto object-contain drop-shadow-lg transition-transform"
           />
         </Link>
 
