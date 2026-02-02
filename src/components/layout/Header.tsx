@@ -160,18 +160,28 @@ const Header = () => {
                 <LanguageSwitcher variant="full" />
               </div>
               
-              <div className="flex gap-3 pt-4">
-                <Link to="/auth" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full h-13 text-base font-medium">
-                    {t("common.logIn")}
-                  </Button>
-                </Link>
-                <Link to="/auth?mode=signup" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="hero" className="w-full h-13 text-base font-medium">
-                    {t("common.getStarted")}
-                  </Button>
-                </Link>
-              </div>
+              {user ? (
+                <div className="pt-4 space-y-3">
+                  <Link to="/messages" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-secondary" onClick={() => setMobileMenuOpen(false)}>
+                    <MessageCircle className="h-5 w-5" />
+                    <span className="font-medium">{t("chat.messages")}</span>
+                  </Link>
+                  <UserProfileMenu />
+                </div>
+              ) : (
+                <div className="flex gap-3 pt-4">
+                  <Link to="/auth" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full h-13 text-base font-medium">
+                      {t("common.logIn")}
+                    </Button>
+                  </Link>
+                  <Link to="/auth?mode=signup" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="hero" className="w-full h-13 text-base font-medium">
+                      {t("common.getStarted")}
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
           </motion.div>
         )}

@@ -798,7 +798,8 @@
     "startChat": "إرسال رسالة",
     "startError": "فشل بدء المحادثة",
     "professional": "المهني",
-    "clinic": "العيادة"
+    "clinic": "العيادة",
+    "typing": "يكتب..."
   },
   "notifications": {
     "title": "الإشعارات",

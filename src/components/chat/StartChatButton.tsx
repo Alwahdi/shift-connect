@@ -66,8 +66,8 @@ export const StartChatButton = ({
         conversationId = newConv.id;
       }
 
-      // Navigate to chat page
-      navigate(`/dashboard/${currentUserType}?tab=messages&conversation=${conversationId}`);
+      // Navigate to messages page with conversation ID
+      navigate(`/messages?conversation=${conversationId}`);
     } catch (error: any) {
       console.error("Error starting chat:", error);
       toast({
