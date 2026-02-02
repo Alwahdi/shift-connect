@@ -1,19 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { ChatList } from "./ChatList";
 import { ChatMessages } from "./ChatMessages";
-import { Card } from "@/components/ui/card";
 import { MessageCircle } from "lucide-react";
 
 interface ChatContainerProps {
   userType: "professional" | "clinic";
   profileId: string;
+  initialConversation?: string | null;
 }
 
-export const ChatContainer = ({ userType, profileId }: ChatContainerProps) => {
+export const ChatContainer = ({ userType, profileId, initialConversation }: ChatContainerProps) => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
-  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
+  const [selectedConversation, setSelectedConversation] = useState<string | null>(
+    initialConversation || null
+  );
+
+  // Update selected conversation when initialConversation changes
+  useEffect(() => {
+    if (initialConversation) {
+      setSelectedConversation(initialConversation);
+    }
+  }, [initialConversation]);
 
   return (
     <div className="h-[600px] flex rounded-xl border overflow-hidden bg-background" dir={isRTL ? "rtl" : "ltr"}>

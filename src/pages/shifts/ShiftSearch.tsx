@@ -82,6 +82,7 @@ const ShiftSearch = () => {
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
   const [showShiftDetail, setShowShiftDetail] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [bookedShiftIds, setBookedShiftIds] = useState<string[]>([]);
   const [filters, setFilters] = useState<Filters>({ 
     role: "All Roles", 
     minRate: 0, 
@@ -92,9 +93,12 @@ const ShiftSearch = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchShifts();
     fetchProfile();
-  }, [filters, user]);
+  }, [user]);
+
+  useEffect(() => {
+    fetchShifts();
+  }, [filters, profile, bookedShiftIds]);
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -103,7 +107,24 @@ const ShiftSearch = () => {
       .select("id, verification_status")
       .eq("user_id", user.id)
       .single();
-    if (data) setProfile(data);
+    if (data) {
+      setProfile(data);
+      // Fetch the shifts this professional is already booked for
+      fetchBookedShifts(data.id);
+    }
+  };
+
+  const fetchBookedShifts = async (profileId: string) => {
+    // Get all active bookings (requested, accepted, confirmed, checked_in)
+    const { data: bookings } = await supabase
+      .from("bookings")
+      .select("shift_id")
+      .eq("professional_id", profileId)
+      .in("status", ["requested", "accepted", "confirmed", "checked_in"]);
+    
+    if (bookings) {
+      setBookedShiftIds(bookings.map(b => b.shift_id));
+    }
   };
 
   const fetchShifts = async () => {
@@ -159,7 +180,11 @@ const ShiftSearch = () => {
     const { data, error } = await query;
 
     if (!error && data) {
-      setShifts(data as unknown as Shift[]);
+      // Filter out shifts the professional is already booked for
+      const availableShifts = (data as unknown as Shift[]).filter(
+        shift => !bookedShiftIds.includes(shift.id)
+      );
+      setShifts(availableShifts);
     }
     setIsLoading(false);
   };

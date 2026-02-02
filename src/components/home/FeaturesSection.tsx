@@ -12,9 +12,9 @@ import {
   Sparkles
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useRef, useState } from "react";
+import { forwardRef, useRef, useState } from "react";
 
-const FeaturesSection = () => {
+const FeaturesSection = forwardRef<HTMLElement>((_, ref) => {
   const { t } = useTranslation();
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
@@ -217,6 +217,8 @@ const FeaturesSection = () => {
       </div>
     </section>
   );
-};
+});
+
+FeaturesSection.displayName = "FeaturesSection";
 
 export default FeaturesSection;

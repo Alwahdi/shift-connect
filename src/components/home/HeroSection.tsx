@@ -4,9 +4,9 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, CheckCircle2, Users, Building2, Star, Play, Shield, Zap } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PLATFORM_STATS } from "@/config/constants";
-import { useRef } from "react";
+import { forwardRef, useRef } from "react";
 
-const HeroSection = () => {
+const HeroSection = forwardRef<HTMLElement>((_, ref) => {
   const { t } = useTranslation();
   const sectionRef = useRef<HTMLDivElement>(null);
   
@@ -240,6 +240,8 @@ const HeroSection = () => {
       </div>
     </section>
   );
-};
+});
+
+HeroSection.displayName = "HeroSection";
 
 export default HeroSection;

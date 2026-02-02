@@ -1,4 +1,19 @@
 {
+  "chat": {
+    "messages": "Messages",
+    "messagesDescription": "Your conversations with clinics and professionals",
+    "selectConversation": "Select a conversation to start messaging",
+    "noConversations": "No conversations yet",
+    "noMessages": "No messages yet",
+    "startConversation": "Start the conversation by sending a message",
+    "startChat": "Message",
+    "startError": "Could not start conversation",
+    "sendError": "Could not send message",
+    "typePlaceholder": "Type a message...",
+    "clinic": "Clinic",
+    "professional": "Professional",
+    "typing": "typing..."
+  },
   "common": {
     "loading": "Loading...",
     "save": "Save",

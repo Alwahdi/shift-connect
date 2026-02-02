@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Send, Loader2, ArrowLeft, Building2, User } from "lucide-react";
+import { Send, Loader2, ArrowLeft, Building2, User, Check, CheckCheck } from "lucide-react";
 import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
@@ -58,11 +58,17 @@ export const ChatMessages = ({
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [conversation, setConversation] = useState<ConversationDetails | null>(null);
+  const [isTyping, setIsTyping] = useState(false);
+  const [otherTyping, setOtherTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }, 100);
+  }, []);
 
   useEffect(() => {
     const fetchConversation = async () => {
@@ -119,6 +125,9 @@ export const ChatMessages = ({
         .eq("conversation_id", conversationId)
         .neq("sender_type", userType)
         .eq("is_read", false);
+
+      // Scroll to bottom on initial load
+      scrollToBottom("auto");
     };
 
     fetchConversation();
@@ -138,6 +147,7 @@ export const ChatMessages = ({
         (payload) => {
           const newMsg = payload.new as Message;
           setMessages((prev) => [...prev, newMsg]);
+          setOtherTyping(false);
           
           // Mark as read if from other party
           if (newMsg.sender_type !== userType) {
@@ -146,23 +156,78 @@ export const ChatMessages = ({
               .update({ is_read: true })
               .eq("id", newMsg.id);
           }
+          
+          // Auto-scroll when new message arrives
+          scrollToBottom();
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          const updatedMsg = payload.new as Message;
+          setMessages((prev) =>
+            prev.map((msg) => (msg.id === updatedMsg.id ? updatedMsg : msg))
+          );
         }
       )
       .subscribe();
 
+    // Subscribe to typing indicator via broadcast
+    const typingChannel = supabase
+      .channel(`typing-${conversationId}`)
+      .on("broadcast", { event: "typing" }, (payload) => {
+        if (payload.payload.sender_type !== userType) {
+          setOtherTyping(true);
+          // Clear after 3 seconds
+          setTimeout(() => setOtherTyping(false), 3000);
+        }
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(typingChannel);
     };
-  }, [conversationId, userType]);
+  }, [conversationId, userType, scrollToBottom]);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  // Handle typing indicator
+  const handleTyping = useCallback(() => {
+    if (!isTyping) {
+      setIsTyping(true);
+      supabase.channel(`typing-${conversationId}`).send({
+        type: "broadcast",
+        event: "typing",
+        payload: { sender_type: userType },
+      });
+    }
+
+    // Clear previous timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Stop typing after 2 seconds of inactivity
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+    }, 2000);
+  }, [conversationId, isTyping, userType]);
 
   const handleSend = async () => {
     if (!newMessage.trim() || sending) return;
 
     setSending(true);
+    setIsTyping(false);
+    
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
     try {
       const { error } = await supabase.from("messages").insert({
         conversation_id: conversationId,
@@ -180,6 +245,7 @@ export const ChatMessages = ({
         .eq("id", conversationId);
 
       setNewMessage("");
+      scrollToBottom();
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -236,16 +302,22 @@ export const ChatMessages = ({
             <OtherIcon className="h-5 w-5" />
           </AvatarFallback>
         </Avatar>
-        <div>
+        <div className="flex-1">
           <p className="font-medium">{otherName}</p>
-          <p className="text-xs text-muted-foreground">
-            {userType === "professional" ? t("chat.clinic") : t("chat.professional")}
-          </p>
+          {otherTyping ? (
+            <p className="text-xs text-primary animate-pulse">
+              {t("chat.typing")}
+            </p>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              {userType === "professional" ? t("chat.clinic") : t("chat.professional")}
+            </p>
+          )}
         </div>
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 p-4">
+      <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
         <div className="space-y-4">
           {messages.length === 0 ? (
             <div className="text-center text-muted-foreground py-8">
@@ -267,20 +339,43 @@ export const ChatMessages = ({
                     }`}
                   >
                     <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                    <p
-                      className={`text-xs mt-1 ${
-                        isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
-                      }`}
-                    >
-                      {format(new Date(msg.created_at), "HH:mm", {
-                        locale: isRTL ? ar : enUS,
-                      })}
-                    </p>
+                    <div className="flex items-center justify-end gap-1 mt-1">
+                      <p
+                        className={`text-xs ${
+                          isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
+                        }`}
+                      >
+                        {format(new Date(msg.created_at), "HH:mm", {
+                          locale: isRTL ? ar : enUS,
+                        })}
+                      </p>
+                      {isOwn && (
+                        msg.is_read ? (
+                          <CheckCheck className="h-3 w-3 text-primary-foreground/70" />
+                        ) : (
+                          <Check className="h-3 w-3 text-primary-foreground/70" />
+                        )
+                      )}
+                    </div>
                   </div>
                 </div>
               );
             })
           )}
+          
+          {/* Typing indicator */}
+          {otherTyping && (
+            <div className="flex justify-start">
+              <div className="bg-secondary text-secondary-foreground rounded-2xl rounded-bl-md px-4 py-3">
+                <div className="flex gap-1">
+                  <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
@@ -290,7 +385,10 @@ export const ChatMessages = ({
         <div className="flex gap-2">
           <Textarea
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={(e) => {
+              setNewMessage(e.target.value);
+              handleTyping();
+            }}
             onKeyPress={handleKeyPress}
             placeholder={t("chat.typePlaceholder")}
             className="min-h-[48px] max-h-32 resize-none"
