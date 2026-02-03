@@ -42,6 +42,7 @@ export const ChatContainer = ({ userType, profileId, initialConversation }: Chat
           selectedConversation={selectedConversation}
           onSelectConversation={setSelectedConversation}
           userType={userType}
+          profileId={profileId}
         />
       </div>
 

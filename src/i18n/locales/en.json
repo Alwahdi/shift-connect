@@ -1,19 +1,4 @@
 {
-  "chat": {
-    "messages": "Messages",
-    "messagesDescription": "Your conversations with clinics and professionals",
-    "selectConversation": "Select a conversation to start messaging",
-    "noConversations": "No conversations yet",
-    "noMessages": "No messages yet",
-    "startConversation": "Start the conversation by sending a message",
-    "startChat": "Message",
-    "startError": "Could not start conversation",
-    "sendError": "Could not send message",
-    "typePlaceholder": "Type a message...",
-    "clinic": "Clinic",
-    "professional": "Professional",
-    "typing": "typing..."
-  },
   "common": {
     "loading": "Loading...",
     "save": "Save",
@@ -720,6 +705,10 @@
     }
   },
   "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet",
+    "markAllRead": "Mark all read",
+    "clearAll": "Clear all",
     "newBookingRequest": "New Booking Request",
     "newBookingDesc": "A professional has applied for your shift.",
     "bookingAccepted": "Booking Accepted",
@@ -803,22 +792,17 @@
   "today": "Today",
   "chat": {
     "messages": "Messages",
-    "messagesDescription": "Chat with clinics and professionals",
+    "messagesDescription": "Your conversations with clinics and professionals",
+    "selectConversation": "Select a conversation to start messaging",
     "noConversations": "No conversations yet",
     "noMessages": "No messages yet",
-    "selectConversation": "Select a conversation to start chatting",
     "startConversation": "Start the conversation by sending a message",
+    "startChat": "Message",
+    "startError": "Could not start conversation",
+    "sendError": "Could not send message",
     "typePlaceholder": "Type a message...",
-    "sendError": "Failed to send message",
-    "startChat": "Send Message",
-    "startError": "Failed to start chat",
+    "clinic": "Clinic",
     "professional": "Professional",
-    "clinic": "Clinic"
-  },
-  "notifications": {
-    "title": "Notifications",
-    "empty": "No notifications yet",
-    "markAllRead": "Mark all read",
-    "clearAll": "Clear all"
+    "typing": "typing..."
   }
 }

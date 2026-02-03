@@ -33,12 +33,14 @@ interface ChatListProps {
   selectedConversation: string | null;
   onSelectConversation: (id: string) => void;
   userType: "professional" | "clinic";
+  profileId: string;
 }
 
 export const ChatList = ({
   selectedConversation,
   onSelectConversation,
   userType,
+  profileId,
 }: ChatListProps) => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
@@ -47,10 +49,11 @@ export const ChatList = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !profileId) return;
     
     const fetchConversations = async () => {
       try {
+        // Build query with filter for current user
         let query = supabase
           .from("conversations")
           .select(`
@@ -60,6 +63,13 @@ export const ChatList = ({
             last_message_at
           `)
           .order("last_message_at", { ascending: false });
+
+        // Filter by user type to only get conversations the user is part of
+        if (userType === "professional") {
+          query = query.eq("professional_id", profileId);
+        } else {
+          query = query.eq("clinic_id", profileId);
+        }
 
         const { data: convData, error } = await query;
         
@@ -138,7 +148,7 @@ export const ChatList = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, userType]);
+  }, [user, userType, profileId]);
 
   if (loading) {
     return (
@@ -169,7 +179,6 @@ export const ChatList = ({
     <ScrollArea className="h-full">
       <div className="space-y-1 p-2">
         {conversations.map((conv) => {
-          const otherParty = userType === "professional" ? conv.clinic : conv.professional;
           const name = userType === "professional" ? conv.clinic?.name : conv.professional?.full_name;
           const avatarUrl = userType === "professional" ? conv.clinic?.logo_url : conv.professional?.avatar_url;
           const Icon = userType === "professional" ? Building2 : User;

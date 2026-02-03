@@ -16,9 +16,10 @@ import {
   Loader2,
   Briefcase,
   AlertCircle,
-  X
+  X,
+  Timer
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -57,6 +58,15 @@ const CERTIFICATION_OPTIONS = [
   "CPR",
 ];
 
+const PROPOSAL_DURATION_OPTIONS = [
+  { value: "1", label: "1 day" },
+  { value: "3", label: "3 days" },
+  { value: "7", label: "7 days" },
+  { value: "14", label: "14 days" },
+  { value: "30", label: "30 days" },
+  { value: "none", label: "No deadline" },
+];
+
 const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShiftModalProps) => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
@@ -75,6 +85,7 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
     is_urgent: false,
     required_certifications: [] as string[],
     max_applicants: "10",
+    proposal_duration: "7", // Default: 7 days
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -91,6 +102,13 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
 
     setIsSubmitting(true);
     try {
+      // Calculate proposal deadline
+      let proposalDeadline: string | null = null;
+      if (formData.proposal_duration !== "none") {
+        const daysToAdd = parseInt(formData.proposal_duration);
+        proposalDeadline = addDays(new Date(), daysToAdd).toISOString();
+      }
+
       const { error } = await supabase.from("shifts").insert({
         clinic_id: clinicId,
         title: formData.title || formData.role_required,
@@ -104,6 +122,7 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
         is_urgent: formData.is_urgent,
         required_certifications: formData.required_certifications.length > 0 ? formData.required_certifications : null,
         max_applicants: parseInt(formData.max_applicants) || 10,
+        proposal_deadline: proposalDeadline,
       });
 
       if (error) throw error;
@@ -126,6 +145,7 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
         is_urgent: false,
         required_certifications: [],
         max_applicants: "10",
+        proposal_duration: "7",
       });
 
       onOpenChange(false);
@@ -249,7 +269,7 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
             </div>
           </div>
 
-          {/* Hourly Rate & Location */}
+          {/* Hourly Rate & Max Applicants */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="hourly_rate">{t("shifts.fields.hourlyRate")} *</Label>
@@ -278,6 +298,32 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
                 onChange={(e) => setFormData({ ...formData, max_applicants: e.target.value })}
               />
             </div>
+          </div>
+
+          {/* Proposal Duration */}
+          <div className="space-y-2">
+            <Label htmlFor="proposal_duration" className="flex items-center gap-2">
+              <Timer className="w-4 h-4" />
+              {t("shifts.fields.proposalDuration", "Application Window")}
+            </Label>
+            <Select
+              value={formData.proposal_duration}
+              onValueChange={(value) => setFormData({ ...formData, proposal_duration: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {PROPOSAL_DURATION_OPTIONS.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              {t("shifts.fields.proposalDurationHint", "How long professionals can apply for this shift")}
+            </p>
           </div>
 
           {/* Location */}

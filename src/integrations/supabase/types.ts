@@ -559,6 +559,7 @@ export type Database = {
           location_lat: number | null
           location_lng: number | null
           max_applicants: number | null
+          proposal_deadline: string | null
           required_certifications: string[] | null
           role_required: string
           shift_date: string
@@ -580,6 +581,7 @@ export type Database = {
           location_lat?: number | null
           location_lng?: number | null
           max_applicants?: number | null
+          proposal_deadline?: string | null
           required_certifications?: string[] | null
           role_required: string
           shift_date: string
@@ -601,6 +603,7 @@ export type Database = {
           location_lat?: number | null
           location_lng?: number | null
           max_applicants?: number | null
+          proposal_deadline?: string | null
           required_certifications?: string[] | null
           role_required?: string
           shift_date?: string

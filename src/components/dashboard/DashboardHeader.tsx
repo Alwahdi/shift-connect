@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
-import { Heart, Bell, LogOut, User, Building2, Shield } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
+import { NotificationCenter } from "@/components/notifications/NotificationCenter";
+import syndeoCarelogo from "@/assets/syndeocare-logo.png";
 
 interface DashboardHeaderProps {
   type: "professional" | "clinic" | "admin";
@@ -18,30 +20,23 @@ const DashboardHeader = ({ type, onSignOut, avatarUrl, name }: DashboardHeaderPr
     switch (type) {
       case "professional":
         return {
-          gradient: "gradient-primary",
           avatarGradient: "bg-primary",
-          icon: Heart,
-          avatarIcon: User,
+          profileLink: "/profile/professional",
         };
       case "clinic":
         return {
-          gradient: "gradient-accent",
           avatarGradient: "bg-accent",
-          icon: Heart,
-          avatarIcon: Building2,
+          profileLink: "/profile/clinic",
         };
       case "admin":
         return {
-          gradient: "bg-foreground",
           avatarGradient: "bg-foreground",
-          icon: Shield,
-          avatarIcon: Shield,
+          profileLink: "/admin",
         };
     }
   };
 
   const config = getConfig();
-  const IconComponent = config.icon;
   
   const initials = name
     ? name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
@@ -52,26 +47,16 @@ const DashboardHeader = ({ type, onSignOut, avatarUrl, name }: DashboardHeaderPr
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2 min-h-[44px]">
-            <div className={`w-8 h-8 rounded-lg ${config.gradient} flex items-center justify-center`}>
-              <IconComponent className={`w-4 h-4 ${type === "admin" ? "text-background" : `text-${type === "clinic" ? "accent" : "primary"}-foreground`}`} />
-            </div>
-            <span className="font-bold text-lg text-foreground">
-              {type === "admin" ? t("nav.dashboard") : "SyndeoCare.ai"}
-            </span>
+            <img 
+              src={syndeoCarelogo} 
+              alt="SyndeoCare Logo" 
+              className="h-10 w-auto object-contain"
+            />
           </Link>
 
           <div className="flex items-center gap-2">
             <LanguageSwitcher variant="icon" />
-            {type !== "admin" && (
-              <button 
-                className="relative p-2.5 rounded-xl hover:bg-secondary transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-                aria-label={t("common.notifications")}
-              >
-                <Bell className="w-5 h-5 text-muted-foreground" />
-                <span className="absolute top-2 end-2 w-2 h-2 bg-accent rounded-full" aria-hidden="true" />
-                <span className="sr-only">{t("common.newNotifications")}</span>
-              </button>
-            )}
+            {type !== "admin" && <NotificationCenter />}
             <button 
               onClick={onSignOut}
               className="flex items-center gap-2 p-2.5 rounded-xl hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors min-h-[44px] min-w-[44px] justify-center"
@@ -79,12 +64,14 @@ const DashboardHeader = ({ type, onSignOut, avatarUrl, name }: DashboardHeaderPr
             >
               <LogOut className="w-5 h-5" />
             </button>
-            <Avatar className="w-9 h-9">
-              <AvatarImage src={avatarUrl || undefined} alt={name || "User"} />
-              <AvatarFallback className={`${config.avatarGradient} text-white text-xs font-medium`}>
-                {avatarUrl ? null : initials}
-              </AvatarFallback>
-            </Avatar>
+            <Link to={config.profileLink}>
+              <Avatar className="w-9 h-9 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
+                <AvatarImage src={avatarUrl || undefined} alt={name || "User"} />
+                <AvatarFallback className={`${config.avatarGradient} text-white text-xs font-medium`}>
+                  {avatarUrl ? null : initials}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
           </div>
         </div>
       </div>
