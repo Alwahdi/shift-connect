@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
@@ -40,8 +41,9 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <AuthProvider>
-              <main id="main-content" className="pb-16 md:pb-0">
+              <main id="main-content">
                 <Routes>
+                  {/* Public routes */}
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/auth/callback" element={<AuthCallback />} />
@@ -52,18 +54,26 @@ const App = () => (
                   <Route path="/for-professionals" element={<ForProfessionals />} />
                   <Route path="/for-clinics" element={<ForClinics />} />
                   <Route path="/about" element={<About />} />
+                  <Route path="/design-system" element={<DesignSystem />} />
+                  
+                  {/* Onboarding routes (no layout) */}
                   <Route path="/onboarding/professional" element={<ProfessionalOnboarding />} />
                   <Route path="/onboarding/clinic" element={<ClinicOnboarding />} />
-                  <Route path="/dashboard/professional" element={<ProfessionalDashboard />} />
-                  <Route path="/dashboard/clinic" element={<ClinicDashboard />} />
-                  <Route path="/profile/professional" element={<ProfessionalProfile />} />
-                  <Route path="/profile/clinic" element={<ClinicProfile />} />
+                  
+                  {/* Public profile views */}
                   <Route path="/professional/:id" element={<ViewProfessionalProfile />} />
                   <Route path="/clinic/:id" element={<ViewClinicProfile />} />
-                  <Route path="/shifts" element={<ShiftSearch />} />
-                  <Route path="/messages" element={<Messages />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/design-system" element={<DesignSystem />} />
+                  
+                  {/* Authenticated routes with shared DashboardLayout */}
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/dashboard/professional" element={<ProfessionalDashboard />} />
+                    <Route path="/dashboard/clinic" element={<ClinicDashboard />} />
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/profile/professional" element={<ProfessionalProfile />} />
+                    <Route path="/profile/clinic" element={<ClinicProfile />} />
+                    <Route path="/shifts" element={<ShiftSearch />} />
+                    <Route path="/messages" element={<Messages />} />
+                  </Route>
                   
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />

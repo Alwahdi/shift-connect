@@ -21,7 +21,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
+
 import StatsGrid from "@/components/dashboard/StatsGrid";
 import OnboardingBanner from "@/components/dashboard/OnboardingBanner";
 import CreateShiftModal from "@/components/clinic/CreateShiftModal";
@@ -200,8 +200,7 @@ const ClinicDashboard = () => {
   const canPostShifts = clinic?.verification_status === "verified" || totalDocs > 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader type="clinic" onSignOut={handleSignOut} avatarUrl={clinic?.logo_url} name={clinic?.name} />
+    <main className="container mx-auto px-4 py-6">
 
       <main className="container mx-auto px-4 py-6">
         {/* Welcome */}
@@ -381,7 +380,7 @@ const ClinicDashboard = () => {
           onUpdate={fetchShifts}
         />
       )}
-    </div>
+    </main>
   );
 };
 

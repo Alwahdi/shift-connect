@@ -21,8 +21,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import ShiftDetailModal from "@/components/shifts/ShiftDetailModal";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { ShiftCardSkeleton, SkeletonGrid } from "@/components/ui/skeleton-cards";
@@ -257,10 +255,8 @@ const ShiftSearch = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background" dir={isRTL ? "rtl" : "ltr"}>
-      <Header />
-      
-      <main className="container mx-auto px-4 py-8">
+    <>
+      <div className="container mx-auto px-4 py-8" dir={isRTL ? "rtl" : "ltr"}>
         {/* Page Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -466,9 +462,7 @@ const ShiftSearch = () => {
             )}
           </div>
         </div>
-      </main>
-
-      <Footer />
+      </div>
 
       {/* Shift Detail Modal */}
       <ShiftDetailModal
@@ -482,7 +476,7 @@ const ShiftSearch = () => {
           setShowShiftDetail(false);
         }}
       />
-    </div>
+    </>
   );
 };
 

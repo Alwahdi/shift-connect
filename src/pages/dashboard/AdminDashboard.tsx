@@ -24,7 +24,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
+
 import StatsGrid from "@/components/dashboard/StatsGrid";
 import DocumentViewer from "@/components/admin/DocumentViewer";
 import UserDetailSheet from "@/components/admin/UserDetailSheet";
@@ -316,8 +316,7 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background" dir={isRTL ? "rtl" : "ltr"}>
-      <DashboardHeader type="admin" onSignOut={handleSignOut} />
+    <main className="container mx-auto px-4 py-6" dir={isRTL ? "rtl" : "ltr"}>
 
       <main className="container mx-auto px-4 py-6">
         {/* Title and Refresh */}
@@ -779,7 +778,7 @@ const AdminDashboard = () => {
           onDocumentVerify={handleVerifyDocument}
         />
       )}
-    </div>
+    </main>
   );
 };
 
