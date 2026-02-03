@@ -705,6 +705,10 @@
     }
   },
   "notifications": {
+    "title": "الإشعارات",
+    "empty": "لا توجد إشعارات بعد",
+    "markAllRead": "تحديد الكل كمقروء",
+    "clearAll": "مسح الكل",
     "newBookingRequest": "طلب حجز جديد",
     "newBookingDesc": "تقدّم مختص لورديتك.",
     "bookingAccepted": "تم قبول الحجز",
@@ -788,23 +792,17 @@
   "today": "اليوم",
   "chat": {
     "messages": "الرسائل",
-    "messagesDescription": "تحدث مع العيادات والمهنيين",
+    "messagesDescription": "محادثاتك مع العيادات والمهنيين",
+    "selectConversation": "اختر محادثة لبدء المراسلة",
     "noConversations": "لا توجد محادثات بعد",
     "noMessages": "لا توجد رسائل بعد",
-    "selectConversation": "اختر محادثة لبدء الدردشة",
     "startConversation": "ابدأ المحادثة بإرسال رسالة",
-    "typePlaceholder": "اكتب رسالة...",
-    "sendError": "فشل إرسال الرسالة",
     "startChat": "إرسال رسالة",
-    "startError": "فشل بدء المحادثة",
-    "professional": "المهني",
+    "startError": "تعذر بدء المحادثة",
+    "sendError": "تعذر إرسال الرسالة",
+    "typePlaceholder": "اكتب رسالة...",
     "clinic": "العيادة",
+    "professional": "المهني",
     "typing": "يكتب..."
-  },
-  "notifications": {
-    "title": "الإشعارات",
-    "empty": "لا توجد إشعارات بعد",
-    "markAllRead": "تحديد الكل كمقروء",
-    "clearAll": "مسح الكل"
   }
 }

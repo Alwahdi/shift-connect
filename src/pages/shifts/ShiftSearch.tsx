@@ -127,6 +127,8 @@ const ShiftSearch = () => {
 
   const fetchShifts = async () => {
     setIsLoading(true);
+    const now = new Date().toISOString();
+    
     let query = supabase
       .from("shifts")
       .select(`
@@ -141,10 +143,13 @@ const ShiftSearch = () => {
         description,
         required_certifications,
         is_urgent,
+        proposal_deadline,
         clinic:clinics(id, name, address, rating_avg, logo_url)
       `)
       .eq("is_filled", false)
       .gte("shift_date", new Date().toISOString().split("T")[0])
+      // Filter out shifts where proposal deadline has passed
+      .or(`proposal_deadline.is.null,proposal_deadline.gt.${now}`)
       .order("shift_date", { ascending: true })
       .limit(50);
 
