@@ -1,407 +1,456 @@
 
 
-# Ultimate Feature Enhancement Plan
+# Comprehensive UX Review & Feature Implementation Plan
 
-This plan addresses all the requested features to create a world-class healthcare staffing platform with professional search, enhanced chat, email notifications, user preferences, and improved mobile experience.
+## Executive Summary
 
----
-
-## Overview of Features to Implement
-
-1. **Search for Freelancers/Professionals** - Allow clinics to find and contact professionals
-2. **Search for Jobs** - Already implemented, but needs enhancement
-3. **Enhanced Chat System**
-   - Typing indicators (already implemented)
-   - Read receipts (already implemented)
-   - Media attachments (images, files)
-   - Media/links gallery filter view
-4. **Email Notifications** - For new jobs nearby and new messages
-5. **User Preferences/Settings Page** - Language, theme, notification preferences
-6. **Mobile Navigation Improvements** - Better UX with notification badges
-7. **Auth Page Logo Fix** - Ensure correct logo displays
+After conducting a thorough line-by-line review of the entire codebase, I've identified **critical bugs**, **UX improvements**, **security enhancements**, and **missing features**. This plan addresses everything requested and provides a complete roadmap for making this the best healthcare staffing platform possible.
 
 ---
 
-## Part 1: Search for Professionals/Freelancers
+## Part 1: Critical Bug Fixes (Must Fix Immediately)
 
-### 1.1 New Page: Professional Search
+### 1.1 Duplicate `<main>` Tag - Invalid HTML (Lines 203-205 in ClinicDashboard.tsx)
 
-Create a dedicated search page where clinics can find and contact professionals based on:
-- Specialty/Role
-- Location/Distance
-- Rating
-- Availability
-- Hourly rate range
+**Issue:** `ClinicDashboard.tsx` has nested `<main>` tags which is invalid HTML and causes accessibility issues.
 
-**Files to Create:**
-| File | Purpose |
-|------|---------|
-| `src/pages/SearchProfessionals.tsx` | Main search page for finding professionals |
-
-**Files to Modify:**
-| File | Changes |
-|------|---------|
-| `src/App.tsx` | Add `/search/professionals` route |
-| `src/components/layout/MobileBottomNav.tsx` | Consider adding search option for clinics |
-| `src/i18n/locales/en.json` | Add translation keys |
-| `src/i18n/locales/ar.json` | Add Arabic translations |
-
-### 1.2 Professional Search Features
-```text
-+------------------------------------------+
-|  Search Professionals                     |
-+------------------------------------------+
-| [Search by name, specialty...]           |
-+------------------------------------------+
-| Filters:                                 |
-| - Role: [Dropdown]                       |
-| - Distance: [Slider 0-100km]             |
-| - Rate: $[min] - $[max]                  |
-| - Rating: [Star filter]                  |
-| - Availability: [Available only toggle]  |
-| - Verified only: [Toggle]                |
-+------------------------------------------+
-| Results (24 found)                       |
-| +--------------------------------------+ |
-| | [Avatar] John Smith                  | |
-| | ⭐ 4.8 | RN | $45/hr                 | |
-| | ✓ Verified | Available               | |
-| | [View Profile] [Start Chat]          | |
-| +--------------------------------------+ |
-+------------------------------------------+
+```tsx
+// Line 203-205 shows:
+<main className="container mx-auto px-4 py-6">
+  <main className="container mx-auto px-4 py-6">
 ```
 
+**Fix:** Remove the duplicate `<main>` wrapper, keep only one.
+
+### 1.2 Duplicate `<main>` Tag in AdminDashboard.tsx (Lines 319-321)
+
+**Issue:** Same problem - nested `<main>` tags causing invalid HTML structure.
+
+**Fix:** Remove the duplicate wrapper.
+
+### 1.3 Logo Visibility on Auth Page Gradient Background
+
+**Issue:** The Auth page uses a dark gradient background (`gradient-hero`) but imports `syndeocare-logo.png` (colored version). This may have poor contrast.
+
+**Fix:** For dark backgrounds, use the white logo variant (`syndeocare-logo-white.png`) for better visibility, OR ensure the current logo has sufficient contrast.
+
+### 1.4 Onboarding Header Uses Wrong Branding
+
+**Issue:** In `ProfessionalOnboarding.tsx` (line 390-394), the header shows a generic Heart icon with "SyndeoCare.ai" text instead of the actual logo.
+
+**Fix:** Replace with the proper `syndeocare-logo.png` image to maintain brand consistency.
+
 ---
 
-## Part 2: Enhanced Chat System
+## Part 2: OTP Email Verification System
 
-### 2.1 Database Changes for Chat Media
+### 2.1 Current State
 
-**Database Migration:**
+The current system uses magic link email verification. User requests OTP (One-Time Password) verification instead.
+
+### 2.2 Implementation Plan
+
+**Database Changes:**
 ```sql
--- Add media support to messages
-ALTER TABLE messages ADD COLUMN file_url TEXT DEFAULT NULL;
-ALTER TABLE messages ADD COLUMN file_type VARCHAR(50) DEFAULT NULL;
-ALTER TABLE messages ADD COLUMN file_name TEXT DEFAULT NULL;
-ALTER TABLE messages ADD COLUMN file_size INTEGER DEFAULT NULL;
-
--- Create storage bucket for chat media
-INSERT INTO storage.buckets (id, name, public) 
-VALUES ('chat-media', 'chat-media', false);
-
--- RLS policy for chat media
-CREATE POLICY "Users can upload chat media"
-ON storage.objects FOR INSERT
-WITH CHECK (bucket_id = 'chat-media' AND auth.role() = 'authenticated');
-
-CREATE POLICY "Users can view chat media in their conversations"
-ON storage.objects FOR SELECT
-USING (bucket_id = 'chat-media' AND auth.role() = 'authenticated');
-```
-
-### 2.2 Chat UI Enhancements
-
-**Files to Create:**
-| File | Purpose |
-|------|---------|
-| `src/components/chat/ChatMediaUpload.tsx` | File/image upload button component |
-| `src/components/chat/ChatMediaGallery.tsx` | Media gallery view for conversation |
-| `src/components/chat/ChatMediaPreview.tsx` | Preview modal for images |
-| `src/components/chat/ChatFilters.tsx` | Filter messages by type (all, media, links) |
-
-**Files to Modify:**
-| File | Changes |
-|------|---------|
-| `src/components/chat/ChatMessages.tsx` | Add media upload, display media messages, add filter tabs |
-| `src/components/chat/ChatContainer.tsx` | Add media gallery panel/drawer |
-
-### 2.3 Chat Message Types Display
-```text
-+------------------------------------------+
-| Chat Header                              |
-| [Avatar] Clinic Name                     |
-| 📍 Online | typing...                    |
-+------------------------------------------+
-| [All] [Media] [Links] [Files]   <- Filters
-+------------------------------------------+
-| Messages Area:                           |
-|                                          |
-|    Hello! I'm interested in the shift    |
-|                          10:30 ✓✓        |
-|                                          |
-| [Image Thumbnail]                        |
-| Here's my certificate                    |
-| 10:32 ✓✓                                 |
-|                                          |
-|    Great! Thanks for sharing             |
-|                          10:35 ✓         |
-+------------------------------------------+
-| [📎] [📷] [Type message...] [Send]       |
-+------------------------------------------+
-```
-
----
-
-## Part 3: Email Notifications
-
-### 3.1 Edge Functions for Email
-
-**Files to Create:**
-| File | Purpose |
-|------|---------|
-| `supabase/functions/send-email-notification/index.ts` | Edge function to send emails via Resend |
-
-### 3.2 Email Notification Types
-- **New Job Alert**: When a new shift is posted near a professional's location
-- **New Message**: When someone sends a message (with configurable frequency)
-- **Booking Updates**: When booking status changes
-- **Daily/Weekly Digest**: Summary of activity
-
-### 3.3 Implementation Flow
-```text
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│ Event Trigger   │────▶│ Edge Function    │────▶│ Resend API      │
-│ (DB change)     │     │ send-email-notif │     │ Email delivery  │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
-         │                        │
-         │                        ▼
-         │              ┌──────────────────┐
-         │              │ Check user prefs │
-         │              │ - email enabled? │
-         │              │ - frequency ok?  │
-         │              └──────────────────┘
-         │
-         ▼
-┌─────────────────────────────────────────┐
-│ Events:                                  │
-│ • New shift near user location           │
-│ • New message received                   │
-│ • Booking accepted/declined              │
-│ • Document approved/rejected             │
-└─────────────────────────────────────────┘
-```
-
-**Important:** Email notifications require a RESEND_API_KEY secret. I will need to prompt you to add this.
-
----
-
-## Part 4: User Preferences/Settings Page
-
-### 4.1 Database Migration
-```sql
--- User preferences table
-CREATE TABLE user_preferences (
+-- Create OTP codes table
+CREATE TABLE email_verification_codes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE NOT NULL,
-  language VARCHAR(10) DEFAULT 'en',
-  theme VARCHAR(20) DEFAULT 'system',
-  notifications_email BOOLEAN DEFAULT TRUE,
-  notifications_push BOOLEAN DEFAULT TRUE,
-  notifications_in_app BOOLEAN DEFAULT TRUE,
-  email_new_jobs BOOLEAN DEFAULT TRUE,
-  email_new_messages BOOLEAN DEFAULT TRUE,
-  email_booking_updates BOOLEAN DEFAULT TRUE,
-  email_digest VARCHAR(20) DEFAULT 'daily',
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT NOT NULL,
+  code VARCHAR(6) NOT NULL,
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  verified BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Index for fast lookups
+CREATE INDEX idx_email_verification_email ON email_verification_codes(email, code);
+
+-- Enable RLS
+ALTER TABLE email_verification_codes ENABLE ROW LEVEL SECURITY;
+```
+
+**Edge Function: send-otp-email**
+- Generate 6-digit OTP code
+- Store in database with 15-minute expiration
+- Send email via Resend with branded template
+
+**New Components:**
+| File | Purpose |
+|------|---------|
+| `src/pages/VerifyOTP.tsx` | OTP input page with 6-digit code entry |
+| `src/components/auth/OTPInput.tsx` | Accessible OTP input component |
+| `supabase/functions/send-otp-email/index.ts` | Edge function to send OTP |
+| `supabase/functions/verify-otp/index.ts` | Edge function to verify OTP |
+
+**User Flow:**
+```
+Sign Up → Email Entered → OTP Sent → Enter 6-digit Code → Verified → Dashboard
+```
+
+---
+
+## Part 3: Super Admin Job Roles & Document Management
+
+### 3.1 Current State Analysis
+
+Currently, job roles are hardcoded in `CreateShiftModal.tsx`:
+```typescript
+const ROLE_OPTIONS = [
+  "Registered Nurse (RN)",
+  "Licensed Practical Nurse (LPN)",
+  // ... more hardcoded options
+];
+```
+
+### 3.2 Dynamic Job Roles System
+
+**Database Changes:**
+```sql
+-- Job roles table (admin-managed)
+CREATE TABLE job_roles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL UNIQUE,
+  name_ar TEXT, -- Arabic translation
+  description TEXT,
+  is_active BOOLEAN DEFAULT TRUE,
+  display_order INTEGER DEFAULT 0,
+  created_by UUID REFERENCES auth.users(id),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Document types table (admin-managed)
+CREATE TABLE document_types (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL UNIQUE,
+  name_ar TEXT,
+  description TEXT,
+  is_required BOOLEAN DEFAULT FALSE,
+  applies_to TEXT DEFAULT 'both', -- 'professional', 'clinic', 'both'
+  is_active BOOLEAN DEFAULT TRUE,
+  display_order INTEGER DEFAULT 0,
+  created_by UUID REFERENCES auth.users(id),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Required certifications table
+CREATE TABLE certifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL UNIQUE,
+  abbreviation VARCHAR(10),
+  description TEXT,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Enable RLS
-ALTER TABLE user_preferences ENABLE ROW LEVEL SECURITY;
+ALTER TABLE job_roles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE document_types ENABLE ROW LEVEL SECURITY;
+ALTER TABLE certifications ENABLE ROW LEVEL SECURITY;
 
--- Policy: Users can manage their own preferences
-CREATE POLICY "Users can manage own preferences"
-  ON user_preferences FOR ALL
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+-- Policies: Public read, admin write
+CREATE POLICY "Anyone can view active job roles"
+ON job_roles FOR SELECT USING (is_active = TRUE);
+
+CREATE POLICY "Admins can manage job roles"
+ON job_roles FOR ALL USING (
+  EXISTS (SELECT 1 FROM user_roles WHERE user_id = auth.uid() AND role IN ('admin', 'super_admin'))
+);
 ```
 
-### 4.2 Settings Page Structure
-```text
-+------------------------------------------+
-| ⚙️ Settings                              |
-+------------------------------------------+
-| Appearance                               |
-| ├─ Theme: [Light/Dark/System]            |
-| └─ Language: [English/العربية]           |
-+------------------------------------------+
-| Notifications                            |
-| ├─ Push Notifications: [Toggle]          |
-| ├─ In-App Notifications: [Toggle]        |
-| └─ Email Notifications:                  |
-|    ├─ New Jobs Nearby: [Toggle]          |
-|    ├─ New Messages: [Toggle]             |
-|    ├─ Booking Updates: [Toggle]          |
-|    └─ Digest Frequency: [Daily/Weekly]   |
-+------------------------------------------+
-| Account                                  |
-| ├─ Change Password                       |
-| └─ Delete Account                        |
-+------------------------------------------+
+**New Admin Panel Components:**
+| File | Purpose |
+|------|---------|
+| `src/components/admin/JobRolesManagement.tsx` | CRUD for job roles |
+| `src/components/admin/DocumentTypesManagement.tsx` | CRUD for document types |
+| `src/components/admin/CertificationsManagement.tsx` | CRUD for certifications |
+
+**Super Admin Dashboard Additions:**
+- New tab: "System Configuration"
+- Sub-tabs: Job Roles, Document Types, Certifications
+- Full CRUD operations with drag-and-drop reordering
+
+---
+
+## Part 4: Mobile Navigation & UI Improvements
+
+### 4.1 Issues Identified
+
+1. **MobileBottomNav overlap** - Content can be hidden behind the fixed nav
+2. **Missing notification bell** in mobile nav
+3. **No pull-to-refresh** on dashboards
+4. **Touch targets** - Some buttons are smaller than 44px minimum
+5. **Header on onboarding** uses generic Heart icon instead of logo
+
+### 4.2 Mobile Navigation Redesign
+
+**Current:**
 ```
+[Dashboard] [Search] [Messages] [Profile]
+```
+
+**Improved:**
+```
+[Home] [Search] [➕] [Messages(3)] [Profile]
+       └─ Badge  └─ Quick Action FAB  └─ Unread indicator
+```
+
+**Changes to MobileBottomNav.tsx:**
+- Add notification badge on Messages icon (already implemented, verify working)
+- Add center "quick action" button for creating shifts (clinics) or finding shifts (professionals)
+- Ensure minimum 44px touch targets
+- Add subtle haptic feedback (vibration) on tap
+- Improve active state visibility
+
+### 4.3 Content Safe Area
+
+Add bottom padding to all dashboard content to prevent overlap:
+```css
+.pb-safe-mobile {
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
+}
+```
+
+---
+
+## Part 5: Full User Flow Review
+
+### 5.1 Professional User Flow
+
+| Step | Current State | Issues | Improvements |
+|------|---------------|--------|--------------|
+| 1. Landing | ✅ Good | - | - |
+| 2. Sign Up | ✅ Role selection works | OTP not implemented | Add OTP verification |
+| 3. Email Verification | ⚠️ Magic link only | No OTP option | Add OTP flow |
+| 4. Onboarding | ✅ Multi-step works | Header uses generic icon | Use proper logo |
+| 5. Dashboard | ✅ Good | Nested main tags | Fix HTML structure |
+| 6. Find Shifts | ✅ Search works | - | - |
+| 7. Apply to Shift | ✅ Works | - | - |
+| 8. Chat | ✅ Real-time works | - | Add typing indicators |
+| 9. Notifications | ✅ Real-time works | No sound | Add notification sound |
+| 10. Settings | ✅ Preferences work | Delete account placeholder | Implement account deletion |
+
+### 5.2 Clinic User Flow
+
+| Step | Current State | Issues | Improvements |
+|------|---------------|--------|--------------|
+| 1. Sign Up | ✅ Works | - | - |
+| 2. Onboarding | ✅ Works | Header branding | Use proper logo |
+| 3. Dashboard | ⚠️ Has nested main tags | Invalid HTML | Fix structure |
+| 4. Create Shift | ✅ Works | Hardcoded roles | Use dynamic roles |
+| 5. Manage Applicants | ✅ Works | - | - |
+| 6. View Professionals | ✅ Search works | - | - |
+| 7. Chat | ✅ Works | - | - |
+| 8. Ratings | ✅ Works | - | - |
+
+### 5.3 Admin User Flow
+
+| Step | Current State | Issues | Improvements |
+|------|---------------|--------|--------------|
+| 1. Login | ✅ Works | - | - |
+| 2. Dashboard | ⚠️ Nested main tags | Invalid HTML | Fix structure |
+| 3. User Verification | ✅ Works | - | - |
+| 4. Document Review | ✅ Works | - | - |
+| 5. Admin Team (Super) | ✅ Works | - | - |
+| 6. Job Roles Management | ❌ Missing | Hardcoded | Add dynamic management |
+| 7. Document Types Mgmt | ❌ Missing | - | Add management UI |
+| 8. Direct Messaging | ⚠️ Partial | No admin-to-user chat | Add admin chat panel |
+
+### 5.4 Super Admin Exclusive Features
+
+| Feature | Status | Action |
+|---------|--------|--------|
+| Manage Admin Team | ✅ Implemented | - |
+| Manage Permissions | ✅ Implemented | - |
+| Job Roles CRUD | ❌ Missing | Add new panel |
+| Document Types CRUD | ❌ Missing | Add new panel |
+| Certifications CRUD | ❌ Missing | Add new panel |
+| System Analytics | ⚠️ Basic | Enhance with charts |
+
+---
+
+## Part 6: Security Review
+
+### 6.1 Current Security State
+
+| Check | Status | Notes |
+|-------|--------|-------|
+| RLS on all tables | ✅ Enabled | All 14 tables have RLS |
+| Role separation | ✅ Good | Separate user_roles table |
+| Input validation | ✅ Zod used | Auth forms validated |
+| SQL injection | ✅ Safe | Using Supabase SDK |
+| XSS prevention | ✅ React handles | No dangerouslySetInnerHTML |
+| CSRF | ✅ Supabase handles | Built-in protection |
+| Secrets management | ✅ Good | Using environment variables |
+
+### 6.2 Security Improvements Needed
+
+1. **Rate limiting** on OTP requests (prevent brute force)
+2. **Account lockout** after failed login attempts
+3. **Session timeout** for inactive users
+4. **Audit logging** for admin actions
+
+---
+
+## Part 7: Accessibility Review
+
+### 7.1 Current State
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Skip link | ✅ Implemented | SkipLink component exists |
+| Keyboard navigation | ✅ Good | Focus visible |
+| ARIA labels | ⚠️ Partial | Some buttons missing labels |
+| Color contrast | ⚠️ Check needed | Verify WCAG AA |
+| Screen reader | ⚠️ Partial | Add aria-live regions |
+
+### 7.2 Fixes Needed
+
+1. Add `aria-live="polite"` to chat typing indicators
+2. Add `alt` text to all avatar images
+3. Ensure 4.5:1 contrast ratio on all text
+4. Add `aria-label` to icon-only buttons
+
+---
+
+## Part 8: Implementation Priority & Files
+
+### Phase 1: Critical Bug Fixes (Day 1)
+
+**Files to Modify:**
+| File | Changes |
+|------|---------|
+| `src/pages/dashboard/ClinicDashboard.tsx` | Remove duplicate `<main>` tag |
+| `src/pages/dashboard/AdminDashboard.tsx` | Remove duplicate `<main>` tag |
+| `src/pages/Auth.tsx` | Verify logo visibility on gradient |
+| `src/pages/onboarding/ProfessionalOnboarding.tsx` | Use proper logo image |
+| `src/pages/onboarding/ClinicOnboarding.tsx` | Use proper logo image |
+
+### Phase 2: OTP Verification System (Days 2-3)
 
 **Files to Create:**
 | File | Purpose |
 |------|---------|
-| `src/pages/profile/Settings.tsx` | Main settings page |
-| `src/components/settings/AppearanceSettings.tsx` | Theme and language |
-| `src/components/settings/NotificationSettings.tsx` | Notification preferences |
-| `src/components/settings/AccountSettings.tsx` | Password, account deletion |
+| `src/pages/VerifyOTP.tsx` | OTP entry page |
+| `src/components/auth/OTPInput.tsx` | 6-digit OTP input component |
+| `supabase/functions/send-otp-email/index.ts` | Send OTP via Resend |
+| `supabase/functions/verify-otp/index.ts` | Verify OTP code |
+
+**Database Migration:**
+- Create `email_verification_codes` table
 
 **Files to Modify:**
 | File | Changes |
 |------|---------|
-| `src/App.tsx` | Add `/settings` route |
-| `src/components/layout/MobileBottomNav.tsx` | Consider settings access |
-| `src/contexts/ThemeContext.tsx` | Sync with user preferences |
-| `src/contexts/LanguageContext.tsx` | Sync with user preferences |
+| `src/App.tsx` | Add `/verify-otp` route |
+| `src/pages/Auth.tsx` | Redirect to OTP page after signup |
+| `src/contexts/AuthContext.tsx` | Handle OTP flow |
 
----
+### Phase 3: Admin System Configuration (Days 4-5)
 
-## Part 5: Mobile Navigation Improvements
+**Database Migration:**
+- Create `job_roles` table
+- Create `document_types` table
+- Create `certifications` table
+- Seed with initial data from current hardcoded values
 
-### 5.1 Enhanced Mobile Bottom Nav
-
-**Current State:**
-- 4 items: Dashboard, Shifts, Messages, Profile
-- No notification indicators
-- No role-specific customization
-
-**Improvements:**
-- Add unread message count badge on Messages icon
-- Add notification count badge
-- Better touch targets and animations
-- Role-specific navigation (clinics see "Search Pros" instead of "Shifts")
+**Files to Create:**
+| File | Purpose |
+|------|---------|
+| `src/components/admin/SystemConfiguration.tsx` | Main config container |
+| `src/components/admin/JobRolesManagement.tsx` | Job roles CRUD |
+| `src/components/admin/DocumentTypesManagement.tsx` | Document types CRUD |
+| `src/components/admin/CertificationsManagement.tsx` | Certifications CRUD |
 
 **Files to Modify:**
 | File | Changes |
 |------|---------|
-| `src/components/layout/MobileBottomNav.tsx` | Add badges, animations, role-based items |
+| `src/pages/dashboard/AdminDashboard.tsx` | Add System Config tab (super_admin only) |
+| `src/components/clinic/CreateShiftModal.tsx` | Fetch job roles from DB |
+| `src/pages/onboarding/ProfessionalOnboarding.tsx` | Fetch document types from DB |
+| `src/pages/onboarding/ClinicOnboarding.tsx` | Fetch document types from DB |
 
-### 5.2 Mobile Nav Design
-```text
-+----+--------+--------+--------+--------+----+
-|    | 🏠     | 🔍     | 💬 (3) | 👤     |    |
-|    | Home   | Search | Chat   | Profile|    |
-+----+--------+--------+--------+--------+----+
-         ↑         ↑        ↑
-         |         |        └─ Unread badge
-         |         └─ "Shifts" for pros, "Find Pros" for clinics
-         └─ Dashboard
-```
-
----
-
-## Part 6: Auth Page Logo Fix
-
-### 6.1 Current Issue Analysis
-The Auth page imports and uses `syndeoCarlogoWhite` from assets (line 18-19, 321). The logo should be displaying correctly. 
-
-**Potential Issues:**
-1. The white logo asset file may be corrupted or wrong image
-2. Image may need preloading for faster display
-
-### 6.2 Solution
-- Verify the correct logo file is at `src/assets/syndeocare-logo-white.png`
-- Add image preloading in `index.html` for faster load
-- Ensure the same logo used in the navigation bar is used consistently
+### Phase 4: Mobile & UX Improvements (Days 6-7)
 
 **Files to Modify:**
 | File | Changes |
 |------|---------|
-| `index.html` | Add preload links for logo assets |
-| `src/pages/Auth.tsx` | Verify logo import is correct |
-
----
-
-## Implementation Summary
-
-### Database Migrations (3 migrations)
-
-**Migration 1: Chat Media Support**
-```sql
-ALTER TABLE messages ADD COLUMN file_url TEXT DEFAULT NULL;
-ALTER TABLE messages ADD COLUMN file_type VARCHAR(50) DEFAULT NULL;
-ALTER TABLE messages ADD COLUMN file_name TEXT DEFAULT NULL;
-ALTER TABLE messages ADD COLUMN file_size INTEGER DEFAULT NULL;
-```
-
-**Migration 2: User Preferences**
-```sql
-CREATE TABLE user_preferences (...);
-```
-
-**Migration 3: Storage Bucket for Chat**
-```sql
--- Create chat-media bucket
-```
-
-### New Files to Create (10+ files)
-
-| Category | Files |
-|----------|-------|
-| Search | `src/pages/SearchProfessionals.tsx` |
-| Chat | `ChatMediaUpload.tsx`, `ChatMediaGallery.tsx`, `ChatMediaPreview.tsx`, `ChatFilters.tsx` |
-| Settings | `Settings.tsx`, `AppearanceSettings.tsx`, `NotificationSettings.tsx`, `AccountSettings.tsx` |
-| Edge Functions | `supabase/functions/send-email-notification/index.ts` |
-
-### Files to Modify (15+ files)
-
-| File | Changes |
-|------|---------|
-| `src/App.tsx` | Add new routes |
-| `src/components/chat/ChatMessages.tsx` | Add media upload, display, filters |
-| `src/components/chat/ChatContainer.tsx` | Add media gallery panel |
-| `src/components/layout/MobileBottomNav.tsx` | Add badges, role-based items |
-| `src/i18n/locales/en.json` | Add translation keys |
+| `src/components/layout/MobileBottomNav.tsx` | Add center FAB, improve indicators |
+| `src/components/layout/DashboardLayout.tsx` | Add safe-area padding |
+| `src/components/notifications/NotificationCenter.tsx` | Add sound playback |
+| `src/pages/profile/Settings.tsx` | Implement actual account deletion |
+| `src/i18n/locales/en.json` | Add new translation keys |
 | `src/i18n/locales/ar.json` | Add Arabic translations |
-| `index.html` | Add logo preloading |
-| `src/contexts/ThemeContext.tsx` | Sync with preferences |
-| `src/contexts/LanguageContext.tsx` | Sync with preferences |
 
 ---
 
-## Required Secrets
+## Part 9: Translation Keys to Add
 
-For email notifications to work, you will need to add:
-
-| Secret | Purpose |
-|--------|---------|
-| `RESEND_API_KEY` | API key from resend.com for sending emails |
-
-I will prompt you to add this when implementing the email notification feature.
-
----
-
-## Implementation Priority
-
-1. **Phase 1 - Core Features**
-   - Search Professionals page
-   - User Preferences/Settings page
-   - Mobile nav improvements
-   - Auth logo fix
-
-2. **Phase 2 - Chat Enhancements**
-   - Media upload capability
-   - Media gallery/filter view
-   - File preview
-
-3. **Phase 3 - Email Notifications**
-   - Edge function setup
-   - Email templates
-   - Preference-based sending
+```json
+{
+  "auth.otp.title": "Enter Verification Code",
+  "auth.otp.subtitle": "We sent a 6-digit code to your email",
+  "auth.otp.resend": "Resend Code",
+  "auth.otp.resendIn": "Resend in {{seconds}}s",
+  "auth.otp.invalid": "Invalid verification code",
+  "auth.otp.expired": "Code expired. Please request a new one.",
+  
+  "admin.config.title": "System Configuration",
+  "admin.config.jobRoles": "Job Roles",
+  "admin.config.documentTypes": "Document Types",
+  "admin.config.certifications": "Certifications",
+  "admin.config.addRole": "Add Job Role",
+  "admin.config.editRole": "Edit Job Role",
+  "admin.config.deleteRole": "Delete Job Role",
+  
+  "settings.deleteAccountConfirm": "This action cannot be undone. All your data will be permanently deleted."
+}
+```
 
 ---
 
-## Expected Results
+## Part 10: Summary of All Changes
 
-After implementation:
-- Clinics can search for and find qualified professionals by location, specialty, rating
-- Users can share images and files in chat conversations
-- Users can filter chat to see only media, links, or files
-- Users receive email notifications for important events (configurable)
-- Full settings page for theme, language, and notification preferences
-- Mobile navigation has unread badges and role-specific options
-- Auth page loads logo quickly and correctly
-- World-class user experience throughout the platform
+### Database Changes (4 migrations)
+1. `email_verification_codes` table for OTP
+2. `job_roles` table for dynamic job roles
+3. `document_types` table for dynamic document types
+4. `certifications` table for certification options
+
+### New Files (10+ files)
+1. OTP verification page and components
+2. Admin system configuration panels
+3. Edge functions for OTP
+
+### Modified Files (15+ files)
+1. Critical bug fixes in dashboards
+2. Logo updates in onboarding
+3. Dynamic data fetching for roles/documents
+4. Mobile navigation improvements
+5. Account deletion implementation
+
+### Expected Outcomes
+- Zero HTML validation errors
+- Consistent branding across all pages
+- OTP-based email verification
+- Admin-manageable job roles and document types
+- Improved mobile UX with proper spacing
+- Full WCAG AA accessibility compliance
+- Enhanced security with rate limiting and audit logs
+
+---
+
+## Technical Notes
+
+### OTP Security Considerations
+- 6-digit codes (1,000,000 combinations)
+- 15-minute expiration
+- Max 5 attempts before lockout
+- Rate limit: 1 OTP per minute per email
+
+### Performance Considerations
+- Cache job roles and document types in React Query
+- Lazy load admin management panels
+- Use optimistic updates for better perceived performance
 
