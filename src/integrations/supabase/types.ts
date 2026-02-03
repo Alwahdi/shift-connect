@@ -359,6 +359,10 @@ export type Database = {
           content: string
           conversation_id: string
           created_at: string
+          file_name: string | null
+          file_size: number | null
+          file_type: string | null
+          file_url: string | null
           id: string
           is_read: boolean | null
           sender_id: string
@@ -368,6 +372,10 @@ export type Database = {
           content: string
           conversation_id: string
           created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string | null
           id?: string
           is_read?: boolean | null
           sender_id: string
@@ -377,6 +385,10 @@ export type Database = {
           content?: string
           conversation_id?: string
           created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string | null
           id?: string
           is_read?: boolean | null
           sender_id?: string
@@ -642,6 +654,54 @@ export type Database = {
           proj4text?: string | null
           srid?: number
           srtext?: string | null
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string | null
+          email_booking_updates: boolean | null
+          email_digest: string | null
+          email_new_jobs: boolean | null
+          email_new_messages: boolean | null
+          id: string
+          language: string | null
+          notifications_email: boolean | null
+          notifications_in_app: boolean | null
+          notifications_push: boolean | null
+          theme: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email_booking_updates?: boolean | null
+          email_digest?: string | null
+          email_new_jobs?: boolean | null
+          email_new_messages?: boolean | null
+          id?: string
+          language?: string | null
+          notifications_email?: boolean | null
+          notifications_in_app?: boolean | null
+          notifications_push?: boolean | null
+          theme?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email_booking_updates?: boolean | null
+          email_digest?: string | null
+          email_new_jobs?: boolean | null
+          email_new_messages?: boolean | null
+          id?: string
+          language?: string | null
+          notifications_email?: boolean | null
+          notifications_in_app?: boolean | null
+          notifications_push?: boolean | null
+          theme?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }

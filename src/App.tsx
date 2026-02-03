@@ -26,8 +26,10 @@ import ClinicProfile from "./pages/profile/ClinicProfile";
 import ViewProfessionalProfile from "./pages/profile/ViewProfessionalProfile";
 import ViewClinicProfile from "./pages/profile/ViewClinicProfile";
 import ShiftSearch from "./pages/shifts/ShiftSearch";
+import SearchProfessionals from "./pages/SearchProfessionals";
 import DesignSystem from "./pages/DesignSystem";
 import Messages from "./pages/Messages";
+import Settings from "./pages/profile/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -72,7 +74,9 @@ const App = () => (
                     <Route path="/profile/professional" element={<ProfessionalProfile />} />
                     <Route path="/profile/clinic" element={<ClinicProfile />} />
                     <Route path="/shifts" element={<ShiftSearch />} />
+                    <Route path="/search/professionals" element={<SearchProfessionals />} />
                     <Route path="/messages" element={<Messages />} />
+                    <Route path="/settings" element={<Settings />} />
                   </Route>
                   
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
