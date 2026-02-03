@@ -13,6 +13,7 @@ import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import EmailVerification from "./pages/EmailVerification";
 import VerifyCallback from "./pages/VerifyCallback";
+import VerifyOTP from "./pages/VerifyOTP";
 import ForProfessionals from "./pages/ForProfessionals";
 import ForClinics from "./pages/ForClinics";
 import About from "./pages/About";
@@ -52,6 +53,7 @@ const App = () => (
                   <Route path="/login" element={<Auth />} />
                   <Route path="/signup" element={<Auth />} />
                   <Route path="/verify-email" element={<EmailVerification />} />
+                  <Route path="/verify-otp" element={<VerifyOTP />} />
                   <Route path="/verify-callback" element={<VerifyCallback />} />
                   <Route path="/for-professionals" element={<ForProfessionals />} />
                   <Route path="/for-clinics" element={<ForClinics />} />

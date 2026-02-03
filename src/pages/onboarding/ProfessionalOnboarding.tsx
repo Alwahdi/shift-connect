@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -386,12 +386,13 @@ const ProfessionalOnboarding = () => {
       <header className="bg-card border-b border-border">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-lg gradient-primary flex items-center justify-center">
-                <Heart className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <span className="font-bold text-xl text-foreground">SyndeoCare.ai</span>
-            </div>
+            <Link to="/" className="flex items-center gap-2">
+              <img 
+                src="/syndeocare-logo.png" 
+                alt="SyndeoCare" 
+                className="h-9 w-auto object-contain"
+              />
+            </Link>
             <LanguageSwitcher variant="text" />
           </div>
         </div>
