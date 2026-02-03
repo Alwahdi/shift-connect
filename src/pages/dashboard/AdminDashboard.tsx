@@ -316,9 +316,7 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <main className="container mx-auto px-4 py-6" dir={isRTL ? "rtl" : "ltr"}>
-
-      <main className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-6 pb-24 md:pb-6" dir={isRTL ? "rtl" : "ltr"}>
         {/* Title and Refresh */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -757,7 +755,6 @@ const AdminDashboard = () => {
             </TabsContent>
           )}
         </Tabs>
-      </main>
 
       {/* Modals */}
       {selectedDocument && (
@@ -778,7 +775,7 @@ const AdminDashboard = () => {
           onDocumentVerify={handleVerifyDocument}
         />
       )}
-    </main>
+    </div>
   );
 };
 

@@ -200,9 +200,7 @@ const ClinicDashboard = () => {
   const canPostShifts = clinic?.verification_status === "verified" || totalDocs > 0;
 
   return (
-    <main className="container mx-auto px-4 py-6">
-
-      <main className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-6 pb-24 md:pb-6">
         {/* Welcome */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -358,8 +356,6 @@ const ClinicDashboard = () => {
             </div>
           )}
         </motion.div>
-      </main>
-
       {/* Create Shift Modal */}
       {clinic && (
         <CreateShiftModal
@@ -380,7 +376,7 @@ const ClinicDashboard = () => {
           onUpdate={fetchShifts}
         />
       )}
-    </main>
+    </div>
   );
 };
 

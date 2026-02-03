@@ -161,7 +161,32 @@
     },
     "completeSetup": "Complete your setup",
     "selectRoleToContinue": "Please select your account type to continue.",
-    "verifying": "Verifying"
+    "verifying": "Verifying",
+    "otp": {
+      "title": "Enter Verification Code",
+      "subtitle": "We sent a 6-digit code to your email",
+      "verify": "Verify Code",
+      "verifying": "Verifying...",
+      "resend": "Resend Code",
+      "resendIn": "Resend in {{seconds}}s",
+      "codeSent": "Code Sent",
+      "checkEmail": "Check your email for the new code",
+      "invalid": "Invalid verification code",
+      "expired": "Code expired. Please request a new one.",
+      "maxAttempts": "Too many failed attempts. Please request a new code.",
+      "waitToResend": "Please wait before requesting another code",
+      "didntReceive": "Didn't receive the code?",
+      "sending": "Sending..."
+    },
+    "success": {
+      "welcomeBack": "Welcome back!",
+      "loggedIn": "You have successfully logged in.",
+      "accountCreated": "Account created!",
+      "completeProfile": "Let's complete your profile setup.",
+      "emailVerified": "Email Verified!",
+      "canNowLogin": "You can now sign in to your account.",
+      "redirecting": "Redirecting you now..."
+    }
   },
   "home": {
     "hero": {
