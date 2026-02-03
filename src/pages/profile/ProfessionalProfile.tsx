@@ -32,7 +32,6 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DocumentUploadCard from "@/components/onboarding/DocumentUploadCard";
 
 interface Profile {
@@ -378,9 +377,7 @@ const ProfessionalProfile = () => {
   const totalDocs = documentUploads.filter(d => d.uploaded).length;
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader type="professional" onSignOut={handleSignOut} avatarUrl={profile?.avatar_url} name={profile?.full_name} />
-      
+    <>
       <input
         ref={avatarInputRef}
         type="file"
@@ -389,7 +386,7 @@ const ProfessionalProfile = () => {
         onChange={handleAvatarUpload}
       />
 
-      <main className="container mx-auto px-4 py-6 max-w-4xl">
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
         {/* Back button */}
         <Link 
           to="/dashboard/professional" 
@@ -790,8 +787,8 @@ const ProfessionalProfile = () => {
             </motion.div>
           </TabsContent>
         </Tabs>
-      </main>
-    </div>
+      </div>
+    </>
   );
 };
 

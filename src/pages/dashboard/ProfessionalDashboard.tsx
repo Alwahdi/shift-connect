@@ -25,7 +25,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsGrid from "@/components/dashboard/StatsGrid";
 import OnboardingBanner from "@/components/dashboard/OnboardingBanner";
 import ShiftDetailModal from "@/components/shifts/ShiftDetailModal";
@@ -274,10 +273,7 @@ const ProfessionalDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader type="professional" onSignOut={handleSignOut} avatarUrl={profile?.avatar_url} name={profile?.full_name} />
-
-      <main className="container mx-auto px-4 py-6">
+    <main className="container mx-auto px-4 py-6">
         {/* Welcome */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -526,8 +522,7 @@ const ProfessionalDashboard = () => {
           profileId={profile?.id || ""}
           verificationStatus={profile?.verification_status || "pending"}
         />
-      </main>
-    </div>
+    </main>
   );
 };
 

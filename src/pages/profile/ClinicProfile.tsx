@@ -29,7 +29,6 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DocumentUploadCard from "@/components/onboarding/DocumentUploadCard";
 
 interface Clinic {
@@ -340,9 +339,7 @@ const ClinicProfile = () => {
   const totalDocs = documentUploads.filter(d => d.uploaded).length;
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader type="clinic" onSignOut={handleSignOut} avatarUrl={clinic?.logo_url} name={clinic?.name} />
-      
+    <>
       <input
         ref={avatarInputRef}
         type="file"
@@ -351,7 +348,7 @@ const ClinicProfile = () => {
         onChange={handleLogoUpload}
       />
 
-      <main className="container mx-auto px-4 py-6 max-w-4xl">
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
         {/* Back button */}
         <Link 
           to="/dashboard/clinic" 
@@ -659,8 +656,8 @@ const ClinicProfile = () => {
             </motion.div>
           </TabsContent>
         </Tabs>
-      </main>
-    </div>
+      </div>
+    </>
   );
 };
 
