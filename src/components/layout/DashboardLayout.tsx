@@ -11,6 +11,7 @@ interface UserProfile {
   name?: string;
   avatar_url?: string | null;
   logo_url?: string | null;
+  verification_status?: "pending" | "verified" | "rejected" | null;
 }
 
 const DashboardLayout = () => {
@@ -52,22 +53,30 @@ const DashboardLayout = () => {
       if (userRole === "professional" || userRole === "admin" || userRole === "super_admin") {
         const { data } = await supabase
           .from("profiles")
-          .select("full_name, avatar_url")
+          .select("full_name, avatar_url, verification_status")
           .eq("user_id", user.id)
           .single();
 
         if (data) {
-          setProfile({ full_name: data.full_name, avatar_url: data.avatar_url });
+          setProfile({ 
+            full_name: data.full_name, 
+            avatar_url: data.avatar_url,
+            verification_status: data.verification_status as any
+          });
         }
       } else if (userRole === "clinic") {
         const { data } = await supabase
           .from("clinics")
-          .select("name, logo_url")
+          .select("name, logo_url, verification_status")
           .eq("user_id", user.id)
           .single();
 
         if (data) {
-          setProfile({ name: data.name, logo_url: data.logo_url });
+          setProfile({ 
+            name: data.name, 
+            logo_url: data.logo_url,
+            verification_status: data.verification_status as any
+          });
         }
       }
     } catch (error) {
@@ -96,6 +105,10 @@ const DashboardLayout = () => {
     return profile?.avatar_url || profile?.logo_url || null;
   };
 
+  const getVerificationStatus = () => {
+    return profile?.verification_status || null;
+  };
+
   if (authLoading || isLoadingProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -115,6 +128,7 @@ const DashboardLayout = () => {
         onSignOut={handleSignOut}
         avatarUrl={getAvatarUrl()}
         name={getDisplayName()}
+        verificationStatus={getVerificationStatus()}
       />
       <main className="pb-20 md:pb-0">
         <Outlet />

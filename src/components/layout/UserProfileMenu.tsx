@@ -22,12 +22,14 @@ import {
   Shield,
   ChevronDown,
 } from "lucide-react";
+import { VerificationBadge } from "@/components/ui/verification-badge";
 
 interface UserProfile {
   full_name?: string;
   name?: string;
   avatar_url?: string | null;
   logo_url?: string | null;
+  verification_status?: "pending" | "verified" | "rejected" | null;
 }
 
 export const UserProfileMenu = () => {
@@ -43,22 +45,30 @@ export const UserProfileMenu = () => {
         if (userRole === "professional" || userRole === "admin" || userRole === "super_admin") {
           const { data } = await supabase
             .from("profiles")
-            .select("full_name, avatar_url")
+            .select("full_name, avatar_url, verification_status")
             .eq("user_id", user.id)
             .single();
           
           if (data) {
-            setProfile({ full_name: data.full_name, avatar_url: data.avatar_url });
+            setProfile({ 
+              full_name: data.full_name, 
+              avatar_url: data.avatar_url,
+              verification_status: data.verification_status as any
+            });
           }
         } else if (userRole === "clinic") {
           const { data } = await supabase
             .from("clinics")
-            .select("name, logo_url")
+            .select("name, logo_url, verification_status")
             .eq("user_id", user.id)
             .single();
           
           if (data) {
-            setProfile({ name: data.name, logo_url: data.logo_url });
+            setProfile({ 
+              name: data.name, 
+              logo_url: data.logo_url,
+              verification_status: data.verification_status as any
+            });
           }
         }
       } catch (error) {
@@ -98,12 +108,19 @@ export const UserProfileMenu = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="flex items-center gap-2 px-2 h-10">
-          <Avatar className="h-8 w-8 border-2 border-primary/20">
-            <AvatarImage src={avatarUrl || undefined} alt={displayName} />
-            <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+          <div className="relative">
+            <Avatar className="h-8 w-8 border-2 border-primary/20">
+              <AvatarImage src={avatarUrl || undefined} alt={displayName} />
+              <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            {profile?.verification_status && (
+              <div className="absolute -bottom-0.5 -end-0.5">
+                <VerificationBadge status={profile.verification_status} size="sm" />
+              </div>
+            )}
+          </div>
           <span className="hidden md:block max-w-[120px] truncate text-sm font-medium">
             {displayName}
           </span>
@@ -113,7 +130,12 @@ export const UserProfileMenu = () => {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{displayName}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium leading-none">{displayName}</p>
+              {profile?.verification_status && (
+                <VerificationBadge status={profile.verification_status} size="sm" />
+              )}
+            </div>
             <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
           </div>
         </DropdownMenuLabel>
@@ -130,6 +152,13 @@ export const UserProfileMenu = () => {
           <Link to={getProfileLink()} className="flex items-center cursor-pointer">
             <ProfileIcon className="mr-2 h-4 w-4" />
             {t("nav.profile")}
+          </Link>
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem asChild>
+          <Link to="/settings" className="flex items-center cursor-pointer">
+            <Settings className="mr-2 h-4 w-4" />
+            {t("nav.settings")}
           </Link>
         </DropdownMenuItem>
         

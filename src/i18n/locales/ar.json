@@ -1,4 +1,9 @@
 {
+  "verification": {
+    "verified": "موثّق",
+    "pending": "قيد التحقق",
+    "rejected": "مرفوض"
+  },
   "common": {
     "loading": "جارٍ التحميل...",
     "save": "حفظ",
@@ -819,7 +824,8 @@
     "filterAll": "الكل",
     "filterMedia": "الوسائط",
     "filterFiles": "الملفات",
-    "filterLinks": "الروابط"
+    "filterLinks": "الروابط",
+    "noFilteredMessages": "لا توجد رسائل تطابق هذا الفلتر"
   },
   "searchProfessionals": {
     "title": "البحث عن مختصين",

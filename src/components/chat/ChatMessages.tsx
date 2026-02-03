@@ -7,10 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Send, Loader2, ArrowLeft, Building2, User, Check, CheckCheck } from "lucide-react";
+import { Send, Loader2, ArrowLeft, Building2, User, Check, CheckCheck, Image, FileText, Link2, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
+import { ChatMediaUpload } from "./ChatMediaUpload";
+import { ChatFilters } from "./ChatFilters";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface Message {
   id: string;
@@ -20,6 +23,10 @@ interface Message {
   content: string;
   is_read: boolean;
   created_at: string;
+  file_url?: string | null;
+  file_type?: string | null;
+  file_name?: string | null;
+  file_size?: number | null;
 }
 
 interface ConversationDetails {
@@ -60,6 +67,14 @@ export const ChatMessages = ({
   const [conversation, setConversation] = useState<ConversationDetails | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [otherTyping, setOtherTyping] = useState(false);
+  const [filter, setFilter] = useState<"all" | "media" | "links" | "files">("all");
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [pendingMedia, setPendingMedia] = useState<{
+    url: string;
+    name: string;
+    type: string;
+    size: number;
+  } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -219,7 +234,7 @@ export const ChatMessages = ({
   }, [conversationId, isTyping, userType]);
 
   const handleSend = async () => {
-    if (!newMessage.trim() || sending) return;
+    if ((!newMessage.trim() && !pendingMedia) || sending) return;
 
     setSending(true);
     setIsTyping(false);
@@ -229,12 +244,21 @@ export const ChatMessages = ({
     }
 
     try {
-      const { error } = await supabase.from("messages").insert({
+      const messageData: any = {
         conversation_id: conversationId,
         sender_id: profileId,
         sender_type: userType,
-        content: newMessage.trim(),
-      });
+        content: newMessage.trim() || (pendingMedia ? `📎 ${pendingMedia.name}` : ""),
+      };
+
+      if (pendingMedia) {
+        messageData.file_url = pendingMedia.url;
+        messageData.file_type = pendingMedia.type;
+        messageData.file_name = pendingMedia.name;
+        messageData.file_size = pendingMedia.size;
+      }
+
+      const { error } = await supabase.from("messages").insert(messageData);
 
       if (error) throw error;
 
@@ -245,6 +269,7 @@ export const ChatMessages = ({
         .eq("id", conversationId);
 
       setNewMessage("");
+      setPendingMedia(null);
       scrollToBottom();
     } catch (error: any) {
       toast({
@@ -255,6 +280,28 @@ export const ChatMessages = ({
     } finally {
       setSending(false);
     }
+  };
+
+  const handleMediaUpload = (fileUrl: string, fileName: string, fileType: string, fileSize: number) => {
+    setPendingMedia({ url: fileUrl, name: fileName, type: fileType, size: fileSize });
+  };
+
+  // Filter messages based on selected filter
+  const filteredMessages = messages.filter((msg) => {
+    if (filter === "all") return true;
+    if (filter === "media") return msg.file_type?.startsWith("image/");
+    if (filter === "files") return msg.file_url && !msg.file_type?.startsWith("image/");
+    if (filter === "links") {
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      return urlRegex.test(msg.content);
+    }
+    return true;
+  });
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -314,18 +361,22 @@ export const ChatMessages = ({
             </p>
           )}
         </div>
+        <ChatFilters activeFilter={filter} onFilterChange={setFilter} />
       </div>
 
       {/* Messages */}
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
         <div className="space-y-4">
-          {messages.length === 0 ? (
+          {filteredMessages.length === 0 ? (
             <div className="text-center text-muted-foreground py-8">
-              {t("chat.startConversation")}
+              {filter === "all" ? t("chat.startConversation") : t("chat.noFilteredMessages")}
             </div>
           ) : (
-            messages.map((msg) => {
+            filteredMessages.map((msg) => {
               const isOwn = msg.sender_type === userType;
+              const hasImage = msg.file_type?.startsWith("image/");
+              const hasFile = msg.file_url && !hasImage;
+              
               return (
                 <div
                   key={msg.id}
@@ -338,7 +389,44 @@ export const ChatMessages = ({
                         : "bg-secondary text-secondary-foreground rounded-bl-md"
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    {/* Image attachment */}
+                    {hasImage && msg.file_url && (
+                      <button 
+                        onClick={() => setPreviewImage(msg.file_url!)}
+                        className="block mb-2 rounded-lg overflow-hidden hover:opacity-90 transition-opacity"
+                      >
+                        <img 
+                          src={msg.file_url} 
+                          alt={msg.file_name || "Image"} 
+                          className="max-w-full max-h-48 object-cover rounded-lg"
+                        />
+                      </button>
+                    )}
+                    
+                    {/* File attachment */}
+                    {hasFile && (
+                      <a 
+                        href={msg.file_url!} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className={`flex items-center gap-2 p-2 rounded-lg mb-2 ${
+                          isOwn ? "bg-primary-foreground/10" : "bg-muted"
+                        }`}
+                      >
+                        <FileText className="h-5 w-5 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{msg.file_name}</p>
+                          {msg.file_size && (
+                            <p className="text-xs opacity-70">{formatFileSize(msg.file_size)}</p>
+                          )}
+                        </div>
+                        <ExternalLink className="h-4 w-4 shrink-0" />
+                      </a>
+                    )}
+                    
+                    {msg.content && !msg.content.startsWith("📎") && (
+                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    )}
                     <div className="flex items-center justify-end gap-1 mt-1">
                       <p
                         className={`text-xs ${
@@ -382,7 +470,30 @@ export const ChatMessages = ({
 
       {/* Input */}
       <div className="border-t p-4 bg-background">
-        <div className="flex gap-2">
+        {/* Pending media preview */}
+        {pendingMedia && (
+          <div className="flex items-center gap-2 mb-2 p-2 bg-muted rounded-lg">
+            {pendingMedia.type.startsWith("image/") ? (
+              <img src={pendingMedia.url} alt={pendingMedia.name} className="h-12 w-12 object-cover rounded" />
+            ) : (
+              <FileText className="h-12 w-12 p-2 bg-background rounded" />
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{pendingMedia.name}</p>
+              <p className="text-xs text-muted-foreground">{formatFileSize(pendingMedia.size)}</p>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => setPendingMedia(null)}>
+              ✕
+            </Button>
+          </div>
+        )}
+        
+        <div className="flex gap-2 items-end">
+          <ChatMediaUpload 
+            conversationId={conversationId} 
+            onUploadComplete={handleMediaUpload}
+            disabled={sending}
+          />
           <Textarea
             value={newMessage}
             onChange={(e) => {
@@ -396,7 +507,7 @@ export const ChatMessages = ({
           />
           <Button
             onClick={handleSend}
-            disabled={!newMessage.trim() || sending}
+            disabled={(!newMessage.trim() && !pendingMedia) || sending}
             size="icon"
             className="h-12 w-12 shrink-0"
           >
@@ -408,6 +519,19 @@ export const ChatMessages = ({
           </Button>
         </div>
       </div>
+
+      {/* Image Preview Dialog */}
+      <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
+        <DialogContent className="max-w-3xl p-0 overflow-hidden">
+          {previewImage && (
+            <img 
+              src={previewImage} 
+              alt="Preview" 
+              className="w-full h-auto max-h-[80vh] object-contain"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

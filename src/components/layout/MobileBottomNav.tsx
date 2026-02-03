@@ -3,21 +3,22 @@ import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Search, User, MessageCircle, Users } from "lucide-react";
+import { LayoutDashboard, Search, User, MessageCircle, Users, Bell, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 export const MobileBottomNav = () => {
   const { t } = useTranslation();
   const { user, userRole, isOnboardingComplete } = useAuth();
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
   const [profileId, setProfileId] = useState<string | null>(null);
 
-  // Fetch profile/clinic ID and unread messages
+  // Fetch profile/clinic ID
   useEffect(() => {
     if (!user) return;
 
-    const fetchProfileAndUnread = async () => {
-      // Get profile/clinic ID
+    const fetchProfile = async () => {
       if (userRole === "professional") {
         const { data } = await supabase
           .from("profiles")
@@ -35,7 +36,7 @@ export const MobileBottomNav = () => {
       }
     };
 
-    fetchProfileAndUnread();
+    fetchProfile();
   }, [user, userRole]);
 
   // Subscribe to unread messages
@@ -46,7 +47,6 @@ export const MobileBottomNav = () => {
       const senderType = userRole === "professional" ? "clinic" : "professional";
       const filterColumn = userRole === "professional" ? "professional_id" : "clinic_id";
 
-      // Get conversations for user
       const { data: conversations } = await supabase
         .from("conversations")
         .select("id")
@@ -60,15 +60,14 @@ export const MobileBottomNav = () => {
           .in("conversation_id", conversationIds)
           .eq("sender_type", senderType)
           .eq("is_read", false);
-        setUnreadCount(count || 0);
+        setUnreadMessageCount(count || 0);
       }
     };
 
     fetchUnread();
 
-    // Subscribe to new messages
     const channel = supabase
-      .channel("unread-messages")
+      .channel("unread-messages-mobile")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "messages" },
@@ -81,7 +80,40 @@ export const MobileBottomNav = () => {
     };
   }, [profileId, userRole]);
 
-  // Only show for authenticated users who completed onboarding
+  // Subscribe to unread notifications
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchNotifications = async () => {
+      const { count } = await supabase
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("is_read", false);
+      setUnreadNotificationCount(count || 0);
+    };
+
+    fetchNotifications();
+
+    const channel = supabase
+      .channel("notifications-mobile")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => fetchNotifications()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   if (!user || !isOnboardingComplete) {
     return null;
   }
@@ -98,7 +130,6 @@ export const MobileBottomNav = () => {
   };
 
   const getSearchPath = () => {
-    // Clinics search for professionals, professionals search for shifts
     if (userRole === "clinic") return "/search/professionals";
     return "/shifts";
   };
@@ -118,7 +149,7 @@ export const MobileBottomNav = () => {
       label: t("nav.messages"),
       icon: MessageCircle,
       path: "/messages",
-      badge: unreadCount > 0 ? unreadCount : undefined,
+      badge: unreadMessageCount > 0 ? unreadMessageCount : undefined,
     },
     {
       label: t("nav.profile"),
@@ -128,36 +159,51 @@ export const MobileBottomNav = () => {
   ];
 
   return (
-    <nav
-      className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:hidden"
+    <motion.nav
+      initial={{ y: 100 }}
+      animate={{ y: 0 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 md:hidden shadow-lg"
       role="navigation"
       aria-label="Mobile navigation"
     >
-      <div className="flex h-16 items-center justify-around px-2 safe-area-inset-bottom">
+      <div className="flex h-16 items-center justify-around px-1 safe-area-inset-bottom">
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             className={cn(
-              "relative flex flex-col items-center justify-center gap-1 px-3 py-2 min-w-[64px] min-h-[48px] rounded-lg text-muted-foreground transition-colors",
-              "hover:text-foreground hover:bg-muted/50",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              "relative flex flex-col items-center justify-center gap-0.5 px-2 py-2 min-w-[60px] min-h-[48px] rounded-xl text-muted-foreground transition-all duration-200",
+              "hover:text-foreground",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              "active:scale-95"
             )}
-            activeClassName="text-primary bg-primary/10"
+            activeClassName="text-primary"
             aria-label={item.label}
           >
             <div className="relative">
-              <item.icon className="h-5 w-5" aria-hidden="true" />
+              <motion.div
+                whileTap={{ scale: 0.9 }}
+                className="p-1.5 rounded-lg"
+              >
+                <item.icon className="h-5 w-5" aria-hidden="true" />
+              </motion.div>
               {item.badge && (
-                <span className="absolute -top-1.5 -end-1.5 h-4 min-w-4 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-medium px-1">
+                <motion.span 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -end-1 h-4 min-w-4 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-medium px-1"
+                >
                   {item.badge > 99 ? "99+" : item.badge}
-                </span>
+                </motion.span>
               )}
             </div>
-            <span className="text-xs font-medium">{item.label}</span>
+            <span className="text-[10px] font-medium">
+              {item.label}
+            </span>
           </NavLink>
         ))}
       </div>
-    </nav>
+    </motion.nav>
   );
 };
