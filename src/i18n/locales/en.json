@@ -1,4 +1,9 @@
 {
+  "verification": {
+    "verified": "Verified",
+    "pending": "Pending Verification",
+    "rejected": "Verification Rejected"
+  },
   "common": {
     "loading": "Loading...",
     "save": "Save",
@@ -819,7 +824,8 @@
     "filterAll": "All",
     "filterMedia": "Media",
     "filterFiles": "Files",
-    "filterLinks": "Links"
+    "filterLinks": "Links",
+    "noFilteredMessages": "No messages match this filter"
   },
   "searchProfessionals": {
     "title": "Find Professionals",

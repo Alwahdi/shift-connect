@@ -15,7 +15,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { RoleSelector } from "@/components/ui/role-selector";
 import { FormFeedback, FormFeedbackContainer } from "@/components/ui/form-feedback";
-import syndeoCarlogoWhite from "@/assets/syndeocare-logo-white.png";
+import syndeoCarelogo from "@/assets/syndeocare-logo.png";
 
 type UserRole = "professional" | "clinic";
 type AuthMode = "login" | "signup";
@@ -318,7 +318,7 @@ const Auth = () => {
         <Link to="/" className="flex items-center justify-center gap-3 mb-8 group">
           <motion.img 
             whileHover={{ scale: 1.05 }}
-            src={syndeoCarlogoWhite} 
+            src={syndeoCarelogo} 
             alt="SyndeoCare Logo" 
             className="h-14 w-auto object-contain drop-shadow-lg transition-transform"
           />
