@@ -65,11 +65,9 @@ const ShiftDetailModal = ({
   const [hasConflict, setHasConflict] = useState(false);
   const { toast } = useToast();
 
-  if (!shift) return null;
-
   const isVerified = verificationStatus === "verified";
 
-  // Check for shift overlap on mount
+  // Check for shift overlap on mount - must be before any conditional returns
   useEffect(() => {
     const checkOverlap = async () => {
       if (!profileId || !shift) return;
@@ -81,6 +79,9 @@ const ShiftDetailModal = ({
     };
     checkOverlap();
   }, [profileId, shift]);
+
+  // Early return AFTER all hooks
+  if (!shift) return null;
 
   const handleApply = async () => {
     if (!isVerified) {
