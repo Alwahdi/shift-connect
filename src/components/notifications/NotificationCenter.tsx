@@ -182,7 +182,12 @@ export const NotificationCenter = () => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="relative h-10 w-10 rounded-xl"
+          aria-label={t("notifications.title")}
+        >
           {unreadCount > 0 ? (
             <>
               <BellRing className="h-5 w-5" />

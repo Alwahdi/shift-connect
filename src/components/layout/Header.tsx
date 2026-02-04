@@ -58,14 +58,14 @@ const Header = () => {
       <SkipLink />
       
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/50 safe-area-inset">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 touch-manipulation group">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6">
+          <div className="flex items-center justify-between h-14 sm:h-16 md:h-20">
+          {/* Logo - responsive sizing */}
+          <Link to="/" className="flex items-center gap-2 touch-manipulation group shrink-0">
             <img 
               src={syndeoCarelogo} 
-              alt="SyndeoCare Logo" 
-              className="h-9 md:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              alt="SyndeoCare" 
+              className="h-8 sm:h-9 md:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
             />
           </Link>
 
@@ -87,13 +87,13 @@ const Header = () => {
           </nav>
 
           {/* Desktop CTA */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-2">
             <ThemeToggle />
             <LanguageSwitcher variant="text" />
             {user ? (
               <>
                 <Link to="/messages">
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl">
                     <MessageCircle className="h-5 w-5" />
                   </Button>
                 </Link>
@@ -116,15 +116,26 @@ const Header = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="flex items-center gap-2 lg:hidden">
+          {/* Mobile Menu Button - improved touch target */}
+          <div className="flex items-center gap-1 lg:hidden">
+            {user && (
+              <>
+                <Link to="/messages">
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl">
+                    <MessageCircle className="h-5 w-5" />
+                  </Button>
+                </Link>
+                <NotificationCenter />
+              </>
+            )}
             <ThemeToggle />
             <button
-              className="p-3 rounded-xl hover:bg-secondary active:bg-secondary/80 transition-colors touch-manipulation"
+              className="p-2.5 rounded-xl hover:bg-secondary active:bg-secondary/80 transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
@@ -137,16 +148,16 @@ const Header = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25 }}
-            className="lg:hidden bg-background/98 backdrop-blur-xl border-b border-border"
+            transition={{ duration: 0.2 }}
+            className="lg:hidden bg-background/98 backdrop-blur-xl border-b border-border fixed top-14 sm:top-16 left-0 right-0 z-40 max-h-[calc(100vh-3.5rem)] overflow-y-auto"
           >
-            <div className="container mx-auto px-4 py-5 space-y-2 safe-area-inset-bottom">
+            <div className="container mx-auto px-4 py-4 space-y-1 safe-area-inset-bottom">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}
                   to={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`block px-4 py-4 rounded-xl text-base font-medium transition-all touch-manipulation ${
+                  className={`flex items-center px-4 py-3.5 rounded-xl text-base font-medium transition-all touch-manipulation min-h-[48px] ${
                     location.pathname === link.href
                       ? "text-primary bg-primary/10"
                       : "text-muted-foreground hover:text-foreground active:bg-secondary"
@@ -156,27 +167,24 @@ const Header = () => {
                 </Link>
               ))}
               
-              <div className="flex items-center justify-between pt-5 border-t border-border mt-4">
+              <div className="flex items-center justify-between pt-4 border-t border-border mt-3 px-2">
+                <span className="text-sm text-muted-foreground">{t("settings.language")}</span>
                 <LanguageSwitcher variant="full" />
               </div>
               
               {user ? (
-                <div className="pt-4 space-y-3">
-                  <Link to="/messages" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-secondary" onClick={() => setMobileMenuOpen(false)}>
-                    <MessageCircle className="h-5 w-5" />
-                    <span className="font-medium">{t("chat.messages")}</span>
-                  </Link>
+                <div className="pt-4 space-y-2">
                   <UserProfileMenu />
                 </div>
               ) : (
                 <div className="flex gap-3 pt-4">
                   <Link to="/auth" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="outline" className="w-full h-13 text-base font-medium">
+                    <Button variant="outline" className="w-full h-12 text-base font-medium rounded-xl">
                       {t("common.logIn")}
                     </Button>
                   </Link>
                   <Link to="/auth?mode=signup" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="hero" className="w-full h-13 text-base font-medium">
+                    <Button variant="hero" className="w-full h-12 text-base font-medium rounded-xl">
                       {t("common.getStarted")}
                     </Button>
                   </Link>

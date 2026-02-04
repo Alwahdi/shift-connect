@@ -1,27 +1,47 @@
 import { useState, useEffect } from "react";
-import { NavLink } from "@/components/NavLink";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Search, User, MessageCircle, Users, Plus, Briefcase } from "lucide-react";
+import { 
+  LayoutDashboard, 
+  Search, 
+  User, 
+  MessageCircle, 
+  Users, 
+  Plus, 
+  Briefcase,
+  Building2 
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Pages that should show the mobile navigation
+const SHOW_NAV_ROUTES = [
+  "/dashboard/professional",
+  "/dashboard/clinic",
+  "/admin",
+  "/shifts",
+  "/search/professionals",
+  "/messages",
+  "/profile/professional",
+  "/profile/clinic",
+  "/settings",
+];
+
 export const MobileBottomNav = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const location = useLocation();
   const { user, userRole, isOnboardingComplete } = useAuth();
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const [profileId, setProfileId] = useState<string | null>(null);
-  const [showQuickAction, setShowQuickAction] = useState(false);
 
   // Fetch profile/clinic ID
   useEffect(() => {
     if (!user) return;
 
     const fetchProfile = async () => {
-      if (userRole === "professional") {
+      if (userRole === "professional" || userRole === "admin" || userRole === "super_admin") {
         const { data } = await supabase
           .from("profiles")
           .select("id")
@@ -82,9 +102,12 @@ export const MobileBottomNav = () => {
     };
   }, [profileId, userRole]);
 
-  if (!user || !isOnboardingComplete) {
-    return null;
-  }
+  // Only show for authenticated users on specific routes
+  const shouldShow = user && isOnboardingComplete && SHOW_NAV_ROUTES.some(route => 
+    location.pathname === route || location.pathname.startsWith(route + "/")
+  );
+
+  if (!shouldShow) return null;
 
   const getDashboardPath = () => {
     if (userRole === "admin" || userRole === "super_admin") return "/admin";
@@ -94,6 +117,7 @@ export const MobileBottomNav = () => {
 
   const getProfilePath = () => {
     if (userRole === "clinic") return "/profile/clinic";
+    if (userRole === "admin" || userRole === "super_admin") return "/admin";
     return "/profile/professional";
   };
 
@@ -102,136 +126,139 @@ export const MobileBottomNav = () => {
     return "/shifts";
   };
 
-  const handleQuickAction = () => {
-    if (userRole === "clinic") {
-      // Navigate to clinic dashboard with create shift trigger
-      navigate("/dashboard/clinic?action=create-shift");
-    } else {
-      // Navigate to shift search for professionals
-      navigate("/shifts");
-    }
-    setShowQuickAction(false);
-  };
-
   // Don't show quick action for admin users
   const showCenterAction = userRole === "professional" || userRole === "clinic";
 
-  const navItems = [
-    {
-      label: t("nav.home"),
-      icon: LayoutDashboard,
-      path: getDashboardPath(),
-    },
-    {
-      label: userRole === "clinic" ? t("nav.findPros") : t("nav.findShifts"),
-      icon: userRole === "clinic" ? Users : Search,
-      path: getSearchPath(),
-    },
-    // Center placeholder for FAB
-    ...(showCenterAction ? [{ label: "", icon: null, path: "", isCenter: true }] : []),
-    {
-      label: t("nav.messages"),
-      icon: MessageCircle,
-      path: "/messages",
-      badge: unreadMessageCount > 0 ? unreadMessageCount : undefined,
-    },
-    {
-      label: t("nav.profile"),
-      icon: User,
-      path: getProfilePath(),
-    },
-  ];
+  const isActive = (path: string) => location.pathname === path;
 
   return (
-    <>
-      {/* Quick Action Overlay */}
-      <AnimatePresence>
-        {showQuickAction && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
-            onClick={() => setShowQuickAction(false)}
+    <motion.nav
+      initial={{ y: 100 }}
+      animate={{ y: 0 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
+      role="navigation"
+      aria-label="Mobile navigation"
+    >
+      {/* Background with glass effect */}
+      <div className="bg-card/95 backdrop-blur-xl border-t border-border/50 shadow-lg safe-area-inset-bottom">
+        <div className="flex items-center justify-around h-16 max-w-md mx-auto px-2 relative">
+          {/* Home */}
+          <NavItem
+            path={getDashboardPath()}
+            icon={LayoutDashboard}
+            label={t("mobile.home")}
+            isActive={isActive(getDashboardPath())}
           />
-        )}
-      </AnimatePresence>
 
-      <motion.nav
-        initial={{ y: 100 }}
-        animate={{ y: 0 }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 md:hidden shadow-lg"
-        role="navigation"
-        aria-label={t("nav.mobileNav")}
-      >
-        <div className="flex h-16 items-center justify-around px-2 safe-area-inset-bottom">
-          {navItems.map((item, index) => {
-            // Render center FAB
-            if (item.isCenter) {
-              return (
-                <div key="center-fab" className="relative -mt-6">
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={handleQuickAction}
-                    className={cn(
-                      "w-14 h-14 rounded-full flex items-center justify-center shadow-lg",
-                      "bg-primary text-primary-foreground",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                      "transition-transform active:scale-95"
-                    )}
-                    aria-label={userRole === "clinic" ? t("shifts.create") : t("shifts.findNow")}
-                  >
-                    {userRole === "clinic" ? (
-                      <Plus className="h-6 w-6" />
-                    ) : (
-                      <Briefcase className="h-6 w-6" />
-                    )}
-                  </motion.button>
-                </div>
-              );
-            }
+          {/* Search/Shifts */}
+          <NavItem
+            path={getSearchPath()}
+            icon={userRole === "clinic" ? Users : Search}
+            label={userRole === "clinic" ? t("mobile.search") : t("mobile.shifts")}
+            isActive={isActive(getSearchPath())}
+          />
 
-            if (!item.icon) return null;
+          {/* Center FAB spacer */}
+          {showCenterAction && <div className="w-16" />}
 
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={cn(
-                  "relative flex flex-col items-center justify-center gap-0.5 px-3 py-2 min-w-[56px] min-h-[48px] rounded-xl text-muted-foreground transition-all duration-200",
-                  "hover:text-foreground",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                  "active:scale-95"
-                )}
-                activeClassName="text-primary"
-                aria-label={item.label}
-              >
-                <div className="relative">
-                  <motion.div
-                    whileTap={{ scale: 0.9 }}
-                    className="p-1.5 rounded-lg"
-                  >
-                    <item.icon className="h-5 w-5" aria-hidden="true" />
-                  </motion.div>
-                  {item.badge && (
-                    <motion.span 
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute -top-1 -end-1 h-4 min-w-4 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-medium px-1"
-                    >
-                      {item.badge > 99 ? "99+" : item.badge}
-                    </motion.span>
-                  )}
-                </div>
-                <span className="text-[10px] font-medium leading-tight text-center">
-                  {item.label}
-                </span>
-              </NavLink>
-            );
-          })}
+          {/* Messages */}
+          <NavItem
+            path="/messages"
+            icon={MessageCircle}
+            label={t("mobile.messages")}
+            isActive={isActive("/messages")}
+            badge={unreadMessageCount > 0 ? unreadMessageCount : undefined}
+          />
+
+          {/* Profile */}
+          <NavItem
+            path={getProfilePath()}
+            icon={userRole === "clinic" ? Building2 : User}
+            label={t("mobile.profile")}
+            isActive={isActive(getProfilePath())}
+          />
+
+          {/* Floating Action Button */}
+          {showCenterAction && (
+            <Link
+              to={userRole === "clinic" ? "/dashboard/clinic?action=create-shift" : "/shifts"}
+              className={cn(
+                "absolute left-1/2 -translate-x-1/2 -top-5",
+                "w-14 h-14 rounded-2xl",
+                "flex items-center justify-center",
+                "shadow-lg active:scale-95 transition-transform",
+                "ring-4 ring-background",
+                userRole === "clinic" 
+                  ? "bg-gradient-to-br from-accent to-accent/80 shadow-accent/25"
+                  : "bg-gradient-to-br from-primary to-primary/80 shadow-primary/25"
+              )}
+              aria-label={userRole === "clinic" ? t("mobile.postShift") : t("mobile.findShifts")}
+            >
+              {userRole === "clinic" ? (
+                <Plus className="h-6 w-6 text-white" />
+              ) : (
+                <Briefcase className="h-6 w-6 text-white" />
+              )}
+            </Link>
+          )}
         </div>
-      </motion.nav>
-    </>
+      </div>
+    </motion.nav>
+  );
+};
+
+interface NavItemProps {
+  path: string;
+  icon: React.ElementType;
+  label: string;
+  isActive: boolean;
+  badge?: number;
+}
+
+const NavItem = ({ path, icon: Icon, label, isActive, badge }: NavItemProps) => {
+  return (
+    <Link
+      to={path}
+      className={cn(
+        "relative flex flex-col items-center justify-center gap-0.5",
+        "min-w-[56px] min-h-[48px] px-3 py-2 rounded-xl",
+        "transition-all duration-200 active:scale-95",
+        isActive
+          ? "text-primary"
+          : "text-muted-foreground hover:text-foreground"
+      )}
+    >
+      <div className="relative">
+        <Icon 
+          className={cn(
+            "h-5 w-5 transition-all",
+            isActive && "stroke-[2.5px]"
+          )} 
+        />
+        {badge !== undefined && badge > 0 && (
+          <motion.span 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="absolute -top-1.5 -end-2 min-w-[18px] h-[18px] px-1 flex items-center justify-center text-[10px] font-bold bg-destructive text-destructive-foreground rounded-full"
+          >
+            {badge > 99 ? "99+" : badge}
+          </motion.span>
+        )}
+      </div>
+      <span className={cn(
+        "text-[10px] font-medium leading-tight",
+        isActive && "font-semibold"
+      )}>
+        {label}
+      </span>
+      {isActive && (
+        <motion.div
+          layoutId="mobile-nav-indicator"
+          className="absolute bottom-1 w-1 h-1 rounded-full bg-primary"
+          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+        />
+      )}
+    </Link>
   );
 };
