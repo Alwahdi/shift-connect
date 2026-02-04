@@ -17,7 +17,8 @@ import {
   AlertTriangle,
   RefreshCw,
   Shield,
-  UserCog
+  UserCog,
+  Settings2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,6 +30,7 @@ import StatsGrid from "@/components/dashboard/StatsGrid";
 import DocumentViewer from "@/components/admin/DocumentViewer";
 import UserDetailSheet from "@/components/admin/UserDetailSheet";
 import AdminManagement from "@/components/admin/AdminManagement";
+import SystemConfiguration from "@/components/admin/SystemConfiguration";
 import { ListItemSkeleton } from "@/components/ui/skeleton-cards";
 import { InlineEmptyState } from "@/components/ui/empty-state";
 
@@ -347,37 +349,48 @@ const AdminDashboard = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className={`grid w-full ${isSuperAdmin ? 'grid-cols-5' : 'grid-cols-4'}`}>
-            <TabsTrigger value="overview">{t("admin.tabs.overview")}</TabsTrigger>
-            <TabsTrigger value="professionals">
-              {t("admin.tabs.professionals")}
+          <TabsList className={`grid w-full h-auto p-1 ${isSuperAdmin ? 'grid-cols-3 sm:grid-cols-6' : 'grid-cols-2 sm:grid-cols-4'}`}>
+            <TabsTrigger value="overview" className="text-xs sm:text-sm py-2">
+              {t("admin.tabs.overview")}
+            </TabsTrigger>
+            <TabsTrigger value="professionals" className="text-xs sm:text-sm py-2">
+              <span className="hidden sm:inline">{t("admin.tabs.professionals")}</span>
+              <span className="sm:hidden">{t("admin.tabs.pros")}</span>
               {professionals.filter(p => p.verification_status === "pending").length > 0 && (
-                <span className="ms-2 px-1.5 py-0.5 text-xs bg-warning text-warning-foreground rounded-full">
+                <span className="ms-1 px-1.5 py-0.5 text-[10px] bg-warning text-warning-foreground rounded-full">
                   {professionals.filter(p => p.verification_status === "pending").length}
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="clinics">
+            <TabsTrigger value="clinics" className="text-xs sm:text-sm py-2">
               {t("admin.tabs.clinics")}
               {clinics.filter(c => c.verification_status === "pending").length > 0 && (
-                <span className="ms-2 px-1.5 py-0.5 text-xs bg-warning text-warning-foreground rounded-full">
+                <span className="ms-1 px-1.5 py-0.5 text-[10px] bg-warning text-warning-foreground rounded-full">
                   {clinics.filter(c => c.verification_status === "pending").length}
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="documents">
-              {t("admin.tabs.documents")}
+            <TabsTrigger value="documents" className="text-xs sm:text-sm py-2">
+              <span className="hidden sm:inline">{t("admin.tabs.documents")}</span>
+              <span className="sm:hidden">{t("admin.tabs.docs")}</span>
               {stats.pendingDocuments > 0 && (
-                <span className="ms-2 px-1.5 py-0.5 text-xs bg-destructive text-destructive-foreground rounded-full">
+                <span className="ms-1 px-1.5 py-0.5 text-[10px] bg-destructive text-destructive-foreground rounded-full">
                   {stats.pendingDocuments}
                 </span>
               )}
             </TabsTrigger>
             {isSuperAdmin && (
-              <TabsTrigger value="team">
-                <UserCog className="w-4 h-4 me-1 hidden sm:block" />
-                {t("admin.tabs.admins")}
-              </TabsTrigger>
+              <>
+                <TabsTrigger value="team" className="text-xs sm:text-sm py-2">
+                  <UserCog className="w-4 h-4 me-1 hidden sm:block" />
+                  {t("admin.tabs.admins")}
+                </TabsTrigger>
+                <TabsTrigger value="config" className="text-xs sm:text-sm py-2">
+                  <Settings2 className="w-4 h-4 me-1 hidden sm:block" />
+                  <span className="hidden sm:inline">{t("admin.tabs.config")}</span>
+                  <span className="sm:hidden">{t("admin.tabs.settings")}</span>
+                </TabsTrigger>
+              </>
             )}
           </TabsList>
 
@@ -750,9 +763,14 @@ const AdminDashboard = () => {
 
           {/* Team Management Tab (Super Admin Only) */}
           {isSuperAdmin && (
-            <TabsContent value="team">
-              <AdminManagement />
-            </TabsContent>
+            <>
+              <TabsContent value="team">
+                <AdminManagement />
+              </TabsContent>
+              <TabsContent value="config">
+                <SystemConfiguration />
+              </TabsContent>
+            </>
           )}
         </Tabs>
 

@@ -135,12 +135,52 @@ export default function Settings() {
     }
   };
 
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const handleDeleteAccount = async () => {
-    // This would need backend implementation
-    toast({
-      title: t("settings.deleteRequested"),
-      description: t("settings.deleteRequestedDesc"),
-    });
+    if (!user) return;
+    
+    setIsDeleting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error("No active session");
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-account`,
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${session.access_token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to delete account");
+      }
+
+      toast({
+        title: t("settings.accountDeleted"),
+        description: t("settings.accountDeletedDesc"),
+      });
+
+      // Sign out and redirect
+      await signOut();
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: t("common.error"),
+        description: error.message,
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   if (loading) {
@@ -340,7 +380,7 @@ export default function Settings() {
 
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" className="w-full">
+                <Button variant="destructive" className="w-full min-h-[48px]">
                   <Trash2 className="h-4 w-4 me-2" />
                   {t("settings.deleteAccount")}
                 </Button>
@@ -348,11 +388,25 @@ export default function Settings() {
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>{t("settings.deleteAccountTitle")}</AlertDialogTitle>
-                  <AlertDialogDescription>{t("settings.deleteAccountDesc")}</AlertDialogDescription>
+                  <AlertDialogDescription>
+                    {t("settings.deleteAccountDesc")}
+                    <span className="block mt-2 text-destructive font-medium">
+                      {t("settings.deleteAccountConfirm")}
+                    </span>
+                  </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-destructive-foreground">
+                <AlertDialogFooter className="gap-2 sm:gap-0">
+                  <AlertDialogCancel className="min-h-[44px]">{t("common.cancel")}</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={handleDeleteAccount} 
+                    className="bg-destructive text-destructive-foreground min-h-[44px]"
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? (
+                      <Loader2 className="h-4 w-4 animate-spin me-2" />
+                    ) : (
+                      <Trash2 className="h-4 w-4 me-2" />
+                    )}
                     {t("settings.confirmDelete")}
                   </AlertDialogAction>
                 </AlertDialogFooter>
