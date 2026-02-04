@@ -67,9 +67,20 @@
     "completedShifts": "Completed Shifts",
     "avgRating": "Avg Rating"
   },
+  "mobile": {
+    "home": "Home",
+    "shifts": "Shifts",
+    "search": "Search",
+    "messages": "Messages",
+    "profile": "Profile",
+    "postShift": "Post Shift",
+    "findShifts": "Find Shifts"
+  },
   "nav": {
     "home": "Home",
     "findShifts": "Find Shifts",
+    "findPros": "Find Pros",
+    "messages": "Messages",
     "forProfessionals": "For Professionals",
     "forClinics": "For Clinics",
     "about": "About",
@@ -77,7 +88,8 @@
     "profile": "Profile",
     "settings": "Settings",
     "backToDashboard": "Back to Dashboard",
-    "adminPanel": "Admin Panel"
+    "adminPanel": "Admin Panel",
+    "mobileNav": "Mobile Navigation"
   },
   "auth": {
     "welcomeBack": "Welcome back",
