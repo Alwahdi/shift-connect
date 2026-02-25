@@ -10,14 +10,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   Send, Loader2, ArrowLeft, ArrowRight, Building2, User, Check, CheckCheck,
-  FileText, ExternalLink, Download, ChevronLeft, ChevronRight, Grid3X3,
-  FileSpreadsheet, File as FileIcon, Play, Volume2
+  FileText, Download, ChevronLeft, ChevronRight, Grid3X3,
+  FileSpreadsheet, File as FileIcon, Volume2, Trash2, MoreVertical
 } from "lucide-react";
 import { format, isToday, isYesterday, isSameDay } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
 import { ChatMediaUpload } from "./ChatMediaUpload";
 import { ChatMediaGallery } from "./ChatMediaGallery";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Message {
   id: string;
@@ -46,22 +53,15 @@ interface ChatMessagesProps {
   onBack?: () => void;
 }
 
-// Parse URLs in text and return React elements
 const renderMessageContent = (content: string, isOwn: boolean) => {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const parts = content.split(urlRegex);
-  
   return parts.map((part, i) => {
     if (urlRegex.test(part)) {
       urlRegex.lastIndex = 0;
       return (
-        <a
-          key={i}
-          href={part}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`underline break-all ${isOwn ? "text-primary-foreground/90 hover:text-primary-foreground" : "text-primary hover:text-primary/80"}`}
-        >
+        <a key={i} href={part} target="_blank" rel="noopener noreferrer"
+          className={`underline break-all ${isOwn ? "text-primary-foreground/90 hover:text-primary-foreground" : "text-primary hover:text-primary/80"}`}>
           {part}
         </a>
       );
@@ -70,8 +70,7 @@ const renderMessageContent = (content: string, isOwn: boolean) => {
   });
 };
 
-// Get file icon based on type
-const getFileIcon = (fileName?: string | null, fileType?: string | null) => {
+const getFileIcon = (fileName?: string | null) => {
   const ext = fileName?.split(".").pop()?.toLowerCase();
   if (ext === "pdf") return <FileText className="h-5 w-5 text-red-500" />;
   if (ext === "doc" || ext === "docx") return <FileText className="h-5 w-5 text-blue-500" />;
@@ -94,10 +93,11 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [pendingMedia, setPendingMedia] = useState<{ url: string; name: string; type: string; size: number; } | null>(null);
+  const [deleteMessageId, setDeleteMessageId] = useState<string | null>(null);
+  const [deleteConversationOpen, setDeleteConversationOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Collect all images for navigation
   const allImages = useMemo(() =>
     messages.filter(m => m.file_type?.startsWith("image/") && m.file_url).map(m => m.file_url!),
     [messages]
@@ -141,6 +141,10 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` }, (payload) => {
         const updated = payload.new as Message;
         setMessages(prev => prev.map(m => m.id === updated.id ? updated : m));
+      })
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` }, (payload) => {
+        const deleted = payload.old as { id: string };
+        setMessages(prev => prev.filter(m => m.id !== deleted.id));
       })
       .subscribe();
 
@@ -198,6 +202,35 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
     }
   };
 
+  const handleDeleteMessage = async () => {
+    if (!deleteMessageId) return;
+    try {
+      const { error } = await supabase.from("messages").delete().eq("id", deleteMessageId);
+      if (error) throw error;
+      setMessages(prev => prev.filter(m => m.id !== deleteMessageId));
+      toast({ title: t("chat.messageDeleted") });
+    } catch (error: any) {
+      toast({ variant: "destructive", title: t("common.error"), description: error.message });
+    } finally {
+      setDeleteMessageId(null);
+    }
+  };
+
+  const handleDeleteConversation = async () => {
+    try {
+      // Delete all messages first, then the conversation
+      await supabase.from("messages").delete().eq("conversation_id", conversationId);
+      const { error } = await supabase.from("conversations").delete().eq("id", conversationId);
+      if (error) throw error;
+      toast({ title: t("chat.conversationDeleted") });
+      onBack?.();
+    } catch (error: any) {
+      toast({ variant: "destructive", title: t("common.error"), description: error.message });
+    } finally {
+      setDeleteConversationOpen(false);
+    }
+  };
+
   const handleMediaUpload = (fileUrl: string, fileName: string, fileType: string, fileSize: number) => {
     setPendingMedia({ url: fileUrl, name: fileName, type: fileType, size: fileSize });
   };
@@ -208,13 +241,13 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
 
   const getDateLabel = (date: Date) => {
-    if (isToday(date)) return t("chat.today") || "Today";
-    if (isYesterday(date)) return t("chat.yesterday") || "Yesterday";
+    if (isToday(date)) return t("chat.today");
+    if (isYesterday(date)) return t("chat.yesterday");
     return format(date, "MMM d, yyyy", { locale: isRTL ? ar : enUS });
   };
 
@@ -244,9 +277,9 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
   return (
     <div className="flex flex-col h-full w-full" dir={isRTL ? "rtl" : "ltr"}>
       {/* Header */}
-      <div className="border-b p-3 md:p-4 flex items-center gap-3 bg-background shadow-sm shrink-0">
+      <div className="border-b p-3 flex items-center gap-3 bg-background shadow-sm shrink-0">
         {onBack && (
-          <Button variant="ghost" size="icon" onClick={onBack} className="h-11 w-11 min-h-[44px] min-w-[44px] shrink-0">
+          <Button variant="ghost" size="icon" onClick={onBack} aria-label={t("chat.goBack")} className="h-11 w-11 min-h-[44px] min-w-[44px] shrink-0">
             <BackArrow className="h-5 w-5" />
           </Button>
         )}
@@ -262,13 +295,25 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
             <p className="text-xs text-muted-foreground">{userType === "professional" ? t("chat.clinic") : t("chat.professional")}</p>
           )}
         </div>
-        <Button variant="ghost" size="icon" onClick={() => setGalleryOpen(true)} className="h-10 w-10 shrink-0" title={t("chat.mediaAndFiles")}>
+        <Button variant="ghost" size="icon" onClick={() => setGalleryOpen(true)} className="h-10 w-10 shrink-0" aria-label={t("chat.mediaAndFiles")}>
           <Grid3X3 className="h-5 w-5" />
         </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0">
+              <MoreVertical className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setDeleteConversationOpen(true)} className="text-destructive focus:text-destructive">
+              <Trash2 className="h-4 w-4 me-2" />{t("chat.deleteConversation")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 p-3 md:p-4">
+      <ScrollArea className="flex-1 p-3">
         <div className="space-y-3">
           {messages.length === 0 ? (
             <div className="text-center text-muted-foreground py-8">{t("chat.startConversation")}</div>
@@ -285,7 +330,6 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
 
               return (
                 <div key={msg.id}>
-                  {/* Date separator */}
                   {showDateSeparator && (
                     <div className="flex items-center gap-3 my-4">
                       <div className="flex-1 h-px bg-border" />
@@ -294,17 +338,26 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
                     </div>
                   )}
 
-                  <div className={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[85%] md:max-w-[70%] rounded-2xl px-4 py-2.5 ${isOwn ? "bg-primary text-primary-foreground rounded-br-md" : "bg-secondary text-secondary-foreground rounded-bl-md"}`}>
+                  <div className={`flex ${isOwn ? "justify-end" : "justify-start"} group`}>
+                    <div className={`max-w-[85%] md:max-w-[70%] rounded-2xl px-4 py-2.5 relative ${isOwn ? "bg-primary text-primary-foreground rounded-br-md" : "bg-secondary text-secondary-foreground rounded-bl-md"}`}>
                       
-                      {/* Image */}
+                      {/* Delete button for own messages */}
+                      {isOwn && (
+                        <button
+                          onClick={() => setDeleteMessageId(msg.id)}
+                          className="absolute -top-2 -start-2 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive text-destructive-foreground rounded-full p-1 h-6 w-6 flex items-center justify-center shadow-sm"
+                          aria-label={t("chat.deleteMessage")}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      )}
+
                       {hasImage && msg.file_url && (
                         <button onClick={() => setPreviewImage(msg.file_url!)} className="block mb-2 rounded-xl overflow-hidden hover:opacity-90 transition-opacity shadow-sm">
                           <img src={msg.file_url} alt={msg.file_name || "Image"} className="max-w-full max-h-64 object-cover rounded-xl" loading="lazy" />
                         </button>
                       )}
 
-                      {/* Video */}
                       {hasVideo && msg.file_url && (
                         <div className="mb-2 rounded-xl overflow-hidden shadow-sm">
                           <video controls preload="metadata" className="max-w-full max-h-64 rounded-xl w-full">
@@ -313,7 +366,6 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
                         </div>
                       )}
 
-                      {/* Audio */}
                       {hasAudio && msg.file_url && (
                         <div className="mb-2 flex items-center gap-2 p-2 rounded-lg bg-background/10">
                           <Volume2 className="h-5 w-5 shrink-0 opacity-70" />
@@ -323,10 +375,9 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
                         </div>
                       )}
 
-                      {/* File */}
                       {hasFile && (
                         <a href={msg.file_url!} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 p-2.5 rounded-lg mb-2 ${isOwn ? "bg-primary-foreground/10 hover:bg-primary-foreground/20" : "bg-muted hover:bg-muted/80"} transition-colors`}>
-                          {getFileIcon(msg.file_name, msg.file_type)}
+                          {getFileIcon(msg.file_name)}
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium truncate">{msg.file_name}</p>
                             {msg.file_size && <p className="text-xs opacity-70">{formatFileSize(msg.file_size)}</p>}
@@ -335,12 +386,10 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
                         </a>
                       )}
 
-                      {/* Text content with clickable links */}
                       {msg.content && !msg.content.startsWith("📎") && (
                         <p className="text-sm whitespace-pre-wrap break-words">{renderMessageContent(msg.content, isOwn)}</p>
                       )}
 
-                      {/* Timestamp + read status */}
                       <div className="flex items-center justify-end gap-1 mt-1">
                         <p className={`text-[11px] ${isOwn ? "text-primary-foreground/60" : "text-muted-foreground"}`}>
                           {format(msgDate, "HH:mm", { locale: isRTL ? ar : enUS })}
@@ -354,7 +403,6 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
             })
           )}
 
-          {/* Typing indicator */}
           {otherTyping && (
             <div className="flex justify-start">
               <div className="bg-secondary text-secondary-foreground rounded-2xl rounded-bl-md px-4 py-3">
@@ -371,17 +419,13 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
       </ScrollArea>
 
       {/* Input */}
-      <div className="border-t p-3 md:p-4 bg-background pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:pb-4 shrink-0">
+      <div className="border-t p-3 bg-background pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:pb-3 shrink-0">
         {pendingMedia && (
           <div className="flex items-center gap-2 mb-2 p-2 bg-muted rounded-lg">
             {pendingMedia.type.startsWith("image/") ? (
               <img src={pendingMedia.url} alt={pendingMedia.name} className="h-12 w-12 object-cover rounded" />
-            ) : pendingMedia.type.startsWith("video/") ? (
-              <div className="h-12 w-12 bg-background rounded flex items-center justify-center"><Play className="h-5 w-5" /></div>
-            ) : pendingMedia.type.startsWith("audio/") ? (
-              <div className="h-12 w-12 bg-background rounded flex items-center justify-center"><Volume2 className="h-5 w-5" /></div>
             ) : (
-              <div className="h-12 w-12 bg-background rounded flex items-center justify-center">{getFileIcon(pendingMedia.name, pendingMedia.type)}</div>
+              <div className="h-12 w-12 bg-background rounded flex items-center justify-center">{getFileIcon(pendingMedia.name)}</div>
             )}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{pendingMedia.name}</p>
@@ -395,40 +439,38 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
           <Textarea
             value={newMessage}
             onChange={(e) => { setNewMessage(e.target.value); handleTyping(); }}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyDown}
             placeholder={t("chat.typePlaceholder")}
             className="min-h-[48px] max-h-32 resize-none"
             rows={1}
           />
-          <Button onClick={handleSend} disabled={(!newMessage.trim() && !pendingMedia) || sending} size="icon" className="h-12 w-12 min-h-[48px] min-w-[48px] shrink-0">
+          <Button onClick={handleSend} disabled={(!newMessage.trim() && !pendingMedia) || sending} size="icon" aria-label={t("chat.sendMessage")} className="h-12 w-12 min-h-[48px] min-w-[48px] shrink-0">
             {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
           </Button>
         </div>
       </div>
 
-      {/* Image Preview Dialog with navigation */}
+      {/* Image Preview Dialog */}
       <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
         <DialogContent className="max-w-[95vw] md:max-w-3xl p-0 overflow-hidden bg-black/95 border-none">
-          <DialogTitle className="sr-only">Image Preview</DialogTitle>
+          <DialogTitle className="sr-only">{t("chat.imagePreview")}</DialogTitle>
           <div className="relative flex items-center justify-center min-h-[50vh]">
-            {/* Navigation */}
             {allImages.length > 1 && currentImageIndex > 0 && (
-              <Button variant="ghost" size="icon" className="absolute start-2 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white h-10 w-10" onClick={() => setPreviewImage(allImages[currentImageIndex - 1])}>
+              <Button variant="ghost" size="icon" className="absolute start-2 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white h-10 w-10" onClick={() => setPreviewImage(allImages[currentImageIndex - 1])} aria-label={t("common.previous")}>
                 <ChevronLeft className="h-6 w-6" />
               </Button>
             )}
             {allImages.length > 1 && currentImageIndex < allImages.length - 1 && (
-              <Button variant="ghost" size="icon" className="absolute end-2 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white h-10 w-10" onClick={() => setPreviewImage(allImages[currentImageIndex + 1])}>
+              <Button variant="ghost" size="icon" className="absolute end-2 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white h-10 w-10" onClick={() => setPreviewImage(allImages[currentImageIndex + 1])} aria-label={t("common.next")}>
                 <ChevronRight className="h-6 w-6" />
               </Button>
             )}
-            {/* Top bar */}
             <div className="absolute top-2 end-2 z-10 flex items-center gap-2">
               {allImages.length > 1 && (
                 <span className="text-white/80 text-sm bg-black/50 px-2 py-1 rounded">{currentImageIndex + 1} / {allImages.length}</span>
               )}
               <Button variant="ghost" size="icon" className="bg-black/50 hover:bg-black/70 text-white h-9 w-9" asChild>
-                <a href={previewImage || ""} download target="_blank" rel="noopener noreferrer"><Download className="h-4 w-4" /></a>
+                <a href={previewImage || ""} download target="_blank" rel="noopener noreferrer" aria-label={t("chat.downloadFile")}><Download className="h-4 w-4" /></a>
               </Button>
             </div>
             {previewImage && (
@@ -440,6 +482,38 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
 
       {/* Media Gallery */}
       <ChatMediaGallery conversationId={conversationId} isOpen={galleryOpen} onClose={() => setGalleryOpen(false)} />
+
+      {/* Delete Message Confirm */}
+      <AlertDialog open={!!deleteMessageId} onOpenChange={(open) => !open && setDeleteMessageId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("chat.deleteMessageTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("chat.deleteMessageDesc")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteMessage} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {t("common.delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Conversation Confirm */}
+      <AlertDialog open={deleteConversationOpen} onOpenChange={setDeleteConversationOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("chat.deleteConversationTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("chat.deleteConversationDesc")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConversation} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {t("common.delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

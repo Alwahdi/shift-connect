@@ -73,7 +73,7 @@ export const ChatMediaUpload = ({ conversationId, onUploadComplete, disabled }: 
             <Image className="h-4 w-4 me-2" />{t("chat.uploadImage")}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => videoInputRef.current?.click()}>
-            <Video className="h-4 w-4 me-2" />{t("chat.uploadVideo") || "Video / Audio"}
+            <Video className="h-4 w-4 me-2" />{t("chat.uploadVideo")}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
             <File className="h-4 w-4 me-2" />{t("chat.uploadFile")}

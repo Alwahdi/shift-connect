@@ -119,7 +119,7 @@ export const ChatMediaGallery = ({ conversationId, isOpen, onClose }: ChatMediaG
                 {loading ? (
                   <div className="space-y-2">{[1,2,3].map(i => <Skeleton key={i} className="h-32 rounded-lg" />)}</div>
                 ) : videos.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground"><Video className="h-12 w-12 mx-auto mb-2 opacity-50" /><p>No videos</p></div>
+                  <div className="text-center py-8 text-muted-foreground"><Video className="h-12 w-12 mx-auto mb-2 opacity-50" /><p>{t("chat.noVideos")}</p></div>
                 ) : (
                   videos.map(v => (
                     <div key={v.id} className="rounded-lg overflow-hidden bg-muted">
