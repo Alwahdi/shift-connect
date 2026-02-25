@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
-import syndeoCareLogo from "@/assets/syndeocare-logo-white.png";
+import syndeoCareLogo from "@/assets/syndeocare-logo.png";
 
 interface LocationState {
   email: string;

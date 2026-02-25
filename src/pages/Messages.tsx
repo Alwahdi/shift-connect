@@ -77,13 +77,13 @@ const Messages = () => {
   }
 
   return (
-    <div className="container max-w-6xl mx-auto px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <MessageCircle className="h-6 w-6" />
+    <div className="container max-w-6xl mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
+      <div className="mb-4 md:mb-6">
+        <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2">
+          <MessageCircle className="h-5 w-5 md:h-6 md:w-6" />
           {t("chat.messages")}
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-sm md:text-base text-muted-foreground mt-1">
           {t("chat.messagesDescription")}
         </p>
       </div>

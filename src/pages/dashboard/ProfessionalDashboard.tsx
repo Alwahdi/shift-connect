@@ -16,7 +16,8 @@ import {
   FileText,
   Upload,
   User,
-  X
+  X,
+  UserPlus
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ import { ShiftCardSkeleton } from "@/components/ui/skeleton-cards";
 import { EmptyState } from "@/components/ui/empty-state";
 import ActiveBookingsSection from "@/components/booking/ActiveBookingsSection";
 import { useBookingRealtime } from "@/hooks/useBookingRealtime";
+import ShiftInvitationCard from "@/components/shifts/ShiftInvitationCard";
 
 interface Shift {
   id: string;
@@ -98,6 +100,7 @@ const ProfessionalDashboard = () => {
   const [filters, setFilters] = useState<Filters>({ role: "All Roles", minRate: "", dateRange: "all" });
   const [monthlyEarnings, setMonthlyEarnings] = useState(0);
   const [completedShifts, setCompletedShifts] = useState(0);
+  const [invitations, setInvitations] = useState<any[]>([]);
   const { user, userRole, signOut, isLoading: authLoading, isOnboardingComplete } = useAuth();
   const navigate = useNavigate();
 
@@ -174,6 +177,11 @@ const ProfessionalDashboard = () => {
 
         // Fetch available shifts
         await fetchShifts();
+
+        // Fetch invitations
+        if (profileData) {
+          await fetchInvitations(profileData.id);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -183,6 +191,34 @@ const ProfessionalDashboard = () => {
       fetchData();
     }
   }, [user, isOnboardingComplete]);
+
+  const fetchInvitations = async (profId: string) => {
+    const { data } = await supabase
+      .from("shift_invitations")
+      .select("id, shift_id, clinic_id, professional_id, status, message, created_at")
+      .eq("professional_id", profId)
+      .eq("status", "pending")
+      .order("created_at", { ascending: false });
+
+    if (data) {
+      const enriched = await Promise.all(
+        data.map(async (inv: any) => {
+          const { data: shift } = await supabase
+            .from("shifts")
+            .select("id, title, role_required, shift_date, start_time, end_time, hourly_rate, location_address")
+            .eq("id", inv.shift_id)
+            .single();
+          const { data: clinic } = await supabase
+            .from("clinics")
+            .select("id, name, logo_url")
+            .eq("id", inv.clinic_id)
+            .single();
+          return { ...inv, shift, clinic };
+        })
+      );
+      setInvitations(enriched);
+    }
+  };
 
   const fetchShifts = async () => {
     let query = supabase
@@ -328,6 +364,31 @@ const ProfessionalDashboard = () => {
 
         {/* Stats */}
         <StatsGrid stats={stats} variant="primary" />
+
+        {/* Shift Invitations */}
+        {invitations.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-6"
+          >
+            <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+              <UserPlus className="w-5 h-5 text-primary" />
+              {t("shifts.invitations.title")}
+              <Badge variant="default" className="text-xs">{invitations.length}</Badge>
+            </h2>
+            <div className="space-y-3">
+              {invitations.map((inv) => (
+                <ShiftInvitationCard
+                  key={inv.id}
+                  invitation={inv}
+                  onRespond={() => profile && fetchInvitations(profile.id)}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* Active Bookings */}
         {profile && (

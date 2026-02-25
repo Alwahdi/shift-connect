@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import InviteProfessionalsModal from "./InviteProfessionalsModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -72,7 +73,9 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
   const isRTL = i18n.language === "ar";
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [createdShiftId, setCreatedShiftId] = useState<string | null>(null);
+
   const [formData, setFormData] = useState({
     title: "",
     role_required: "",
@@ -109,7 +112,7 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
         proposalDeadline = addDays(new Date(), daysToAdd).toISOString();
       }
 
-      const { error } = await supabase.from("shifts").insert({
+      const { data: insertedShift, error } = await supabase.from("shifts").insert({
         clinic_id: clinicId,
         title: formData.title || formData.role_required,
         role_required: formData.role_required,
@@ -123,7 +126,7 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
         required_certifications: formData.required_certifications.length > 0 ? formData.required_certifications : null,
         max_applicants: parseInt(formData.max_applicants) || 10,
         proposal_deadline: proposalDeadline,
-      });
+      }).select("id").single();
 
       if (error) throw error;
 
@@ -131,6 +134,11 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
         title: t("shifts.shiftPosted"),
         description: t("shifts.shiftPostedDesc"),
       });
+
+      if (insertedShift) {
+        setCreatedShiftId(insertedShift.id);
+        setShowInviteModal(true);
+      }
 
       // Reset form
       setFormData({
@@ -171,6 +179,7 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir={isRTL ? "rtl" : "ltr"}>
         <DialogHeader>
@@ -427,6 +436,21 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
         </form>
       </DialogContent>
     </Dialog>
+
+    {/* Invite Professionals Modal */}
+    {createdShiftId && (
+      <InviteProfessionalsModal
+        open={showInviteModal}
+        onOpenChange={(open) => {
+          setShowInviteModal(open);
+          if (!open) setCreatedShiftId(null);
+        }}
+        shiftId={createdShiftId}
+        clinicId={clinicId}
+        onSuccess={onSuccess}
+      />
+    )}
+    </>
   );
 };
 

@@ -697,6 +697,47 @@ export type Database = {
           },
         ]
       }
+      shift_invitations: {
+        Row: {
+          clinic_id: string
+          created_at: string
+          id: string
+          message: string | null
+          professional_id: string
+          responded_at: string | null
+          shift_id: string
+          status: string
+        }
+        Insert: {
+          clinic_id: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          professional_id: string
+          responded_at?: string | null
+          shift_id: string
+          status?: string
+        }
+        Update: {
+          clinic_id?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          professional_id?: string
+          responded_at?: string | null
+          shift_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shift_invitations_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shifts: {
         Row: {
           clinic_id: string

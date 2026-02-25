@@ -1012,6 +1012,31 @@
   },
   "shifts": {
     "findNow": "Find Shifts Now",
-    "create": "Create Shift"
+    "create": "Create Shift",
+    "invitations": {
+      "title": "Shift Invitations",
+      "inviteProfessionals": "Invite Professionals",
+      "inviteDesc": "Search and invite verified professionals to your shift.",
+      "searchPlaceholder": "Search by name or specialty...",
+      "messagePlaceholder": "Add an optional message to your invitation...",
+      "invite": "Invite",
+      "invited": "Invited",
+      "invitedTab": "Invited",
+      "inviteMore": "Invite More Professionals",
+      "noInvitations": "No invitations sent yet",
+      "sent": "Invitation Sent",
+      "sentDesc": "{{name}} has been invited to your shift.",
+      "received": "New Shift Invitation",
+      "receivedDesc": "A clinic has invited you to a shift.",
+      "accept": "Accept",
+      "decline": "Decline",
+      "accepted": "Accepted",
+      "acceptedDesc": "You've accepted the shift invitation. A booking has been created.",
+      "declined": "Declined",
+      "declinedDesc": "You've declined the shift invitation.",
+      "acceptedNotif": "Invitation Accepted",
+      "acceptedNotifDesc": "A professional accepted your shift invitation.",
+      "invitation": "Invitation"
+    }
   }
 }

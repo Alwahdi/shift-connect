@@ -15,7 +15,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { RoleSelector } from "@/components/ui/role-selector";
 import { FormFeedback, FormFeedbackContainer } from "@/components/ui/form-feedback";
-import syndeoCareLogo from "@/assets/syndeocare-logo-white.png";
+import syndeoCareLogo from "@/assets/syndeocare-logo.png";
 
 type UserRole = "professional" | "clinic";
 type AuthMode = "login" | "signup";

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
@@ -11,13 +12,16 @@ import {
   Users,
   Loader2,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  UserPlus,
+  Send
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import ApplicantCard from "./ApplicantCard";
 import { notifyBookingAccepted, notifyBookingDeclined } from "@/lib/notifications";
+import InviteProfessionalsModal from "./InviteProfessionalsModal";
 
 interface Shift {
   id: string;
@@ -66,15 +70,42 @@ const ShiftManageModal = ({
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
   const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [invitations, setInvitations] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     if (open && shift) {
       fetchApplicants();
+      fetchInvitations();
     }
   }, [open, shift]);
+
+  const fetchInvitations = async () => {
+    if (!shift) return;
+    const { data } = await supabase
+      .from("shift_invitations")
+      .select("id, professional_id, status, message, created_at")
+      .eq("shift_id", shift.id)
+      .order("created_at", { ascending: false });
+    
+    if (data) {
+      // Enrich with professional data
+      const enriched = await Promise.all(
+        data.map(async (inv: any) => {
+          const { data: pro } = await supabase
+            .from("profiles")
+            .select("id, full_name, avatar_url, rating_avg, specialties")
+            .eq("id", inv.professional_id)
+            .single();
+          return { ...inv, professional: pro };
+        })
+      );
+      setInvitations(enriched);
+    }
+  };
 
   const fetchApplicants = async () => {
     if (!shift) return;
@@ -358,7 +389,7 @@ const ShiftManageModal = ({
           </div>
         ) : (
           <Tabs defaultValue="pending" className="mt-4">
-            <TabsList className="grid w-full grid-cols-3 min-h-[44px]">
+            <TabsList className="grid w-full grid-cols-4 min-h-[44px]">
               <TabsTrigger value="pending" className="min-h-[40px]">
                 {t("shifts.modal.pendingTab")}
                 {pendingApplicants.length > 0 && (
@@ -376,6 +407,14 @@ const ShiftManageModal = ({
                 )}
               </TabsTrigger>
               <TabsTrigger value="declined" className="min-h-[40px]">{t("shifts.modal.declinedTab")} ({declinedApplicants.length})</TabsTrigger>
+              <TabsTrigger value="invited" className="min-h-[40px]">
+                {t("shifts.invitations.invitedTab")}
+                {invitations.length > 0 && (
+                  <span className="ms-2 px-1.5 py-0.5 text-xs bg-primary/20 text-primary rounded-full">
+                    {invitations.length}
+                  </span>
+                )}
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="pending" className="space-y-3 mt-4">
@@ -428,7 +467,45 @@ const ShiftManageModal = ({
                 ))
               )}
             </TabsContent>
+
+            <TabsContent value="invited" className="space-y-3 mt-4">
+              <Button
+                variant="outline"
+                className="w-full min-h-[44px]"
+                onClick={() => setShowInviteModal(true)}
+              >
+                <UserPlus className="w-4 h-4 me-2" />
+                {t("shifts.invitations.inviteMore")}
+              </Button>
+              {invitations.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">{t("shifts.invitations.noInvitations")}</p>
+              ) : (
+                invitations.map((inv: any) => (
+                  <div key={inv.id} className="flex items-center gap-3 p-3 rounded-lg border border-border">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm">{inv.professional?.full_name}</p>
+                      {inv.professional?.specialties?.[0] && (
+                        <p className="text-xs text-muted-foreground">{inv.professional.specialties[0]}</p>
+                      )}
+                    </div>
+                    <Badge variant={inv.status === "accepted" ? "default" : inv.status === "declined" ? "secondary" : "outline"}>
+                      {inv.status === "pending" ? t("common.pending") : inv.status === "accepted" ? t("applicant.accepted") : t("applicant.declined")}
+                    </Badge>
+                  </div>
+                ))
+              )}
+            </TabsContent>
           </Tabs>
+        )}
+
+        {shift && (
+          <InviteProfessionalsModal
+            open={showInviteModal}
+            onOpenChange={setShowInviteModal}
+            shiftId={shift.id}
+            clinicId={clinicId}
+            onSuccess={() => fetchInvitations()}
+          />
         )}
       </DialogContent>
     </Dialog>

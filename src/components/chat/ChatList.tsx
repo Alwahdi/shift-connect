@@ -187,7 +187,7 @@ export const ChatList = ({
             <button
               key={conv.id}
               onClick={() => onSelectConversation(conv.id)}
-              className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors text-start ${
+              className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors text-start min-h-[60px] ${
                 selectedConversation === conv.id
                   ? "bg-primary/10 border border-primary/20"
                   : "hover:bg-secondary/50"
