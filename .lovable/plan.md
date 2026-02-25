@@ -1,168 +1,133 @@
 
 
-# Implementation Plan: Invite System, Chat Mobile UX, Auth Logo Fix
+# Chat UI Overhaul & Media Viewing Enhancement
 
-## Overview
+## Issues Identified
 
-Four changes requested: (1) shift invite system for clinics to invite professionals, (2) chat UI mobile optimization, (3) auth page logo fix, (4) email verification improvements.
+After reviewing all 7 chat components, here are the problems:
 
----
+1. **Mobile layout**: The `Messages.tsx` page header takes up space unnecessarily on mobile when a conversation is active. The container height `h-[calc(100dvh-10rem)]` doesn't account for the bottom nav properly.
 
-## Part 1: Shift Invite System
+2. **Chat filters placement**: `ChatFilters` renders as a separate row inside the header area but visually conflicts -- it's placed inline with the avatar/name instead of below the header.
 
-### Database Changes
+3. **Image preview dialog**: Missing `DialogTitle` (accessibility), no pinch-to-zoom, no download button, no swipe between images.
 
-**New table: `shift_invitations`**
-```sql
-CREATE TABLE shift_invitations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  shift_id UUID NOT NULL REFERENCES shifts(id) ON DELETE CASCADE,
-  clinic_id UUID NOT NULL,
-  professional_id UUID NOT NULL,
-  status TEXT NOT NULL DEFAULT 'pending', -- pending, accepted, declined
-  message TEXT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  responded_at TIMESTAMPTZ,
-  UNIQUE(shift_id, professional_id)
-);
-```
+4. **Media gallery** (`ChatMediaGallery`): Never wired into the UI -- there's no button in `ChatMessages` to open it. The component exists but is orphaned.
 
-**RLS Policies:**
-- Clinics can INSERT invitations for their own shifts
-- Professionals can SELECT invitations sent to them
-- Clinics can SELECT invitations they sent
-- Professionals can UPDATE (accept/decline) invitations sent to them
+5. **Video/audio files**: No inline playback. Videos and audio sent as attachments just show as generic file icons with download links.
 
-**Enable realtime** on `shift_invitations` for instant notification on the professional's dashboard.
+6. **Message bubbles**: Links in text aren't clickable (rendered as plain text via `whitespace-pre-wrap`).
 
-### Frontend Changes
-
-**Modified: `src/components/clinic/CreateShiftModal.tsx`**
-- After shift creation success, show an optional "Invite Professionals" step
-- Add a multi-select search component to find and select professionals by name, specialty, or availability
-- Each selected professional gets an invitation row inserted into `shift_invitations`
-
-**New: `src/components/clinic/InviteProfessionalsModal.tsx`**
-- Standalone modal that can be opened from the shift manage view
-- Search professionals with filters (specialty, availability, rating, verification status)
-- Show professional cards with avatar, name, rating, specialties
-- "Invite" button per professional; disabled if already invited
-- Bulk invite option
-
-**Modified: `src/components/clinic/ShiftManageModal.tsx`**
-- Add an "Invited" tab alongside Pending/Accepted/Declined
-- Show invited professionals with their response status
-- Add "Invite More" button that opens `InviteProfessionalsModal`
-
-**New: `src/components/shifts/ShiftInvitationCard.tsx`**
-- Card component showing invitation details for professionals
-- Accept/Decline buttons
-- Accepting creates a booking with status "requested" and updates invitation status
-
-**Modified: `src/pages/dashboard/ProfessionalDashboard.tsx`**
-- Add "Invitations" section showing pending shift invitations
-- Each invitation shows shift details + clinic info + accept/decline actions
-
-**Notifications:**
-- When a clinic sends an invitation, create a notification for the professional
-- When a professional responds, create a notification for the clinic
+7. **ChatMediaUpload**: The preview state is confusing -- it shows a preview *while* uploading but the upload has already started, so the cancel button doesn't actually cancel the upload.
 
 ---
 
-## Part 2: Chat Mobile UX Overhaul
+## Part 1: Mobile Chat Layout Fix
 
-### Problem
-The chat container uses a fixed `h-[600px]` height that doesn't fill the mobile screen. The input area and message bubbles aren't optimized for mobile touch interaction.
+### `src/pages/Messages.tsx`
+- Hide the page header (h1 + description) on mobile when a conversation is active
+- Pass `selectedConversation` state awareness to conditionally hide header
+- Change to: on mobile, when conversation is open, render only the ChatContainer with no padding/margins for true full-screen chat
+- Add `pb-20` to account for MobileBottomNav
 
-### Changes
-
-**Modified: `src/components/chat/ChatContainer.tsx`**
-- Change `h-[600px]` to `h-[calc(100vh-12rem)] md:h-[600px]` so it fills the mobile viewport
-- On mobile when a conversation is selected, make it truly full-screen by using `h-[calc(100dvh-8rem)]` (dynamic viewport height for notched devices)
-
-**Modified: `src/components/chat/ChatMessages.tsx`**
-- **Header**: Make the back button always visible on mobile with proper touch target (48px), add a subtle border-bottom shadow
-- **Message bubbles**: Increase `max-w-[70%]` to `max-w-[85%]` on mobile for better readability
-- **Input area**: Add `safe-area-inset-bottom` padding, increase textarea min-height to 48px, make send button 48x48px with primary color
-- **Pending media preview**: Optimize for mobile width
-
-**Modified: `src/components/chat/ChatList.tsx`**
-- Increase conversation item touch targets to 56px min-height
-- Make avatar 48x48px on mobile
-- Improve unread badge visibility
-
-**Modified: `src/pages/Messages.tsx`**
-- Remove page header/padding on mobile when a conversation is active (pass through to full-screen chat)
-- Use `pb-20 md:pb-0` to account for MobileBottomNav
+### `src/components/chat/ChatContainer.tsx`
+- Change height to `h-[calc(100dvh-8rem)]` on mobile (accounts for header + bottom nav)
+- On desktop keep `md:h-[600px]`
+- Remove the redundant "Messages" header inside the chat list panel (it duplicates the page header)
 
 ---
 
-## Part 3: Auth Page Logo Fix
+## Part 2: ChatMessages Improvements
 
-### Problem
-The Auth page uses `syndeocare-logo-white.png` which the user says shows a "wrong image." The user wants the same logo as the navbar.
+### Header
+- Move `ChatFilters` from inline in header to a collapsible row below the header, triggered by a filter icon button
+- Add a button to open the `ChatMediaGallery` (the gallery icon)
+- Ensure back button has proper RTL support (flip arrow direction)
 
-### Changes
+### Message Bubbles - Clickable Links
+- Parse URLs in message content and render them as `<a>` tags with `target="_blank"`
+- Style links with underline and appropriate color for own vs other messages
 
-**Modified: `src/pages/Auth.tsx`**
-- Replace `syndeocare-logo-white.png` import with `syndeocare-logo.png` (the regular logo used in the navbar)
-- The `gradient-hero` background is dark, so add a white background pill/container behind the logo, or use CSS `filter: brightness(0) invert(1)` to make it visible on dark backgrounds, or simply wrap it in a light card
-- Best approach: use the regular logo `syndeocare-logo.png` and display it at the same size as the navbar (h-10 to h-14)
+### Message Bubbles - Date Separators
+- Add date separator dividers between messages from different days ("Today", "Yesterday", "Feb 24")
 
-**Modified: `src/pages/VerifyOTP.tsx`**
-- Same fix: replace white logo with regular logo
-- Apply consistent logo styling
+### Image Attachments
+- Increase max height from `max-h-48` to `max-h-64` for better viewing
+- Add rounded corners and a subtle shadow
+- Show image loading skeleton while loading
 
-**Modified: `src/pages/EmailVerification.tsx`**
-- Currently uses a `Heart` icon + "SyndeoCare" text instead of the actual logo
-- Replace with the actual `syndeocare-logo.png` image matching the navbar
+### Video Attachments
+- Detect `video/*` file types and render an inline `<video>` player with controls
+- Support mp4, webm, mov
+- Show poster frame / thumbnail
+
+### Audio Attachments
+- Detect `audio/*` file types and render an inline `<audio>` player
+- Custom styled player with play/pause, progress bar, duration
 
 ---
 
-## Part 4: Translation Keys
+## Part 3: Image Preview Enhancement
 
-**Modified: `src/i18n/locales/en.json`**
-- Add keys for invitations: `shifts.invite`, `shifts.inviteProfessionals`, `shifts.inviteSent`, `shifts.invitationReceived`, `shifts.acceptInvitation`, `shifts.declineInvitation`, `shifts.invitedTab`, `shifts.alreadyInvited`, `shifts.inviteMore`
+### `ChatMessages.tsx` - Image Preview Dialog
+- Add `DialogTitle` for accessibility (sr-only)
+- Add download button in the preview overlay
+- Add image counter if multiple images exist ("2 of 5")
+- Add left/right navigation arrows to browse through all images in the conversation
+- Support pinch-to-zoom on mobile via CSS `touch-action: pinch-zoom` and transform
 
-**Modified: `src/i18n/locales/ar.json`**
-- Arabic translations for all new keys
+---
+
+## Part 4: Wire Up ChatMediaGallery
+
+### `ChatMessages.tsx`
+- Import `ChatMediaGallery`
+- Add a gallery button (grid/image icon) in the chat header
+- Pass `conversationId` and control open/close state
+- This gives users a centralized view of all shared media, files, and links
+
+---
+
+## Part 5: File Type Icons
+
+### Better File Type Detection
+- Show PDF icon for `.pdf` files
+- Show Word icon for `.doc/.docx`
+- Show Excel icon for `.xls/.xlsx`
+- Show generic file icon for others
+- Color-code the icons (red for PDF, blue for Word, green for Excel)
+
+---
+
+## Part 6: ChatList Polish
+
+### `src/components/chat/ChatList.tsx`
+- Show file attachment indicator in last message preview (camera icon for images, paperclip for files)
+- Add online/offline status indicator dot on avatars (green dot)
+- Improve empty state with a call-to-action
 
 ---
 
 ## Implementation Summary
 
-| # | Category | File(s) | Change |
-|---|----------|---------|--------|
-| 1 | Database | Migration | Create `shift_invitations` table + RLS + realtime |
-| 2 | Feature | New `InviteProfessionalsModal.tsx` | Search & invite professionals to shifts |
-| 3 | Feature | New `ShiftInvitationCard.tsx` | Invitation card for professional dashboard |
-| 4 | Feature | Modified `CreateShiftModal.tsx` | Post-creation invite step |
-| 5 | Feature | Modified `ShiftManageModal.tsx` | Invited tab + invite more button |
-| 6 | Feature | Modified `ProfessionalDashboard.tsx` | Show pending invitations |
-| 7 | Mobile UX | Modified `ChatContainer.tsx` | Full-height on mobile |
-| 8 | Mobile UX | Modified `ChatMessages.tsx` | Touch-optimized input, bubbles, header |
-| 9 | Mobile UX | Modified `ChatList.tsx` | Larger touch targets |
-| 10 | Mobile UX | Modified `Messages.tsx` | Full-screen chat on mobile |
-| 11 | Logo Fix | Modified `Auth.tsx` | Use navbar logo |
-| 12 | Logo Fix | Modified `VerifyOTP.tsx` | Use navbar logo |
-| 13 | Logo Fix | Modified `EmailVerification.tsx` | Use navbar logo instead of Heart icon |
-| 14 | i18n | Modified `en.json`, `ar.json` | New invitation keys |
+| # | File | Changes |
+|---|------|---------|
+| 1 | `Messages.tsx` | Hide header on mobile when conversation active, fix padding |
+| 2 | `ChatContainer.tsx` | Better mobile height, remove duplicate header |
+| 3 | `ChatMessages.tsx` | Clickable links, date separators, video/audio players, gallery button, image navigation, better preview dialog |
+| 4 | `ChatFilters.tsx` | Move to collapsible panel triggered from header |
+| 5 | `ChatList.tsx` | File indicators in preview, online dots, better empty state |
+| 6 | `ChatMediaGallery.tsx` | Wire into ChatMessages header, add video tab |
+| 7 | `ChatMediaUpload.tsx` | Add video/audio to accepted file types |
 
-### New Files: 3
-- `src/components/clinic/InviteProfessionalsModal.tsx`
-- `src/components/shifts/ShiftInvitationCard.tsx`
-- Database migration for `shift_invitations`
-
-### Modified Files: 11
-- `src/components/clinic/CreateShiftModal.tsx`
-- `src/components/clinic/ShiftManageModal.tsx`
-- `src/pages/dashboard/ProfessionalDashboard.tsx`
+### Files Modified: 7
+- `src/pages/Messages.tsx`
 - `src/components/chat/ChatContainer.tsx`
 - `src/components/chat/ChatMessages.tsx`
+- `src/components/chat/ChatFilters.tsx`
 - `src/components/chat/ChatList.tsx`
-- `src/pages/Messages.tsx`
-- `src/pages/Auth.tsx`
-- `src/pages/VerifyOTP.tsx`
-- `src/pages/EmailVerification.tsx`
-- `src/i18n/locales/en.json` & `ar.json`
+- `src/components/chat/ChatMediaGallery.tsx`
+- `src/components/chat/ChatMediaUpload.tsx`
+
+### No Database Changes Required
 
