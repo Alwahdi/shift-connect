@@ -61,6 +61,27 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Check daily rate limiting - max 10 OTP requests per email per day
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { data: dailyCodes } = await supabase
+      .from("email_verification_codes")
+      .select("id")
+      .eq("email", email.toLowerCase())
+      .gte("created_at", oneDayAgo);
+
+    if (dailyCodes && dailyCodes.length >= 10) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Too many verification requests today. Please try again tomorrow.",
+          retryAfter: 86400 
+        }),
+        {
+          status: 429,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
     // Generate OTP
     const code = generateOTP();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes

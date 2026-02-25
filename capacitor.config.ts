@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.d9cdd12a438c46568d56af72b6f76e2c',
+  appId: 'ai.syndeocare.app',
   appName: 'SyndeoCare',
   webDir: 'dist',
   server: {

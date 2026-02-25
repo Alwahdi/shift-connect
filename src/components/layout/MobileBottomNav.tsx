@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
+import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   LayoutDashboard, 
@@ -14,7 +15,7 @@ import {
   Building2 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 // Pages that should show the mobile navigation
 const SHOW_NAV_ROUTES = [
@@ -34,32 +35,7 @@ export const MobileBottomNav = () => {
   const location = useLocation();
   const { user, userRole, isOnboardingComplete } = useAuth();
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
-  const [profileId, setProfileId] = useState<string | null>(null);
-
-  // Fetch profile/clinic ID
-  useEffect(() => {
-    if (!user) return;
-
-    const fetchProfile = async () => {
-      if (userRole === "professional" || userRole === "admin" || userRole === "super_admin") {
-        const { data } = await supabase
-          .from("profiles")
-          .select("id")
-          .eq("user_id", user.id)
-          .single();
-        if (data) setProfileId(data.id);
-      } else if (userRole === "clinic") {
-        const { data } = await supabase
-          .from("clinics")
-          .select("id")
-          .eq("user_id", user.id)
-          .single();
-        if (data) setProfileId(data.id);
-      }
-    };
-
-    fetchProfile();
-  }, [user, userRole]);
+  const { profileId } = useProfile();
 
   // Subscribe to unread messages
   useEffect(() => {

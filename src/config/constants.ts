@@ -10,7 +10,7 @@ export const SITE_CONFIG = {
   name: "SyndeoCare",
   tagline: "Healthcare Staffing, Simplified",
   description: "Connect healthcare professionals with facilities seamlessly",
-  url: "https://syndeocare.vercel.app",
+  url: "https://syndeocare.ai",
   supportEmail: "support@syndeocare.ai",
   supportPhone: "+966-55-000-0000",
   location: "Riyadh, Saudi Arabia",
