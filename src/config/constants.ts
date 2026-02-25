@@ -43,10 +43,18 @@ export const PLATFORM_STATS = {
  * Authentication configuration
  */
 export const AUTH_CONFIG = {
-  // Production redirect URL for OAuth
-  redirectUrl: "https://syndeocare.vercel.app/auth/callback",
-  // Site URL for Supabase auth
-  siteUrl: "https://syndeocare.vercel.app",
+  // Dynamic redirect URL — works on any deployment target
+  get redirectUrl() {
+    return typeof window !== 'undefined'
+      ? `${window.location.origin}/auth/callback`
+      : 'https://syndeocare.ai/auth/callback';
+  },
+  // Dynamic site URL
+  get siteUrl() {
+    return typeof window !== 'undefined'
+      ? window.location.origin
+      : 'https://syndeocare.ai';
+  },
   // Minimum password length
   minPasswordLength: 6,
 } as const;

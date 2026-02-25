@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+const APP_URL = Deno.env.get("APP_URL") || "https://syndeocare.ai";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -74,7 +75,7 @@ const getEmailTemplate = (type: string, data: any, recipientName: string) => {
               <p style="font-size: 16px; color: #333;">
                 You have received a new message from <strong>${data.senderName}</strong>.
               </p>
-              <a href="https://syndeocareapp.lovable.app/messages" style="${buttonStyle}">
+              <a href="${APP_URL}/messages" style="${buttonStyle}">
                 View Message
               </a>
               <p style="font-size: 14px; color: #666; margin-top: 30px;">
@@ -104,7 +105,7 @@ const getEmailTemplate = (type: string, data: any, recipientName: string) => {
                 <p style="margin: 5px 0; color: #333;">📏 ${data.distance} away</p>
                 <p style="margin: 5px 0; color: #333;">💰 $${data.hourlyRate}/hour</p>
               </div>
-              <a href="https://syndeocareapp.lovable.app/shifts" style="${buttonStyle}">
+              <a href="${APP_URL}/shifts" style="${buttonStyle}">
                 View Shift Details
               </a>
               <p style="font-size: 14px; color: #666; margin-top: 30px;">
@@ -128,7 +129,7 @@ const getEmailTemplate = (type: string, data: any, recipientName: string) => {
               <p style="font-size: 16px; color: #333;">
                 Your booking status has been updated to: <strong>${data.bookingStatus}</strong>
               </p>
-              <a href="https://syndeocareapp.lovable.app/dashboard/professional" style="${buttonStyle}">
+              <a href="${APP_URL}/dashboard/professional" style="${buttonStyle}">
                 View Details
               </a>
               <p style="font-size: 14px; color: #666; margin-top: 30px;">
@@ -156,7 +157,7 @@ const getEmailTemplate = (type: string, data: any, recipientName: string) => {
                 ? "<p style='color: #22c55e; font-weight: 600;'>✓ Your document is now verified!</p>"
                 : "<p style='color: #ef4444;'>Please re-upload your document with the required corrections.</p>"
               }
-              <a href="https://syndeocareapp.lovable.app/profile/professional" style="${buttonStyle}">
+              <a href="${APP_URL}/profile/professional" style="${buttonStyle}">
                 View Profile
               </a>
               <p style="font-size: 14px; color: #666; margin-top: 30px;">
@@ -180,7 +181,7 @@ const getEmailTemplate = (type: string, data: any, recipientName: string) => {
               <p style="font-size: 16px; color: #333;">
                 You have a new notification from SyndeoCare.
               </p>
-              <a href="https://syndeocareapp.lovable.app" style="${buttonStyle}">
+              <a href="${APP_URL}" style="${buttonStyle}">
                 Go to SyndeoCare
               </a>
             </div>
@@ -191,7 +192,6 @@ const getEmailTemplate = (type: string, data: any, recipientName: string) => {
 };
 
 const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -201,18 +201,15 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Sending ${type} email to ${recipientEmail}`);
 
-    // Check user preferences first
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Get user id from email
-    const { data: userData, error: userError } = await supabaseClient.auth.admin.listUsers();
+    const { data: userData } = await supabaseClient.auth.admin.listUsers();
     const user = userData?.users?.find(u => u.email === recipientEmail);
 
     if (user) {
-      // Check email preferences
       const { data: prefs } = await supabaseClient
         .from("user_preferences")
         .select("notifications_email, email_new_messages, email_new_jobs, email_booking_updates")
@@ -220,33 +217,25 @@ const handler = async (req: Request): Promise<Response> => {
         .single();
 
       if (prefs) {
-        // Check if notifications are enabled for this type
         if (!prefs.notifications_email) {
-          console.log("User has disabled email notifications");
           return new Response(
             JSON.stringify({ success: false, reason: "Email notifications disabled" }),
             { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
           );
         }
-
         if (type === "new_message" && !prefs.email_new_messages) {
-          console.log("User has disabled new message emails");
           return new Response(
             JSON.stringify({ success: false, reason: "New message emails disabled" }),
             { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
           );
         }
-
         if (type === "new_job" && !prefs.email_new_jobs) {
-          console.log("User has disabled new job emails");
           return new Response(
             JSON.stringify({ success: false, reason: "New job emails disabled" }),
             { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
           );
         }
-
         if (type === "booking_update" && !prefs.email_booking_updates) {
-          console.log("User has disabled booking update emails");
           return new Response(
             JSON.stringify({ success: false, reason: "Booking update emails disabled" }),
             { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -257,7 +246,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     const template = getEmailTemplate(type, data, recipientName);
 
-    // Send email using Resend API directly
     const emailResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
