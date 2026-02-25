@@ -337,13 +337,13 @@ export const ChatMessages = ({
   return (
     <div className="flex flex-col h-full" dir={isRTL ? "rtl" : "ltr"}>
       {/* Header */}
-      <div className="border-b p-4 flex items-center gap-3 bg-background">
+      <div className="border-b p-3 md:p-4 flex items-center gap-3 bg-background shadow-sm">
         {onBack && (
-          <Button variant="ghost" size="icon" onClick={onBack} className="md:hidden">
+          <Button variant="ghost" size="icon" onClick={onBack} className="md:hidden h-10 w-10 min-h-[44px] min-w-[44px]">
             <ArrowLeft className="h-5 w-5" />
           </Button>
         )}
-        <Avatar className="h-10 w-10">
+        <Avatar className="h-10 w-10 md:h-10 md:w-10">
           <AvatarImage src={otherAvatar || undefined} alt={otherName || ""} />
           <AvatarFallback>
             <OtherIcon className="h-5 w-5" />
@@ -383,7 +383,7 @@ export const ChatMessages = ({
                   className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[70%] rounded-2xl px-4 py-2 ${
+                    className={`max-w-[85%] md:max-w-[70%] rounded-2xl px-4 py-2 ${
                       isOwn
                         ? "bg-primary text-primary-foreground rounded-br-md"
                         : "bg-secondary text-secondary-foreground rounded-bl-md"
@@ -469,7 +469,7 @@ export const ChatMessages = ({
       </ScrollArea>
 
       {/* Input */}
-      <div className="border-t p-4 bg-background">
+      <div className="border-t p-3 md:p-4 bg-background pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:pb-4">
         {/* Pending media preview */}
         {pendingMedia && (
           <div className="flex items-center gap-2 mb-2 p-2 bg-muted rounded-lg">
@@ -509,7 +509,7 @@ export const ChatMessages = ({
             onClick={handleSend}
             disabled={(!newMessage.trim() && !pendingMedia) || sending}
             size="icon"
-            className="h-12 w-12 shrink-0"
+            className="h-12 w-12 min-h-[48px] min-w-[48px] shrink-0"
           >
             {sending ? (
               <Loader2 className="h-5 w-5 animate-spin" />

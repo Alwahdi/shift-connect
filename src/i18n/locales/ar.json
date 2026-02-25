@@ -933,5 +933,32 @@
     "messages": "الرسائل",
     "backToDashboard": "العودة للوحة التحكم",
     "adminPanel": "لوحة الإدارة"
+  },
+  "shifts": {
+    "invitations": {
+      "title": "دعوات الورديات",
+      "inviteProfessionals": "دعوة مختصين",
+      "inviteDesc": "ابحث وادعُ مختصين موثّقين لورديتك.",
+      "searchPlaceholder": "ابحث بالاسم أو التخصص...",
+      "messagePlaceholder": "أضف رسالة اختيارية لدعوتك...",
+      "invite": "دعوة",
+      "invited": "تمت الدعوة",
+      "invitedTab": "المدعوون",
+      "inviteMore": "دعوة المزيد من المختصين",
+      "noInvitations": "لم يتم إرسال دعوات بعد",
+      "sent": "تم إرسال الدعوة",
+      "sentDesc": "تمت دعوة {{name}} لورديتك.",
+      "received": "دعوة وردية جديدة",
+      "receivedDesc": "دعتك منشأة صحية لوردية.",
+      "accept": "قبول",
+      "decline": "رفض",
+      "accepted": "مقبولة",
+      "acceptedDesc": "قبلت دعوة الوردية. تم إنشاء حجز.",
+      "declined": "مرفوضة",
+      "declinedDesc": "رفضت دعوة الوردية.",
+      "acceptedNotif": "تم قبول الدعوة",
+      "acceptedNotifDesc": "قبل مختص دعوتك للوردية.",
+      "invitation": "دعوة"
+    }
   }
 }

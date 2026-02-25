@@ -25,7 +25,7 @@ export const ChatContainer = ({ userType, profileId, initialConversation }: Chat
   }, [initialConversation]);
 
   return (
-    <div className="h-[600px] flex rounded-xl border overflow-hidden bg-background" dir={isRTL ? "rtl" : "ltr"}>
+    <div className="h-[calc(100dvh-10rem)] md:h-[600px] flex rounded-xl border overflow-hidden bg-background" dir={isRTL ? "rtl" : "ltr"}>
       {/* Conversation List - Hidden on mobile when conversation selected */}
       <div
         className={`w-full md:w-80 border-e flex-shrink-0 ${

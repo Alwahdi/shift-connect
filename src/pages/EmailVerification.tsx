@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Heart, Mail, ArrowLeft, Loader2, CheckCircle } from "lucide-react";
+import { Mail, ArrowLeft, Loader2, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import syndeoCareLogo from "@/assets/syndeocare-logo.png";
 
 const EmailVerification = () => {
   const { t } = useTranslation();
@@ -64,11 +65,8 @@ const EmailVerification = () => {
         className="w-full max-w-md"
       >
         {/* Logo */}
-        <Link to="/" className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
-            <Heart className="w-6 h-6 text-primary-foreground" />
-          </div>
-          <span className="font-bold text-2xl text-foreground">SyndeoCare</span>
+        <Link to="/" className="flex items-center justify-center mb-8">
+          <img src={syndeoCareLogo} alt="SyndeoCare Logo" className="h-14 w-auto object-contain" />
         </Link>
 
         {/* Card */}
