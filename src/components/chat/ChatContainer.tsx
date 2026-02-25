@@ -27,7 +27,7 @@ export const ChatContainer = ({ userType, profileId, initialConversation, onConv
   }, [selectedConversation, onConversationChange]);
 
   return (
-    <div className={`${selectedConversation ? "h-[calc(100dvh-4rem)]" : "h-[calc(100dvh-12rem)]"} md:h-[600px] flex rounded-none md:rounded-xl border-x-0 md:border overflow-hidden bg-background`} dir={isRTL ? "rtl" : "ltr"}>
+    <div className={`${selectedConversation ? "h-full" : "h-[calc(100dvh-3.5rem-5rem-6rem)]"} md:h-[600px] flex rounded-none md:rounded-xl border-x-0 md:border overflow-hidden bg-background`} dir={isRTL ? "rtl" : "ltr"}>
       {/* Conversation List */}
       <div className={`w-full md:w-80 border-e flex-shrink-0 flex flex-col ${selectedConversation ? "hidden md:flex" : "flex"}`}>
         <div className="p-4 border-b">

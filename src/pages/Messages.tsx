@@ -46,7 +46,7 @@ const Messages = () => {
   if (!userType || !profileId) return null;
 
   return (
-    <div className={`${hasActiveConversation ? "px-0 py-0 pb-0" : "container max-w-6xl mx-auto px-4 py-4 pb-20"} md:container md:max-w-6xl md:mx-auto md:px-4 md:py-8 md:pb-8`}>
+    <div className={`${hasActiveConversation ? "h-[calc(100dvh-3.5rem)] overflow-hidden" : "container max-w-6xl mx-auto px-4 py-4 pb-20"} md:container md:max-w-6xl md:mx-auto md:px-4 md:py-8 md:pb-8 md:!h-auto md:!overflow-visible`}>
       {/* Hide header on mobile when conversation is active */}
       <div className={`mb-4 md:mb-6 ${hasActiveConversation ? "hidden md:block" : "block"}`}>
         <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2">
