@@ -159,6 +159,14 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Ubuntu', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: contain;
+  }
+
+  /* Keyboard visible adjustments */
+  body.keyboard-visible {
+    height: 100vh;
+    overflow: hidden;
   }
 
   /* RTL Support - Cairo font for Arabic */
