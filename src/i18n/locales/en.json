@@ -140,7 +140,10 @@
       "welcomeBack": "Welcome back!",
       "loggedIn": "You have successfully logged in.",
       "accountCreated": "Account created!",
-      "completeProfile": "Let's complete your profile setup."
+      "completeProfile": "Let's complete your profile setup.",
+      "emailVerified": "Email Verified!",
+      "canNowLogin": "You can now sign in to your account.",
+      "redirecting": "Redirecting you now..."
     },
     "verification": {
       "checkEmail": "Check your email",
@@ -189,15 +192,6 @@
       "waitToResend": "Please wait before requesting another code",
       "didntReceive": "Didn't receive the code?",
       "sending": "Sending..."
-    },
-    "success": {
-      "welcomeBack": "Welcome back!",
-      "loggedIn": "You have successfully logged in.",
-      "accountCreated": "Account created!",
-      "completeProfile": "Let's complete your profile setup.",
-      "emailVerified": "Email Verified!",
-      "canNowLogin": "You can now sign in to your account.",
-      "redirecting": "Redirecting you now..."
     }
   },
   "home": {
@@ -334,6 +328,7 @@
     "postNewDesc": "Fill in the details below to find qualified healthcare professionals.",
     "shiftPosted": "Shift posted!",
     "shiftPostedDesc": "Your shift has been posted and is now visible to professionals.",
+    "findNow": "Find Shifts Now",
     "fields": {
       "title": "Shift Title",
       "titlePlaceholder": "e.g., Morning ICU Coverage",
@@ -377,6 +372,31 @@
       "conflictTitle": "Schedule Conflict",
       "conflictDesc": "You already have a booking during this time slot.",
       "timeConflict": "Time Conflict"
+    },
+    "invitations": {
+      "title": "Shift Invitations",
+      "inviteProfessionals": "Invite Professionals",
+      "inviteDesc": "Search and invite verified professionals to your shift.",
+      "searchPlaceholder": "Search by name or specialty...",
+      "messagePlaceholder": "Add an optional message to your invitation...",
+      "invite": "Invite",
+      "invited": "Invited",
+      "invitedTab": "Invited",
+      "inviteMore": "Invite More Professionals",
+      "noInvitations": "No invitations sent yet",
+      "sent": "Invitation Sent",
+      "sentDesc": "{{name}} has been invited to your shift.",
+      "received": "New Shift Invitation",
+      "receivedDesc": "A clinic has invited you to a shift.",
+      "accept": "Accept",
+      "decline": "Decline",
+      "accepted": "Accepted",
+      "acceptedDesc": "You've accepted the shift invitation. A booking has been created.",
+      "declined": "Declined",
+      "declinedDesc": "You've declined the shift invitation.",
+      "acceptedNotif": "Invitation Accepted",
+      "acceptedNotifDesc": "A professional accepted your shift invitation.",
+      "invitation": "Invitation"
     }
   },
   "applicant": {
@@ -1016,49 +1036,5 @@
     "saved": "Settings Saved",
     "savedDesc": "Your preferences have been updated.",
     "saveChanges": "Save Changes"
-  },
-  "nav": {
-    "home": "Home",
-    "findShifts": "Find Shifts",
-    "findPros": "Find Pros",
-    "forProfessionals": "For Professionals",
-    "forClinics": "For Clinics",
-    "about": "About",
-    "dashboard": "Dashboard",
-    "profile": "Profile",
-    "settings": "Settings",
-    "messages": "Messages",
-    "backToDashboard": "Back to Dashboard",
-    "adminPanel": "Admin Panel",
-    "mobileNav": "Mobile navigation"
-  },
-  "shifts": {
-    "findNow": "Find Shifts Now",
-    "create": "Create Shift",
-    "invitations": {
-      "title": "Shift Invitations",
-      "inviteProfessionals": "Invite Professionals",
-      "inviteDesc": "Search and invite verified professionals to your shift.",
-      "searchPlaceholder": "Search by name or specialty...",
-      "messagePlaceholder": "Add an optional message to your invitation...",
-      "invite": "Invite",
-      "invited": "Invited",
-      "invitedTab": "Invited",
-      "inviteMore": "Invite More Professionals",
-      "noInvitations": "No invitations sent yet",
-      "sent": "Invitation Sent",
-      "sentDesc": "{{name}} has been invited to your shift.",
-      "received": "New Shift Invitation",
-      "receivedDesc": "A clinic has invited you to a shift.",
-      "accept": "Accept",
-      "decline": "Decline",
-      "accepted": "Accepted",
-      "acceptedDesc": "You've accepted the shift invitation. A booking has been created.",
-      "declined": "Declined",
-      "declinedDesc": "You've declined the shift invitation.",
-      "acceptedNotif": "Invitation Accepted",
-      "acceptedNotifDesc": "A professional accepted your shift invitation.",
-      "invitation": "Invitation"
-    }
   }
 }
