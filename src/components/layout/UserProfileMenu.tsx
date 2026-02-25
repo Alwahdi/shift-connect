@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { useProfile } from "@/hooks/useProfile";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,68 +28,18 @@ import {
 import { VerificationBadge } from "@/components/ui/verification-badge";
 import { useTheme } from "@/contexts/ThemeContext";
 
-interface UserProfile {
-  full_name?: string;
-  name?: string;
-  avatar_url?: string | null;
-  logo_url?: string | null;
-  verification_status?: "pending" | "verified" | "rejected" | null;
-}
-
 export const UserProfileMenu = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { user, userRole, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const { displayName: profileName, avatarUrl: profileAvatar, verificationStatus } = useProfile();
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    if (!user || !userRole) return;
-
-    const fetchProfile = async () => {
-      try {
-        if (userRole === "professional" || userRole === "admin" || userRole === "super_admin") {
-          const { data } = await supabase
-            .from("profiles")
-            .select("full_name, avatar_url, verification_status")
-            .eq("user_id", user.id)
-            .single();
-          
-          if (data) {
-            setProfile({ 
-              full_name: data.full_name, 
-              avatar_url: data.avatar_url,
-              verification_status: data.verification_status as any
-            });
-          }
-        } else if (userRole === "clinic") {
-          const { data } = await supabase
-            .from("clinics")
-            .select("name, logo_url, verification_status")
-            .eq("user_id", user.id)
-            .single();
-          
-          if (data) {
-            setProfile({ 
-              name: data.name, 
-              logo_url: data.logo_url,
-              verification_status: data.verification_status as any
-            });
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-      }
-    };
-
-    fetchProfile();
-  }, [user, userRole]);
 
   if (!user) return null;
 
-  const displayName = profile?.full_name || profile?.name || user.email?.split("@")[0] || "User";
-  const avatarUrl = profile?.avatar_url || profile?.logo_url;
+  const displayName = profileName || user.email?.split("@")[0] || "User";
+  const avatarUrl = profileAvatar;
   const initials = displayName
     .split(" ")
     .map((n) => n[0])
@@ -140,9 +90,9 @@ export const UserProfileMenu = () => {
                 {initials}
               </AvatarFallback>
             </Avatar>
-            {profile?.verification_status && (
+            {verificationStatus && (
               <div className="absolute -bottom-0.5 -end-0.5">
-                <VerificationBadge status={profile.verification_status} size="sm" />
+                <VerificationBadge status={verificationStatus} size="sm" />
               </div>
             )}
           </div>
@@ -167,8 +117,8 @@ export const UserProfileMenu = () => {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <p className="text-sm font-semibold truncate">{displayName}</p>
-                {profile?.verification_status && (
-                  <VerificationBadge status={profile.verification_status} size="sm" />
+                {verificationStatus && (
+                  <VerificationBadge status={verificationStatus} size="sm" />
                 )}
               </div>
               <p className="text-xs text-muted-foreground truncate">{user.email}</p>

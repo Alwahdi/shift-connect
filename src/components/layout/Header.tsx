@@ -93,7 +93,7 @@ const Header = () => {
             {user ? (
               <>
                 <Link to="/messages">
-                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl">
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl" aria-label={t("nav.messages")}>
                     <MessageCircle className="h-5 w-5" />
                   </Button>
                 </Link>
@@ -121,7 +121,7 @@ const Header = () => {
             {user && (
               <>
                 <Link to="/messages">
-                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl">
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl" aria-label={t("nav.messages")}>
                     <MessageCircle className="h-5 w-5" />
                   </Button>
                 </Link>

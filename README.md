@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.x-61DAFB)](https://react.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.x-38B2AC)](https://tailwindcss.com/)
-[![Capacitor](https://img.shields.io/badge/Capacitor-6.x-119EFF)](https://capacitorjs.com/)
+[![Capacitor](https://img.shields.io/badge/Capacitor-8.x-119EFF)](https://capacitorjs.com/)
 
 ---
 
@@ -57,7 +57,7 @@ Mobile (Capacitor: iOS + Android)
 | Routing | React Router v6 |
 | Forms | React Hook Form, Zod |
 | i18n | i18next (EN + AR with RTL) |
-| Mobile | Capacitor 6 (iOS + Android) |
+| Mobile | Capacitor 8 (iOS + Android) |
 | Backend | Supabase (PostgreSQL, Auth, Realtime, Storage, Edge Functions) |
 | Email | Resend API |
 | Geolocation | PostGIS |
@@ -244,4 +244,4 @@ See [docs/API.md](./docs/API.md) for edge function documentation.
 
 **SyndeoCare.ai** — Healthcare Staffing, Simplified.
 
-© 2025 SyndeoCare. All rights reserved.
+© 2025–2026 SyndeoCare. All rights reserved.

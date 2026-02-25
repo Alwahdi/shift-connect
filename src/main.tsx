@@ -47,7 +47,7 @@ const initializeCapacitor = async () => {
         const url = new URL(event.url);
         const path = url.pathname;
         if (path) {
-          window.location.hash = path;
+          window.location.pathname = path;
         }
       });
 
