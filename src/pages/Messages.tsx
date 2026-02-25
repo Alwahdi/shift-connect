@@ -16,48 +16,19 @@ const Messages = () => {
   const [userType, setUserType] = useState<"professional" | "clinic" | null>(null);
   const [profileId, setProfileId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasActiveConversation, setHasActiveConversation] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
-    
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
+    if (!user) { navigate("/auth"); return; }
 
     const fetchUserType = async () => {
-      // Check if user is a professional
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("user_id", user.id)
-        .single();
-
-      if (profile) {
-        setUserType("professional");
-        setProfileId(profile.id);
-        setLoading(false);
-        return;
-      }
-
-      // Check if user is a clinic
-      const { data: clinic } = await supabase
-        .from("clinics")
-        .select("id")
-        .eq("user_id", user.id)
-        .single();
-
-      if (clinic) {
-        setUserType("clinic");
-        setProfileId(clinic.id);
-        setLoading(false);
-        return;
-      }
-
-      // No profile found, redirect to onboarding
+      const { data: profile } = await supabase.from("profiles").select("id").eq("user_id", user.id).single();
+      if (profile) { setUserType("professional"); setProfileId(profile.id); setLoading(false); return; }
+      const { data: clinic } = await supabase.from("clinics").select("id").eq("user_id", user.id).single();
+      if (clinic) { setUserType("clinic"); setProfileId(clinic.id); setLoading(false); return; }
       navigate("/");
     };
-
     fetchUserType();
   }, [user, authLoading, navigate]);
 
@@ -72,13 +43,12 @@ const Messages = () => {
     );
   }
 
-  if (!userType || !profileId) {
-    return null;
-  }
+  if (!userType || !profileId) return null;
 
   return (
-    <div className="container max-w-6xl mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
-      <div className="mb-4 md:mb-6">
+    <div className={`${hasActiveConversation ? "px-0 py-0 pb-0" : "container max-w-6xl mx-auto px-4 py-4 pb-20"} md:container md:max-w-6xl md:mx-auto md:px-4 md:py-8 md:pb-8`}>
+      {/* Hide header on mobile when conversation is active */}
+      <div className={`mb-4 md:mb-6 ${hasActiveConversation ? "hidden md:block" : "block"}`}>
         <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2">
           <MessageCircle className="h-5 w-5 md:h-6 md:w-6" />
           {t("chat.messages")}
@@ -92,6 +62,7 @@ const Messages = () => {
         userType={userType} 
         profileId={profileId} 
         initialConversation={conversationParam}
+        onConversationChange={setHasActiveConversation}
       />
     </div>
   );

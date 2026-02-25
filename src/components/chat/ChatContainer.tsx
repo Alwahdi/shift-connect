@@ -8,30 +8,28 @@ interface ChatContainerProps {
   userType: "professional" | "clinic";
   profileId: string;
   initialConversation?: string | null;
+  onConversationChange?: (hasConversation: boolean) => void;
 }
 
-export const ChatContainer = ({ userType, profileId, initialConversation }: ChatContainerProps) => {
+export const ChatContainer = ({ userType, profileId, initialConversation, onConversationChange }: ChatContainerProps) => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
   const [selectedConversation, setSelectedConversation] = useState<string | null>(
     initialConversation || null
   );
 
-  // Update selected conversation when initialConversation changes
   useEffect(() => {
-    if (initialConversation) {
-      setSelectedConversation(initialConversation);
-    }
+    if (initialConversation) setSelectedConversation(initialConversation);
   }, [initialConversation]);
 
+  useEffect(() => {
+    onConversationChange?.(!!selectedConversation);
+  }, [selectedConversation, onConversationChange]);
+
   return (
-    <div className="h-[calc(100dvh-10rem)] md:h-[600px] flex rounded-xl border overflow-hidden bg-background" dir={isRTL ? "rtl" : "ltr"}>
-      {/* Conversation List - Hidden on mobile when conversation selected */}
-      <div
-        className={`w-full md:w-80 border-e flex-shrink-0 ${
-          selectedConversation ? "hidden md:block" : "block"
-        }`}
-      >
+    <div className={`${selectedConversation ? "h-[calc(100dvh-4rem)]" : "h-[calc(100dvh-12rem)]"} md:h-[600px] flex rounded-none md:rounded-xl border-x-0 md:border overflow-hidden bg-background`} dir={isRTL ? "rtl" : "ltr"}>
+      {/* Conversation List */}
+      <div className={`w-full md:w-80 border-e flex-shrink-0 flex flex-col ${selectedConversation ? "hidden md:flex" : "flex"}`}>
         <div className="p-4 border-b">
           <h2 className="font-semibold flex items-center gap-2">
             <MessageCircle className="h-5 w-5" />
@@ -47,11 +45,7 @@ export const ChatContainer = ({ userType, profileId, initialConversation }: Chat
       </div>
 
       {/* Chat Messages */}
-      <div
-        className={`flex-1 ${
-          selectedConversation ? "block" : "hidden md:block"
-        }`}
-      >
+      <div className={`flex-1 min-w-0 ${selectedConversation ? "flex" : "hidden md:flex"}`}>
         {selectedConversation ? (
           <ChatMessages
             conversationId={selectedConversation}
@@ -60,7 +54,7 @@ export const ChatContainer = ({ userType, profileId, initialConversation }: Chat
             onBack={() => setSelectedConversation(null)}
           />
         ) : (
-          <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
+          <div className="h-full flex flex-col items-center justify-center text-muted-foreground w-full">
             <MessageCircle className="h-16 w-16 mb-4 opacity-50" />
             <p>{t("chat.selectConversation")}</p>
           </div>
