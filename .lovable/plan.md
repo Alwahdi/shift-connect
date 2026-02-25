@@ -1,287 +1,236 @@
 
 
-# Mobile App Readiness, Self-Hosted Migration & Professional Documentation
+# Comprehensive Production Hardening & Quality Improvement Plan
 
-## Overview
-
-This plan covers three major areas: (1) making the app fully deployable to Apple App Store and Google Play via Capacitor, (2) preparing the codebase for self-hosted backend migration, (3) removing all Lovable branding and creating professional documentation.
+Based on the detailed review provided and my thorough analysis of the codebase, here is the implementation plan addressing every identified issue.
 
 ---
 
-## Part 1: Capacitor Mobile App Setup
+## Part 1: Package & Branding Fixes
 
-### 1.1 Install Capacitor Dependencies
+### 1.1 Fix `package.json` Name
+The package name is still `vite_react_shadcn_ts` (line 2). This was identified in the previous plan but never changed.
 
-Add to `package.json`:
-- `@capacitor/core`
-- `@capacitor/cli` (dev dependency)
-- `@capacitor/ios`
-- `@capacitor/android`
-- `@capacitor/status-bar` (native status bar control)
-- `@capacitor/splash-screen` (native splash screen)
-- `@capacitor/keyboard` (keyboard handling for forms)
-- `@capacitor/haptics` (haptic feedback for mobile nav)
-- `@capacitor/push-notifications` (for App Store push requirement)
-- `@capacitor/app` (app lifecycle, deep linking)
-- `@capacitor/browser` (in-app browser for OAuth)
+**File:** `package.json`
+- Change `"name": "vite_react_shadcn_ts"` to `"name": "syndeocare"`
+- Add `"cap:sync"` and `"cap:build"` scripts for mobile workflows
 
-### 1.2 Create Capacitor Configuration
+### 1.2 Fix Capacitor Config App ID
+The `appId` in `capacitor.config.ts` (line 4) is `app.lovable.d9cdd12a...` which contains Lovable branding. App Store and Play Store will reject this.
 
-**New file: `capacitor.config.ts`**
+**File:** `capacitor.config.ts`
+- Change `appId` to `ai.syndeocare.app`
+- This is the reverse-domain notation required by both stores
+
+### 1.3 Remove `lovable-tagger` From Vite Config
+The `lovable-tagger` package remains in `devDependencies` (line 92 of `package.json`). While the import was removed from `vite.config.ts`, it still exists as a dependency.
+
+**File:** `package.json`
+- Remove `"lovable-tagger": "^1.1.13"` from devDependencies
+
+---
+
+## Part 2: Duplicate Profile Fetching (Architecture Issue)
+
+### Problem
+Profile data is fetched independently in three separate components, causing redundant network requests on every page load:
+1. `DashboardLayout.tsx` (lines 46-87) -- fetches profile
+2. `UserProfileMenu.tsx` (lines 50-84) -- fetches the exact same profile
+3. `MobileBottomNav.tsx` (lines 43-58) -- fetches profile ID
+
+### Solution: Centralized Profile Hook
+
+**New file:** `src/hooks/useProfile.ts`
+- Create a single React Query hook that fetches profile/clinic data
+- Uses `useQuery` with key `['profile', user.id]` and `staleTime: 5min`
+- Returns `{ profile, isLoading, avatarUrl, displayName, verificationStatus, profileId }`
+
+**Modified files:**
+- `DashboardLayout.tsx` -- Replace inline `fetchProfile` with `useProfile()` hook
+- `UserProfileMenu.tsx` -- Replace inline `fetchProfile` with `useProfile()` hook
+- `MobileBottomNav.tsx` -- Replace inline `fetchProfile` with `useProfile()` hook
+
+This eliminates 2 duplicate Supabase queries per page load.
+
+---
+
+## Part 3: Type Safety Fixes
+
+### 3.1 Remove `as any` Casts
+
+**File:** `DashboardLayout.tsx` (line 64)
 ```typescript
-import type { CapacitorConfig } from '@capacitor/cli';
-
-const config: CapacitorConfig = {
-  appId: 'app.lovable.d9cdd12a438c46568d56af72b6f76e2c',
-  appName: 'SyndeoCare',
-  webDir: 'dist',
-  server: {
-    url: 'https://d9cdd12a-438c-4656-8d56-af72b6f76e2c.lovableproject.com?forceHideBadge=true',
-    cleartext: true,
-  },
-  plugins: {
-    SplashScreen: {
-      launchAutoHide: true,
-      launchShowDuration: 2000,
-      backgroundColor: '#663C6D',
-    },
-    StatusBar: {
-      style: 'dark',
-      backgroundColor: '#663C6D',
-    },
-    Keyboard: {
-      resize: 'body',
-      resizeOnFullScreen: true,
-    },
-  },
-};
-
-export default config;
+// Current: verification_status: data.verification_status as any
+// Fix: verification_status: data.verification_status as UserProfile['verification_status']
 ```
 
-### 1.3 Mobile-Specific Adaptations
-
-**Modify `index.html`:**
-- Add mobile meta tags required by App Store/Play Store:
-  - `apple-mobile-web-app-capable`
-  - `apple-mobile-web-app-status-bar-style`
-  - `theme-color`
-  - CSP meta tag for security
-  - Viewport with `viewport-fit=cover` for notched devices
-
-**Modify `src/main.tsx`:**
-- Import and initialize Capacitor plugins (StatusBar, SplashScreen, Keyboard)
-- Handle deep links via `@capacitor/app`
-- Configure safe area insets
-
-**Modify `src/index.css`:**
-- Add `env(safe-area-inset-*)` padding for notched devices
-- Ensure `body` has proper mobile overscroll behavior
-- Add `-webkit-tap-highlight-color: transparent`
-
-### 1.4 App Store Requirements
-
-**New file: `src/components/ErrorBoundary.tsx`**
-- React Error Boundary to prevent white-screen crashes (App Store rejection reason)
-- Retry button with branded styling
-
-**Modify `src/App.tsx`:**
-- Wrap entire app in ErrorBoundary
-- Add `React.lazy()` for all route imports with `<Suspense>` fallback
-- Configure QueryClient with production defaults (`staleTime: 5min`, `retry: 1`)
+**File:** `UserProfileMenu.tsx` (lines 60, 73)
+Same pattern -- replace `as any` with proper type narrowing.
 
 ---
 
-## Part 2: Self-Hosted Backend Preparation
+## Part 4: Rate Limiting on OTP Edge Functions
 
-### 2.1 Centralized Backend Configuration
+### Problem (Security)
+The `send-otp-email` function has rate limiting (1 per minute), but the `verify-otp` function has no IP-based rate limiting. An attacker could brute-force the 6-digit code (1M combinations) within the 15-minute window.
 
-**New file: `src/config/backend.ts`**
-```typescript
-export const BACKEND_CONFIG = {
-  supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
-  supabaseAnonKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-  // When self-hosting, change these environment variables
-  // to point to your own Supabase instance
-} as const;
-```
+### Solution
+**File:** `supabase/functions/verify-otp/index.ts`
+- The attempt counter logic already exists (lines 45-75) with max 5 attempts
+- This is adequate for the current implementation -- no changes needed here
 
-This file documents the migration path clearly so switching to a self-hosted instance only requires changing environment variables.
-
-### 2.2 Edge Function URL Hardcoding Fix
-
-**Modify `supabase/functions/send-email-notification/index.ts`:**
-- Replace all 5 hardcoded `syndeocareapp.lovable.app` URLs with a configurable `APP_URL` environment variable
-- Fall back to `https://syndeocare.ai` as default
-
-### 2.3 Auth Redirect Configuration
-
-**Modify `src/config/constants.ts`:**
-- Update `AUTH_CONFIG.redirectUrl` to use `window.location.origin` dynamically instead of hardcoded vercel URL
-- This ensures OAuth works regardless of deployment target
+**File:** `supabase/functions/send-otp-email/index.ts`
+- Already has 1-minute rate limiting (lines 51-64)
+- Add daily limit: max 10 OTP requests per email per day to prevent abuse
 
 ---
 
-## Part 3: Remove All Lovable Branding
+## Part 5: Pagination for Large Lists
 
-### 3.1 Files to Modify
+### Problem
+Messages, notifications, and bookings fetch without pagination, potentially loading hundreds of records.
 
-| File | Change |
-|------|--------|
-| `package.json` | Change `name` from `vite_react_shadcn_ts` to `syndeocare` |
-| `vite.config.ts` | Remove `lovable-tagger` import and usage (keep as dev dep to avoid build errors) |
-| `README.md` | Complete rewrite (see below) |
-| `index.html` | Already clean - no Lovable references |
+### Solution
+**File:** `src/components/notifications/NotificationCenter.tsx`
+- Already limited to 50 (line 98) -- adequate for a popover
 
-### 3.2 Professional README.md
-
-Complete rewrite covering:
-
-```text
-# SyndeoCare.ai
-
-## Healthcare Staffing Platform
-
-### Overview
-SyndeoCare is a full-stack healthcare staffing platform...
-
-### Table of Contents
-1. Architecture Overview
-2. Tech Stack
-3. Project Structure
-4. Getting Started
-5. Environment Variables
-6. Database Schema
-7. Authentication Flow
-8. User Roles & Permissions
-9. Internationalization (i18n)
-10. Design System & Tokens
-11. Mobile App Deployment
-12. Self-Hosted Backend Setup
-13. API Reference (Edge Functions)
-14. Security Model
-15. Contributing
-
-### Architecture Overview
-- Frontend: Vite + React 18 + TypeScript
-- Backend: Supabase (PostgreSQL + Auth + Realtime + Storage + Edge Functions)
-- Styling: Tailwind CSS + Radix UI + Framer Motion
-- State: React Query + React Context
-- i18n: i18next with Arabic RTL support
-- Mobile: Capacitor (iOS + Android)
-
-### Project Structure (directory tree)
-
-### Database Schema (all tables documented)
-
-### Authentication Flow
-- Email + Password with OTP verification
-- Role-based access (professional, clinic, admin, super_admin)
-- RLS policies on all tables
-
-### Mobile Deployment
-- Prerequisites (Xcode, Android Studio)
-- Build steps for iOS and Android
-- App Store submission checklist
-
-### Self-Hosted Backend
-- Step-by-step migration from Lovable Cloud to self-hosted Supabase
-- Environment variable mapping
-- Edge function deployment instructions
-```
-
-### 3.3 New Documentation Files
-
-**New file: `docs/ARCHITECTURE.md`** - Detailed system architecture
-**New file: `docs/DEPLOYMENT.md`** - Step-by-step deployment guide for web + mobile
-**New file: `docs/SELF_HOSTING.md`** - Self-hosted backend migration guide
-**New file: `docs/API.md`** - Edge function API reference
+**File:** `src/components/chat/ChatMessages.tsx`
+- Add pagination with "Load more" button for message history
+- Initially load last 50 messages, then load 50 more on demand
 
 ---
 
-## Part 4: Code Quality & Production Hardening
+## Part 6: Accessibility Improvements
 
-### 4.1 Error Boundaries
+### 6.1 Missing ARIA Labels on Icon Buttons
 
-**New file: `src/components/ErrorBoundary.tsx`**
-- Global error boundary with SyndeoCare branding
-- "Something went wrong" screen with retry button
-- Error logging (console in dev, could send to analytics in prod)
+**File:** `src/components/layout/Header.tsx`
+- Line 124: Messages link button missing `aria-label` -- add `aria-label={t("chat.messages")}`
 
-### 4.2 Route-Level Code Splitting
+### 6.2 Notification Action Buttons Too Small
 
-**Modify `src/App.tsx`:**
-- Convert all 20+ page imports to `React.lazy()`
-- Wrap `<Routes>` in `<Suspense>` with branded loading skeleton
-- Add ErrorBoundary wrapper
-
-### 4.3 Production QueryClient
-
-**Modify `src/App.tsx`:**
-```typescript
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000,
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
-```
-
-### 4.4 Loading Skeleton
-
-**New file: `src/components/PageSkeleton.tsx`**
-- Branded full-page skeleton for route transitions
-- Uses SyndeoCare logo and spinner
+**File:** `src/components/notifications/NotificationCenter.tsx`
+- Lines 280, 290: Action buttons are `h-6 w-6` (24px) -- below 44px minimum
+- These are hover-only actions on desktop, acceptable as secondary controls
+- Add touch-friendly swipe actions for mobile in the future
 
 ---
 
-## Summary of All Changes
+## Part 7: Mobile UX Polish
 
-### New Files (7)
-| File | Purpose |
-|------|---------|
-| `capacitor.config.ts` | Capacitor configuration for iOS/Android |
-| `src/components/ErrorBoundary.tsx` | Global error boundary |
-| `src/components/PageSkeleton.tsx` | Route loading skeleton |
-| `src/config/backend.ts` | Backend configuration docs |
-| `docs/ARCHITECTURE.md` | System architecture |
-| `docs/DEPLOYMENT.md` | Deployment guide |
-| `docs/SELF_HOSTING.md` | Self-hosting migration |
+### 7.1 Content Behind Fixed Header
 
-### Modified Files (8)
-| File | Changes |
-|------|---------|
-| `package.json` | Rename + add Capacitor deps + add build scripts |
-| `index.html` | Add mobile meta tags + CSP |
-| `vite.config.ts` | Remove lovable-tagger usage |
-| `src/App.tsx` | ErrorBoundary + lazy loading + QueryClient config |
-| `src/main.tsx` | Capacitor plugin initialization |
-| `src/config/constants.ts` | Dynamic redirect URLs |
-| `supabase/functions/send-email-notification/index.ts` | Replace hardcoded URLs |
-| `README.md` | Complete professional rewrite |
+**Problem:** The `Header.tsx` is `fixed` (line 60) with height `h-14 sm:h-16 md:h-20`, but the Index page content starts at `pt-24` which may not account for all viewport sizes.
 
-### Zero Database Changes Required
+**File:** `src/pages/Index.tsx`
+- The HeroSection already has `pt-24 md:pt-32 lg:pt-40` which accounts for this
+- No change needed
+
+### 7.2 Mobile Bottom Nav Safe Area
+
+**File:** `src/components/layout/MobileBottomNav.tsx`
+- Already has `safe-area-inset-bottom` class (line 144)
+- Already hidden on md+ screens (line 139: `md:hidden`)
+- Dashboard content has `pb-20 md:pb-0` (DashboardLayout line 133)
+- This is correct
+
+### 7.3 Mobile Menu Overlay Z-Index
+
+**File:** `src/components/layout/Header.tsx`
+- Mobile menu overlay (line 152) uses `z-40` but the header uses `z-50`
+- The mobile menu is positioned `top-14 sm:top-16` which is correct
+- No change needed
 
 ---
 
-## Post-Implementation Steps (User Action Required)
+## Part 8: Error Boundary Enhancement
 
-After these changes are implemented, to deploy to app stores:
+### Problem
+The current ErrorBoundary (line 57) checks `process.env.NODE_ENV` which doesn't work in Vite -- Vite uses `import.meta.env.MODE`.
 
-1. Export project to GitHub via Settings
-2. Clone the repository locally
-3. Run `npm install`
-4. Run `npx cap add ios` and/or `npx cap add android`
-5. Run `npm run build && npx cap sync`
-6. Open in Xcode (`npx cap open ios`) or Android Studio (`npx cap open android`)
-7. Configure signing certificates and submit to stores
+**File:** `src/components/ErrorBoundary.tsx`
+- Change `process.env.NODE_ENV === 'development'` to `import.meta.env.DEV`
 
-For self-hosted backend migration:
-1. Set up your own Supabase instance
-2. Run all migrations from `supabase/migrations/`
-3. Deploy edge functions with `supabase functions deploy`
-4. Update environment variables to point to your instance
+---
+
+## Part 9: Deep Link Handling Fix
+
+### Problem
+In `src/main.tsx` (line 50), deep links use `window.location.hash = path` but the app uses `BrowserRouter` (not `HashRouter`), so deep links won't work.
+
+**File:** `src/main.tsx`
+- Change `window.location.hash = path` to `window.location.pathname = path`
+
+---
+
+## Part 10: Documentation Updates
+
+### 10.1 Update Copyright Year
+**File:** `README.md` (line 245)
+- Change `© 2025` to `© 2025-2026`
+
+### 10.2 Fix Capacitor Version Badge
+**File:** `README.md` (line 8)
+- Change `Capacitor-6.x` to `Capacitor-8.x` (actual installed version is 8.1.0)
+
+### 10.3 Fix Tech Stack Table
+**File:** `README.md` (line 60)
+- Change `Capacitor 6` to `Capacitor 8`
+
+---
+
+## Part 11: CSP Header Fix
+
+### Problem
+The CSP in `index.html` (line 21) allows `https://cdn.gpteng.co` which is Lovable-specific infrastructure.
+
+**File:** `index.html`
+- Remove `https://cdn.gpteng.co` from `script-src` directive
+- Remove `https://*.lovableproject.com https://*.lovable.app` from `connect-src` after deployment to own domain
+
+---
+
+## Part 12: SITE_CONFIG URL Fix
+
+**File:** `src/config/constants.ts` (line 13)
+- Change `url: "https://syndeocare.vercel.app"` to `url: "https://syndeocare.ai"`
+- This is the canonical URL and should match the one in `index.html`
+
+---
+
+## Implementation Summary
+
+| # | Category | File(s) | Change |
+|---|----------|---------|--------|
+| 1 | Branding | `package.json` | Rename to `syndeocare`, remove `lovable-tagger` |
+| 2 | Branding | `capacitor.config.ts` | Fix `appId` to `ai.syndeocare.app` |
+| 3 | Architecture | New `src/hooks/useProfile.ts` | Centralized profile hook |
+| 4 | Architecture | `DashboardLayout.tsx`, `UserProfileMenu.tsx`, `MobileBottomNav.tsx` | Use `useProfile()` hook |
+| 5 | Type Safety | `DashboardLayout.tsx`, `UserProfileMenu.tsx` | Remove `as any` casts |
+| 6 | Bug Fix | `ErrorBoundary.tsx` | Fix `process.env` to `import.meta.env` |
+| 7 | Bug Fix | `main.tsx` | Fix deep link handling |
+| 8 | Security | `index.html` | Clean CSP of Lovable domains |
+| 9 | Config | `constants.ts` | Fix site URL |
+| 10 | Accessibility | `Header.tsx` | Add missing aria-labels |
+| 11 | Docs | `README.md` | Fix version badges and copyright |
+| 12 | Security | `send-otp-email/index.ts` | Add daily rate limit |
+
+### No Database Changes Required
+
+### Files Created: 1
+- `src/hooks/useProfile.ts`
+
+### Files Modified: 10
+- `package.json`
+- `capacitor.config.ts`
+- `src/components/ErrorBoundary.tsx`
+- `src/main.tsx`
+- `src/components/layout/DashboardLayout.tsx`
+- `src/components/layout/UserProfileMenu.tsx`
+- `src/components/layout/MobileBottomNav.tsx`
+- `src/components/layout/Header.tsx`
+- `src/config/constants.ts`
+- `index.html`
+- `README.md`
+- `supabase/functions/send-otp-email/index.ts`
 
