@@ -1,0 +1,52 @@
+# ============================================================================
+# SyndeoCare — Pull Request Checks
+# ============================================================================
+
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  check:
+    name: PR Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "9"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+
+      # Lint
+      - run: pnpm lint
+
+      # Type check
+      - run: pnpm tsc --noEmit
+
+      # Unit tests
+      - run: pnpm test
+
+      # Build check (ensure it compiles)
+      - run: pnpm build
+        env:
+          VITE_SUPABASE_URL: "https://placeholder.supabase.co"
+          VITE_SUPABASE_PUBLISHABLE_KEY: "placeholder"
+          VITE_SUPABASE_PROJECT_ID: "placeholder"
+
+      # Bundle size check
+      - name: Check bundle size
+        run: |
+          BUNDLE_SIZE=$(du -sk dist/ | cut -f1)
+          echo "Bundle size: ${BUNDLE_SIZE}KB"
+          if [ "$BUNDLE_SIZE" -gt 5120 ]; then
+            echo "⚠️ Warning: Bundle exceeds 5MB"
+          fi
