@@ -1,0 +1,15 @@
+{
+  "name": "@syndeocare/database",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate:types": "supabase gen types typescript --local > src/types.ts",
+    "migrate:up": "supabase db push",
+    "migrate:reset": "supabase db reset",
+    "seed": "supabase db seed"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.89.0"
+  }
+}

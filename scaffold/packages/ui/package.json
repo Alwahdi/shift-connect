@@ -1,0 +1,34 @@
+{
+  "name": "@syndeocare/ui",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./button": "./src/components/button.tsx",
+    "./input": "./src/components/input.tsx",
+    "./card": "./src/components/card.tsx",
+    "./badge": "./src/components/badge.tsx",
+    "./dialog": "./src/components/dialog.tsx",
+    "./loading-button": "./src/components/loading-button.tsx",
+    "./empty-state": "./src/components/empty-state.tsx",
+    "./skip-link": "./src/components/skip-link.tsx"
+  },
+  "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.14",
+    "@radix-ui/react-slot": "^1.2.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.462.0",
+    "tailwind-merge": "^2.6.0"
+  },
+  "peerDependencies": {
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "typescript": "^5.5.0"
+  }
+}
