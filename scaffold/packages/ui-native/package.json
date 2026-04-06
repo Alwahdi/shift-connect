@@ -1,0 +1,32 @@
+{
+  "name": "@syndeocare/ui-native",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./button": "./src/components/button.tsx",
+    "./input": "./src/components/input.tsx",
+    "./card": "./src/components/card.tsx",
+    "./badge": "./src/components/badge.tsx",
+    "./loading-button": "./src/components/loading-button.tsx",
+    "./empty-state": "./src/components/empty-state.tsx",
+    "./avatar": "./src/components/avatar.tsx",
+    "./loading-skeleton": "./src/components/loading-skeleton.tsx"
+  },
+  "dependencies": {
+    "react-native-reanimated": "~3.17.0"
+  },
+  "peerDependencies": {
+    "expo-haptics": "~14.1.0",
+    "expo-image": "~2.3.0",
+    "react": "19.1.0",
+    "react-native": "0.81.0",
+    "react-native-safe-area-context": "5.4.0"
+  },
+  "devDependencies": {
+    "@types/react": "~19.0.0",
+    "typescript": "~5.8.0"
+  }
+}
