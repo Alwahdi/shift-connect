@@ -1,0 +1,193 @@
+name: Mobile CI/CD
+
+on:
+  pull_request:
+    paths:
+      - "scaffold/apps/mobile/**"
+      - "scaffold/packages/**"
+  push:
+    branches: [develop, main]
+    paths:
+      - "scaffold/apps/mobile/**"
+      - "scaffold/packages/**"
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: "EAS Build profile"
+        required: true
+        default: "preview"
+        type: choice
+        options:
+          - development
+          - preview
+          - production
+      platform:
+        description: "Target platform"
+        required: true
+        default: "all"
+        type: choice
+        options:
+          - ios
+          - android
+          - all
+      ota-update:
+        description: "Deploy OTA update instead of native build"
+        type: boolean
+        default: false
+
+env:
+  EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+  NODE_VERSION: "22"
+  PNPM_VERSION: "10"
+
+jobs:
+  lint-and-typecheck:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+          cache-dependency-path: scaffold/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: scaffold
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check mobile app
+        working-directory: scaffold/apps/mobile
+        run: pnpm typecheck
+
+      - name: Lint mobile app
+        working-directory: scaffold/apps/mobile
+        run: pnpm lint
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+          cache-dependency-path: scaffold/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: scaffold
+        run: pnpm install --frozen-lockfile
+
+      - name: Run mobile tests
+        working-directory: scaffold/apps/mobile
+        run: pnpm test -- --ci --passWithNoTests
+
+  build-preview:
+    name: EAS Build (Preview)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    needs: []
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+          cache-dependency-path: scaffold/pnpm-lock.yaml
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        working-directory: scaffold
+        run: pnpm install --frozen-lockfile
+
+      - name: Build preview
+        working-directory: scaffold/apps/mobile
+        run: eas build --profile preview --platform all --non-interactive
+
+  build-production:
+    name: EAS Build & Submit (Production)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+          cache-dependency-path: scaffold/pnpm-lock.yaml
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        working-directory: scaffold
+        run: pnpm install --frozen-lockfile
+
+      - name: Build production
+        working-directory: scaffold/apps/mobile
+        run: eas build --profile production --platform all --non-interactive --auto-submit
+
+  manual-build:
+    name: Manual Build / OTA Update
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+          cache-dependency-path: scaffold/pnpm-lock.yaml
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        working-directory: scaffold
+        run: pnpm install --frozen-lockfile
+
+      - name: OTA Update
+        if: inputs.ota-update
+        working-directory: scaffold/apps/mobile
+        run: eas update --branch ${{ inputs.profile }} --message "OTA update from CI"
+
+      - name: Native Build
+        if: "!inputs.ota-update"
+        working-directory: scaffold/apps/mobile
+        run: eas build --profile ${{ inputs.profile }} --platform ${{ inputs.platform }} --non-interactive
