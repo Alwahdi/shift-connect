@@ -137,15 +137,5 @@
     "address": "العنوان",
     "complete": "إكمال الإعداد",
     "skip": "تخطي الآن"
-  },
-  "admin": {
-    "dashboard": "لوحة الإدارة",
-    "users": "المستخدمون",
-    "documentVerification": "التحقق من المستندات",
-    "systemConfig": "إعدادات النظام",
-    "approve": "موافقة",
-    "reject": "رفض",
-    "totalUsers": "إجمالي المستخدمين",
-    "pendingVerifications": "التحققات المعلقة"
   }
 }

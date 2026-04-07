@@ -3,7 +3,6 @@
  *
  * Shows full shift info with apply/manage action.
  */
-import { useState } from "react";
 import {
   ActivityIndicator,
   Alert,

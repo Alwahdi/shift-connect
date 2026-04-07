@@ -26,7 +26,6 @@ import {
   spacing,
   typography,
   borderRadius,
-  shadows,
   TOUCH_TARGET_SIZE,
 } from "@/constants/theme";
 

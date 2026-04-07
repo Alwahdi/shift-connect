@@ -18,7 +18,7 @@ import type { User, Session, SupabaseClient } from "@supabase/supabase-js";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
-export type AppRole = "professional" | "clinic" | "admin" | "super_admin";
+export type AppRole = "professional" | "clinic";
 
 export interface UserProfile {
   id: string;
@@ -104,7 +104,7 @@ export function AuthProvider({ supabase, children }: AuthProviderProps) {
         const role = (roleData?.role as AppRole) ?? null;
         setUserRole(role);
 
-        if (role === "professional" || role === "admin" || role === "super_admin") {
+        if (role === "professional") {
           const { data } = await supabase
             .from("profiles")
             .select("*")

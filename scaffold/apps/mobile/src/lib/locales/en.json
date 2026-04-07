@@ -137,15 +137,5 @@
     "address": "Address",
     "complete": "Complete Setup",
     "skip": "Skip for Now"
-  },
-  "admin": {
-    "dashboard": "Admin Dashboard",
-    "users": "Users",
-    "documentVerification": "Document Verification",
-    "systemConfig": "System Configuration",
-    "approve": "Approve",
-    "reject": "Reject",
-    "totalUsers": "Total Users",
-    "pendingVerifications": "Pending Verifications"
   }
 }

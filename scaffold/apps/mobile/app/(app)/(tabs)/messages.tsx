@@ -24,7 +24,6 @@ import {
   spacing,
   typography,
   borderRadius,
-  TOUCH_TARGET_SIZE,
 } from "@/constants/theme";
 
 interface Conversation {

@@ -38,7 +38,6 @@ apps/mobile/
 │   │   ├── search/professionals.tsx
 │   │   ├── settings/       # Settings screens
 │   │   └── onboarding/     # Onboarding wizards
-│   └── (admin)/            # Admin-only screens
 ├── src/
 │   ├── constants/theme.ts  # Native design tokens
 │   ├── lib/                # Supabase client, i18n, secure store
@@ -128,7 +127,7 @@ The mobile app consumes these monorepo packages:
 
 ## Key Features
 
-- **Role-adaptive UI:** Professional, Clinic, and Admin roles see different dashboards and tabs
+- **Role-adaptive UI:** Professional and Clinic roles see different dashboards and tabs
 - **Real-time messaging:** Supabase Realtime for live chat
 - **Secure auth:** JWT tokens stored in device keychain via expo-secure-store
 - **Dark mode:** System preference detection with manual override
