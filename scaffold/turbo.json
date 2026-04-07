@@ -4,7 +4,11 @@
   "globalEnv": [
     "VITE_SUPABASE_URL",
     "VITE_SUPABASE_PUBLISHABLE_KEY",
-    "VITE_SUPABASE_PROJECT_ID"
+    "VITE_SUPABASE_PROJECT_ID",
+    "EXPO_PUBLIC_SUPABASE_URL",
+    "EXPO_PUBLIC_SUPABASE_ANON_KEY",
+    "EXPO_PUBLIC_SUPABASE_PROJECT_ID",
+    "APP_VARIANT"
   ],
   "tasks": {
     "build": {
@@ -14,6 +18,18 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "dev:mobile": {
+      "cache": false,
+      "persistent": true
+    },
+    "build:ios": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
+    "build:android": {
+      "dependsOn": ["^build"],
+      "cache": false
     },
     "lint": {},
     "test": {

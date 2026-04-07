@@ -20,11 +20,13 @@ scaffold/
 ├── README.md                    # This file
 ├── apps/
 │   ├── web/                     # Main SyndeoCare web app (React + Vite)
-│   ├── admin/                   # Admin dashboard (standalone)
+│   ├── mobile/                  # Mobile app (Expo SDK 54 + React Native)
+│   ├── admin/                   # Admin dashboard (standalone web app)
 │   ├── docs/                    # Documentation site
 │   └── api/                     # Edge functions / API layer
 ├── packages/
-│   ├── ui/                      # Shared UI component library
+│   ├── ui/                      # Shared UI component library (web)
+│   ├── ui-native/               # Shared UI component library (React Native)
 │   ├── database/                # Database schema, migrations, types
 │   ├── auth/                    # Authentication utilities
 │   ├── config/                  # Shared configuration & env validation
@@ -75,23 +77,24 @@ pnpm dev
 pnpm dev --filter=web
 pnpm dev --filter=admin
 pnpm dev --filter=docs
+pnpm dev --filter=@syndeocare/mobile   # Expo dev server for mobile
 ```
 
 ## Tech Stack
 
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
-| **Framework** | React 18 + Vite 5 | UI rendering & bundling |
+| **Framework** | React 19 + Vite 5 | UI rendering & bundling |
 | **Styling** | Tailwind CSS 3 + shadcn/ui | Design system |
 | **State** | TanStack Query + Zustand | Server & client state |
 | **Auth** | Supabase Auth | Authentication & authorization |
 | **Database** | Supabase (PostgreSQL) | Data persistence |
 | **Storage** | Supabase Storage | File uploads |
 | **Realtime** | Supabase Realtime | Live updates |
-| **i18n** | i18next | English & Arabic |
-| **Mobile** | Capacitor | iOS & Android |
+| **i18n** | i18next | English & Arabic (RTL) |
+| **Mobile** | Expo SDK 54 + React Native 0.81 | Native iOS & Android |
 | **Edge** | Supabase Edge Functions (Deno) | Serverless API |
-| **CI/CD** | GitHub Actions | Automated pipelines |
+| **CI/CD** | GitHub Actions + EAS Build | Automated pipelines |
 | **Monitoring** | Sentry + PostHog | Error tracking & analytics |
 | **Email** | Resend | Transactional emails |
 
