@@ -85,11 +85,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     favicon: "./assets/favicon.png",
   },
 
-  locales: {
-    en: "./src/constants/locales/en.json",
-    ar: "./src/constants/locales/ar.json",
-  },
-
   plugins: [
     "expo-router",
     "expo-localization",

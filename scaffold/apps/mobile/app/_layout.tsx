@@ -72,8 +72,10 @@ export default function RootLayout() {
           "Cairo-SemiBold": require("../assets/fonts/Cairo-SemiBold.ttf"),
           "Cairo-Bold": require("../assets/fonts/Cairo-Bold.ttf"),
         });
-      } catch {
-        // Font files not yet available — proceed with system fonts
+      } catch (e) {
+        // Font files not yet available — proceed with system fonts.
+        // Developers should place Cairo font files in assets/fonts/.
+        console.warn("[Fonts] Custom fonts not loaded, using system fonts:", e);
       } finally {
         setAppReady(true);
       }
