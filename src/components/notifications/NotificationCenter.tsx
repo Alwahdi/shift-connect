@@ -127,7 +127,7 @@ export const NotificationCenter = () => {
           if (Notification.permission === "granted") {
             new Notification(newNotif.title, {
               body: newNotif.message,
-              icon: "/favicon.ico",
+              icon: "/favicon.svg",
             });
           }
         }

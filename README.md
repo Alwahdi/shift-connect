@@ -5,7 +5,6 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.x-61DAFB)](https://react.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.x-38B2AC)](https://tailwindcss.com/)
-[![Capacitor](https://img.shields.io/badge/Capacitor-8.x-119EFF)](https://capacitorjs.com/)
 
 ---
 
@@ -25,8 +24,7 @@ SyndeoCare is a full-stack healthcare staffing platform that connects verified m
 8. [User Roles & Permissions](#user-roles--permissions)
 9. [Internationalization (i18n)](#internationalization-i18n)
 10. [Design System](#design-system)
-11. [Mobile App Deployment](#mobile-app-deployment)
-12. [Self-Hosted Backend Setup](#self-hosted-backend-setup)
+11. [Self-Hosted Backend Setup](#self-hosted-backend-setup)
 13. [API Reference (Edge Functions)](#api-reference)
 14. [Security Model](#security-model)
 15. [Contributing](#contributing)
@@ -39,13 +37,10 @@ SyndeoCare is a full-stack healthcare staffing platform that connects verified m
 Frontend (Vite + React 18 + TypeScript)
     ↕ Supabase JS SDK
 Backend (Supabase: PostgreSQL + Auth + Realtime + Storage + Edge Functions)
-    ↕
-Mobile (Capacitor: iOS + Android)
 ```
 
 - **Frontend**: Single-page application with lazy-loaded routes, error boundaries, and production-optimized React Query configuration.
 - **Backend**: PostgreSQL with Row Level Security, PostGIS for geolocation, real-time subscriptions, and Deno-based edge functions.
-- **Mobile**: Capacitor wraps the web app for native iOS/Android deployment with native plugins for status bar, keyboard, haptics, and push notifications.
 
 ## Tech Stack
 
@@ -57,7 +52,6 @@ Mobile (Capacitor: iOS + Android)
 | Routing | React Router v6 |
 | Forms | React Hook Form, Zod |
 | i18n | i18next (EN + AR with RTL) |
-| Mobile | Capacitor 8 (iOS + Android) |
 | Backend | Supabase (PostgreSQL, Auth, Realtime, Storage, Edge Functions) |
 | Email | Resend API |
 | Geolocation | PostGIS |
@@ -65,7 +59,6 @@ Mobile (Capacitor: iOS + Android)
 ## Project Structure
 
 ```
-├── capacitor.config.ts          # Capacitor configuration
 ├── docs/                        # Documentation
 │   ├── ARCHITECTURE.md          # System architecture
 │   ├── API.md                   # Edge function API reference
@@ -203,17 +196,6 @@ Built on Tailwind CSS with semantic design tokens:
 - **Success/Warning/Destructive**: Contextual colors
 - Full dark mode support
 - 44px+ touch targets for mobile
-
-## Mobile App Deployment
-
-See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) for complete iOS and Android deployment instructions.
-
-```bash
-# Quick start
-npx cap add ios && npx cap add android
-npm run build && npx cap sync
-npx cap open ios  # or npx cap open android
-```
 
 ## Self-Hosted Backend Setup
 

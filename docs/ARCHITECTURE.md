@@ -5,12 +5,12 @@
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                      Client Layer                           │
-│  ┌──────────┐  ┌──────────┐  ┌───────────┐                │
-│  │  Web App  │  │ iOS App  │  │ Android   │                │
-│  │ (Vite+   │  │ (Cap-    │  │ App (Cap- │                │
-│  │  React)  │  │ acitor)  │  │ acitor)   │                │
-│  └────┬─────┘  └────┬─────┘  └─────┬─────┘                │
-│       └──────────────┼──────────────┘                       │
+│  ┌──────────┐                                              │
+│  │  Web App  │                                              │
+│  │ (Vite+   │                                              │
+│  │  React)  │                                              │
+│  └────┬─────┘                                              │
+│       │                                                     │
 │                      │                                      │
 │              Supabase JS SDK                                │
 └──────────────────────┼──────────────────────────────────────┘
@@ -47,7 +47,6 @@
 | Routing | React Router v6 |
 | Forms | React Hook Form + Zod validation |
 | i18n | i18next (English + Arabic RTL) |
-| Mobile | Capacitor (iOS + Android) |
 | Backend | Supabase (PostgreSQL, Auth, Realtime, Storage, Edge Functions) |
 | Email | Resend API |
 | Geolocation | PostGIS extension |
