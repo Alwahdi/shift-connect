@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { isSupabaseConfigured, supabase } from '@/src/lib/supabase';
 
@@ -98,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const activatePreview = async (previewRole: SupportedRole) => {
+  const activatePreview = useCallback(async (previewRole: SupportedRole) => {
     const profile = demoProfiles[previewRole];
     const previewUser = {
       id: profile.id,
@@ -120,9 +120,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setRole(previewRole);
     setIsUnsupportedRole(false);
     setIsLoading(false);
-  };
+  }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     if (!isSupabaseConfigured || !supabase) {
       await activatePreview(email.toLowerCase().includes('clinic') ? 'clinic' : 'professional');
       return { error: null };
@@ -130,9 +130,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error: error?.message ?? null };
-  };
+  }, [activatePreview]);
 
-  const signUp = async ({ email, password, role: selectedRole, name, organizationName }: { email: string; password: string; role: SupportedRole; name: string; organizationName?: string }) => {
+  const signUp = useCallback(async ({ email, password, role: selectedRole, name, organizationName }: { email: string; password: string; role: SupportedRole; name: string; organizationName?: string }) => {
     if (!isSupabaseConfigured || !supabase) {
       await activatePreview(selectedRole);
       return { error: null };
@@ -156,9 +156,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       error: null,
       needsEmailConfirmation: !data.session,
     };
-  };
+  }, [activatePreview]);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     if (supabase && isSupabaseConfigured) {
       await supabase.auth.signOut();
     }
@@ -167,7 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null);
     setRole(null);
     setIsUnsupportedRole(false);
-  };
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -182,7 +182,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       activatePreview,
       signOut,
     }),
-    [user, session, role, isLoading, isUnsupportedRole],
+    [user, session, role, isLoading, isUnsupportedRole, signIn, signUp, activatePreview, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

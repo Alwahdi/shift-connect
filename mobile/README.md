@@ -9,7 +9,7 @@ Admin flows are intentionally excluded from mobile and remain web-only.
 
 ## Run with Expo Go
 
-1. Open a terminal in `/home/runner/work/shift-connect/shift-connect/mobile`
+1. Open a terminal in the `mobile/` directory
 2. Install dependencies:
 
    ```bash

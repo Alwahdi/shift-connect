@@ -14,6 +14,12 @@ const toneMap = {
   success: 'success',
 } as const;
 
+const alphaMap = {
+  primary: 'rgba(124, 181, 61, 0.14)',
+  secondary: 'rgba(59, 196, 195, 0.14)',
+  warning: 'rgba(245, 158, 11, 0.16)',
+} as const;
+
 export default function HomeScreen() {
   const palette = getPalette(useColorScheme());
   const { role: authRole, user, isDemoMode, activatePreview } = useAuth();
@@ -91,7 +97,7 @@ export default function HomeScreen() {
                   <Text style={[styles.cardMeta, { color: palette.textMuted }]}>{item.meta}</Text>
                   <Text style={[styles.cardDescription, { color: palette.text }]}>{item.supporting}</Text>
                 </View>
-                <View style={[styles.featureBadge, { backgroundColor: `${badgeColor}20` }]}> 
+                <View style={[styles.featureBadge, { backgroundColor: alphaMap[item.accent] }]}>
                   <Text style={[styles.featureBadgeText, { color: badgeColor }]}>{item.badge}</Text>
                 </View>
               </View>
