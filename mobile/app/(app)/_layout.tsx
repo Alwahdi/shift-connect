@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';
 import { useTheme } from '@/providers/ThemeProvider';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
@@ -8,7 +8,6 @@ export default function AppLayout() {
   const { user, userRole, isOnboardingComplete, isLoading } = useAuth();
   const { colors } = useTheme();
   const router = useRouter();
-  const segments = useSegments();
 
   useEffect(() => {
     if (isLoading) return;
@@ -22,7 +21,7 @@ export default function AppLayout() {
       router.replace(`/(onboarding)/${userRole}`);
       return;
     }
-  }, [user, userRole, isOnboardingComplete, isLoading]);
+  }, [user, userRole, isOnboardingComplete, isLoading, router]);
 
   if (isLoading) {
     return (
