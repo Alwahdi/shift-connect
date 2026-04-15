@@ -1,0 +1,95 @@
+{
+  "common": {
+    "loading": "جاري التحميل...", "save": "حفظ", "cancel": "إلغاء", "delete": "حذف",
+    "edit": "تعديل", "close": "إغلاق", "search": "بحث", "filter": "تصفية",
+    "apply": "تطبيق", "back": "رجوع", "next": "التالي", "confirm": "تأكيد",
+    "retry": "إعادة المحاولة", "done": "تم", "or": "أو", "viewAll": "عرض الكل",
+    "noData": "لا توجد بيانات", "pullToRefresh": "اسحب للتحديث",
+    "error": "خطأ", "success": "نجاح"
+  },
+  "auth": {
+    "signIn": "تسجيل الدخول", "signUp": "إنشاء حساب", "signOut": "تسجيل الخروج",
+    "email": "البريد الإلكتروني", "password": "كلمة المرور", "fullName": "الاسم الكامل",
+    "organizationName": "اسم المنشأة", "welcomeBack": "مرحباً بعودتك",
+    "signInSubtitle": "سجل دخولك للمتابعة إلى سنديوكير",
+    "joinSyndeoCare": "انضم إلى سنديوكير", "selectRole": "كيف تريد البدء؟",
+    "imProfessional": "أنا متخصص في الرعاية الصحية",
+    "professionalDesc": "اعثر على نوبات مرنة في أفضل المنشآت القريبة منك",
+    "imClinic": "أنا منشأة صحية",
+    "clinicDesc": "وظف منشأتك بمتخصصين معتمدين",
+    "noAccount": "ليس لديك حساب؟", "hasAccount": "لديك حساب بالفعل؟",
+    "createAccount": "إنشاء حساب", "creatingAccount": "جاري إنشاء الحساب...",
+    "signingIn": "جاري تسجيل الدخول...", "forgotPassword": "نسيت كلمة المرور؟",
+    "passwordHint": "استخدم 6 أحرف على الأقل",
+    "errors": {
+      "invalidEmail": "يرجى إدخال بريد إلكتروني صحيح",
+      "passwordMin": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+      "nameRequired": "الاسم مطلوب", "orgNameRequired": "اسم المنشأة مطلوب",
+      "loginFailed": "بريد إلكتروني أو كلمة مرور غير صحيحة",
+      "signupFailed": "تعذر إنشاء الحساب"
+    },
+    "otp": {
+      "title": "تحقق من بريدك الإلكتروني", "subtitle": "أدخل الرمز المكون من 6 أرقام المرسل إلى",
+      "verify": "تحقق", "verifying": "جاري التحقق...", "resend": "إعادة إرسال الرمز",
+      "resendIn": "إعادة الإرسال خلال {{seconds}} ثانية", "invalid": "رمز غير صحيح"
+    }
+  },
+  "tabs": { "home": "الرئيسية", "shifts": "النوبات", "messages": "الرسائل", "profile": "الملف الشخصي" },
+  "dashboard": {
+    "goodMorning": "صباح الخير", "goodAfternoon": "مساء الخير", "goodEvening": "مساء الخير",
+    "availableShifts": "النوبات المتاحة", "activeBookings": "الحجوزات النشطة",
+    "totalEarnings": "إجمالي الأرباح", "rating": "التقييم",
+    "completedShifts": "النوبات المكتملة", "invitations": "دعوات النوبات",
+    "noShifts": "لا توجد نوبات متاحة", "noBookings": "لا توجد حجوزات نشطة",
+    "onboardingIncomplete": "أكمل ملفك الشخصي للبدء",
+    "completeOnboarding": "أكمل الملف الشخصي", "totalSpend": "إجمالي الإنفاق",
+    "applicants": "المتقدمون", "activeShifts": "النوبات النشطة",
+    "createShift": "إنشاء نوبة", "yourShifts": "نوباتك"
+  },
+  "shifts": {
+    "search": "ابحث عن نوبات...", "findShifts": "البحث عن نوبات", "shiftDetails": "تفاصيل النوبة",
+    "apply": "التقدم للنوبة", "applied": "تم التقدم", "date": "التاريخ", "time": "الوقت",
+    "rate": "الأجر", "location": "الموقع", "role": "الدور", "description": "الوصف",
+    "urgent": "عاجل", "filled": "مكتمل", "noShiftsFound": "لم يتم العثور على نوبات",
+    "allRoles": "جميع الأدوار", "title": "العنوان", "startTime": "وقت البدء",
+    "endTime": "وقت الانتهاء", "hourlyRate": "الأجر بالساعة"
+  },
+  "bookings": {
+    "status": "الحالة", "pending": "قيد الانتظار", "accepted": "مقبول",
+    "declined": "مرفوض", "confirmed": "مؤكد", "checkedIn": "تم تسجيل الحضور",
+    "checkedOut": "تم تسجيل الانصراف", "completed": "مكتمل", "cancelled": "ملغي",
+    "checkIn": "تسجيل الحضور", "checkOut": "تسجيل الانصراف", "cancel": "إلغاء الحجز",
+    "activeBookings": "الحجوزات النشطة", "noBookings": "لا توجد حجوزات",
+    "rateExperience": "قيّم التجربة"
+  },
+  "chat": {
+    "messages": "الرسائل", "typeMessage": "اكتب رسالة...", "send": "إرسال",
+    "noConversations": "لا توجد محادثات", "today": "اليوم", "yesterday": "أمس"
+  },
+  "profile": {
+    "myProfile": "ملفي الشخصي", "editProfile": "تعديل الملف", "bio": "نبذة",
+    "phone": "الهاتف", "hourlyRate": "الأجر بالساعة", "specialties": "التخصصات",
+    "qualifications": "المؤهلات", "documents": "المستندات",
+    "verified": "موثق", "pending": "قيد المراجعة", "rejected": "مرفوض",
+    "address": "العنوان", "description": "الوصف", "clinicName": "اسم العيادة",
+    "settings": "الإعدادات", "memberSince": "عضو منذ", "reviews": "التقييمات"
+  },
+  "onboarding": {
+    "welcome": "مرحباً بك في سنديوكير!",
+    "letsStart": "لنقم بإعداد ملفك الشخصي",
+    "personalInfo": "المعلومات الشخصية", "qualificationsStep": "المؤهلات",
+    "documentsStep": "المستندات", "complete": "اكتمل!",
+    "organizationInfo": "معلومات المنشأة", "locationStep": "الموقع",
+    "youreAllSet": "أنت جاهز!", "profileReview": "ملفك الشخصي قيد المراجعة",
+    "goToDashboard": "الذهاب إلى لوحة التحكم"
+  },
+  "settings": {
+    "title": "الإعدادات", "language": "اللغة", "darkMode": "الوضع الداكن",
+    "notifications": "الإشعارات", "deleteAccount": "حذف الحساب",
+    "about": "حول التطبيق", "version": "الإصدار", "english": "English", "arabic": "العربية"
+  },
+  "notifications": {
+    "title": "الإشعارات", "noNotifications": "لا توجد إشعارات",
+    "markAllRead": "تحديد الكل كمقروء"
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "common": {
+    "loading": "Loading...", "save": "Save", "cancel": "Cancel", "delete": "Delete",
+    "edit": "Edit", "close": "Close", "search": "Search", "filter": "Filter",
+    "apply": "Apply", "back": "Back", "next": "Next", "confirm": "Confirm",
+    "retry": "Retry", "done": "Done", "or": "or", "viewAll": "View All",
+    "noData": "No data available", "pullToRefresh": "Pull to refresh",
+    "error": "Error", "success": "Success"
+  },
+  "auth": {
+    "signIn": "Sign In", "signUp": "Sign Up", "signOut": "Sign Out",
+    "email": "Email", "password": "Password", "fullName": "Full Name",
+    "organizationName": "Organization Name", "welcomeBack": "Welcome Back",
+    "signInSubtitle": "Sign in to continue to SyndeoCare",
+    "joinSyndeoCare": "Join SyndeoCare", "selectRole": "How would you like to get started?",
+    "imProfessional": "I'm a Healthcare Professional",
+    "professionalDesc": "Find flexible shifts at top facilities near you",
+    "imClinic": "I'm a Healthcare Facility",
+    "clinicDesc": "Staff your facility with verified professionals",
+    "noAccount": "Don't have an account?", "hasAccount": "Already have an account?",
+    "createAccount": "Create Account", "creatingAccount": "Creating account...",
+    "signingIn": "Signing in...", "forgotPassword": "Forgot password?",
+    "passwordHint": "Use at least 6 characters",
+    "errors": {
+      "invalidEmail": "Please enter a valid email", "passwordMin": "Password must be at least 6 characters",
+      "nameRequired": "Name is required", "orgNameRequired": "Organization name is required",
+      "loginFailed": "Invalid email or password", "signupFailed": "Could not create account"
+    },
+    "otp": {
+      "title": "Verify Your Email", "subtitle": "Enter the 6-digit code sent to",
+      "verify": "Verify", "verifying": "Verifying...", "resend": "Resend Code",
+      "resendIn": "Resend in {{seconds}}s", "invalid": "Invalid code"
+    }
+  },
+  "tabs": { "home": "Home", "shifts": "Shifts", "messages": "Messages", "profile": "Profile" },
+  "dashboard": {
+    "goodMorning": "Good morning", "goodAfternoon": "Good afternoon", "goodEvening": "Good evening",
+    "availableShifts": "Available Shifts", "activeBookings": "Active Bookings",
+    "totalEarnings": "Total Earnings", "rating": "Rating",
+    "completedShifts": "Completed Shifts", "invitations": "Shift Invitations",
+    "noShifts": "No shifts available", "noBookings": "No active bookings",
+    "onboardingIncomplete": "Complete your profile to start",
+    "completeOnboarding": "Complete Profile", "totalSpend": "Total Spend",
+    "applicants": "Applicants", "activeShifts": "Active Shifts",
+    "createShift": "Create Shift", "yourShifts": "Your Shifts"
+  },
+  "shifts": {
+    "search": "Search shifts...", "findShifts": "Find Shifts", "shiftDetails": "Shift Details",
+    "apply": "Apply for Shift", "applied": "Applied", "date": "Date", "time": "Time",
+    "rate": "Rate", "location": "Location", "role": "Role", "description": "Description",
+    "urgent": "Urgent", "filled": "Filled", "noShiftsFound": "No shifts found",
+    "allRoles": "All Roles", "title": "Title", "startTime": "Start Time",
+    "endTime": "End Time", "hourlyRate": "Hourly Rate"
+  },
+  "bookings": {
+    "status": "Status", "pending": "Pending", "accepted": "Accepted",
+    "declined": "Declined", "confirmed": "Confirmed", "checkedIn": "Checked In",
+    "checkedOut": "Checked Out", "completed": "Completed", "cancelled": "Cancelled",
+    "checkIn": "Check In", "checkOut": "Check Out", "cancel": "Cancel Booking",
+    "activeBookings": "Active Bookings", "noBookings": "No bookings yet",
+    "rateExperience": "Rate Experience"
+  },
+  "chat": {
+    "messages": "Messages", "typeMessage": "Type a message...", "send": "Send",
+    "noConversations": "No conversations yet", "today": "Today", "yesterday": "Yesterday"
+  },
+  "profile": {
+    "myProfile": "My Profile", "editProfile": "Edit Profile", "bio": "Bio",
+    "phone": "Phone", "hourlyRate": "Hourly Rate", "specialties": "Specialties",
+    "qualifications": "Qualifications", "documents": "Documents",
+    "verified": "Verified", "pending": "Pending", "rejected": "Rejected",
+    "address": "Address", "description": "Description", "clinicName": "Clinic Name",
+    "settings": "Settings", "memberSince": "Member since", "reviews": "Reviews"
+  },
+  "onboarding": {
+    "welcome": "Welcome to SyndeoCare!",
+    "letsStart": "Let's set up your profile",
+    "personalInfo": "Personal Info", "qualificationsStep": "Qualifications",
+    "documentsStep": "Documents", "complete": "All Set!",
+    "organizationInfo": "Organization Info", "locationStep": "Location",
+    "youreAllSet": "You're all set!", "profileReview": "Your profile is being reviewed",
+    "goToDashboard": "Go to Dashboard"
+  },
+  "settings": {
+    "title": "Settings", "language": "Language", "darkMode": "Dark Mode",
+    "notifications": "Notifications", "deleteAccount": "Delete Account",
+    "about": "About", "version": "Version", "english": "English", "arabic": "العربية"
+  },
+  "notifications": {
+    "title": "Notifications", "noNotifications": "No notifications yet",
+    "markAllRead": "Mark all read"
+  }
+}
