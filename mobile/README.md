@@ -16,7 +16,7 @@ Admin flows are intentionally excluded from mobile and remain web-only.
    npm install
    ```
 
-3. Optional: configure live Supabase auth by creating `.env` from `.env.example`
+3. Optional: configure live Supabase auth by creating `.env` from `.env.example` (`.env` is already gitignored)
 4. Start Expo:
 
    ```bash
