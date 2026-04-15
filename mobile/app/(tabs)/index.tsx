@@ -4,20 +4,20 @@ import { Screen } from '@/src/components/Screen';
 import { SectionHeader } from '@/src/components/SectionHeader';
 import { SurfaceCard } from '@/src/components/SurfaceCard';
 import { dashboardStats, featuredCards, quickActions, roleCopy, workflowSteps } from '@/src/constants/mock-data';
-import { getPalette, radius, spacing, typography } from '@/src/constants/theme';
+import { AppPalette, brand, getPalette, hexToRgba, radius, spacing, typography } from '@/src/constants/theme';
 import { useAuth } from '@/src/providers/AuthProvider';
 
-const toneMap = {
+const toneMap: Record<'primary' | 'secondary' | 'warning' | 'success', keyof AppPalette> = {
   primary: 'primary',
   secondary: 'secondaryDeep',
   warning: 'warning',
   success: 'success',
-} as const;
+};
 
-const alphaMap = {
-  primary: 'rgba(124, 181, 61, 0.14)',
-  secondary: 'rgba(59, 196, 195, 0.14)',
-  warning: 'rgba(245, 158, 11, 0.16)',
+const accentBackgrounds = {
+  primary: hexToRgba(brand.green, 0.14),
+  secondary: hexToRgba(brand.teal, 0.14),
+  warning: hexToRgba(brand.gold, 0.16),
 } as const;
 
 export default function HomeScreen() {
@@ -97,7 +97,7 @@ export default function HomeScreen() {
                   <Text style={[styles.cardMeta, { color: palette.textMuted }]}>{item.meta}</Text>
                   <Text style={[styles.cardDescription, { color: palette.text }]}>{item.supporting}</Text>
                 </View>
-                <View style={[styles.featureBadge, { backgroundColor: alphaMap[item.accent] }]}>
+                <View style={[styles.featureBadge, { backgroundColor: accentBackgrounds[item.accent] }]}>
                   <Text style={[styles.featureBadgeText, { color: badgeColor }]}>{item.badge}</Text>
                 </View>
               </View>

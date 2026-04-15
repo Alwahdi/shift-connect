@@ -86,6 +86,19 @@ export const shadows = {
   },
 };
 
-export const getPalette = (scheme: ColorSchemeName) => (scheme === 'dark' ? darkPalette : lightPalette);
+export const getPalette = (scheme: ColorSchemeName) => {
+  const resolvedScheme = scheme ?? 'light';
+  return resolvedScheme === 'dark' ? darkPalette : lightPalette;
+};
+
+export const hexToRgba = (hex: string, alpha: number) => {
+  const value = hex.replace('#', '');
+  const normalized = value.length === 3 ? value.split('').map((char) => `${char}${char}`).join('') : value;
+  const red = parseInt(normalized.slice(0, 2), 16);
+  const green = parseInt(normalized.slice(2, 4), 16);
+  const blue = parseInt(normalized.slice(4, 6), 16);
+
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+};
 
 export type AppPalette = ReturnType<typeof getPalette>;
