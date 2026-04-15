@@ -1,0 +1,283 @@
+import { Platform } from 'react-native';
+
+export const colors = {
+  // Brand
+  primary: {
+    50: '#f5f0f6',
+    100: '#ead0ee',
+    200: '#d4a1dd',
+    300: '#be72cc',
+    400: '#9254a0',
+    500: '#663C6D',
+    600: '#552f5b',
+    700: '#442449',
+    800: '#331937',
+    900: '#221025',
+  },
+  accent: {
+    50: '#edf7f8',
+    100: '#d0eced',
+    200: '#a1d9dc',
+    300: '#72c6cb',
+    400: '#56849A',
+    500: '#3BC4C3',
+    600: '#2f9d9c',
+    700: '#237675',
+    800: '#184f4e',
+    900: '#0c2827',
+  },
+  success: {
+    50: '#ecfdf5',
+    100: '#d1fae5',
+    200: '#a7f3d0',
+    300: '#6ee7b7',
+    400: '#34d399',
+    500: '#10b981',
+    600: '#059669',
+    700: '#047857',
+    800: '#065f46',
+    900: '#064e3b',
+  },
+  warning: {
+    50: '#fffbeb',
+    100: '#fef3c7',
+    200: '#fde68a',
+    300: '#fcd34d',
+    400: '#fbbf24',
+    500: '#f59e0b',
+    600: '#d97706',
+    700: '#b45309',
+    800: '#92400e',
+    900: '#78350f',
+  },
+  destructive: {
+    50: '#fef2f2',
+    100: '#fee2e2',
+    200: '#fecaca',
+    300: '#fca5a5',
+    400: '#f87171',
+    500: '#ef4444',
+    600: '#dc2626',
+    700: '#b91c1c',
+    800: '#991b1b',
+    900: '#7f1d1d',
+  },
+  neutral: {
+    0: '#ffffff',
+    50: '#f9fafb',
+    100: '#f3f4f6',
+    200: '#e5e7eb',
+    300: '#d1d5db',
+    400: '#9ca3af',
+    500: '#6b7280',
+    600: '#4b5563',
+    700: '#374151',
+    800: '#1f2937',
+    900: '#111827',
+    950: '#030712',
+  },
+};
+
+export const lightTheme = {
+  background: colors.neutral[0],
+  surface: colors.neutral[50],
+  surfaceElevated: colors.neutral[0],
+  border: colors.neutral[200],
+  borderLight: colors.neutral[100],
+  text: colors.neutral[900],
+  textSecondary: colors.neutral[500],
+  textTertiary: colors.neutral[400],
+  textInverse: colors.neutral[0],
+  primary: colors.primary[500],
+  primaryLight: colors.primary[50],
+  accent: colors.accent[400],
+  accentLight: colors.accent[50],
+  success: colors.success[500],
+  successLight: colors.success[50],
+  warning: colors.warning[500],
+  warningLight: colors.warning[50],
+  destructive: colors.destructive[500],
+  destructiveLight: colors.destructive[50],
+  shadow: 'rgba(0,0,0,0.08)',
+  overlay: 'rgba(0,0,0,0.5)',
+  skeleton: colors.neutral[200],
+  tabBar: 'rgba(255,255,255,0.95)',
+  tabBarBorder: colors.neutral[200],
+  card: colors.neutral[0],
+  cardBorder: colors.neutral[100],
+  inputBackground: colors.neutral[50],
+  inputBorder: colors.neutral[300],
+  inputFocusBorder: colors.primary[500],
+  badge: colors.destructive[500],
+};
+
+export const darkTheme: typeof lightTheme = {
+  background: colors.neutral[950],
+  surface: colors.neutral[900],
+  surfaceElevated: colors.neutral[800],
+  border: colors.neutral[700],
+  borderLight: colors.neutral[800],
+  text: colors.neutral[50],
+  textSecondary: colors.neutral[400],
+  textTertiary: colors.neutral[500],
+  primary: colors.primary[300],
+  primaryLight: colors.primary[900],
+  accent: colors.accent[300],
+  accentLight: colors.accent[900],
+  textInverse: colors.neutral[900],
+  success: colors.success[400],
+  successLight: colors.success[900],
+  warning: colors.warning[400],
+  warningLight: colors.warning[900],
+  destructive: colors.destructive[400],
+  destructiveLight: colors.destructive[900],
+  shadow: 'rgba(0,0,0,0.3)',
+  overlay: 'rgba(0,0,0,0.7)',
+  skeleton: colors.neutral[700],
+  tabBar: 'rgba(3,7,18,0.95)',
+  tabBarBorder: colors.neutral[800],
+  card: colors.neutral[900],
+  cardBorder: colors.neutral[800],
+  inputBackground: colors.neutral[800],
+  inputBorder: colors.neutral[600],
+  inputFocusBorder: colors.primary[300],
+  badge: colors.destructive[500],
+};
+
+export type ThemeColors = typeof lightTheme;
+
+export const spacing = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  base: 16,
+  lg: 20,
+  xl: 24,
+  '2xl': 32,
+  '3xl': 40,
+  '4xl': 48,
+  '5xl': 64,
+} as const;
+
+export const borderRadius = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  '2xl': 24,
+  full: 9999,
+} as const;
+
+export const typography = {
+  h1: {
+    fontSize: 32,
+    lineHeight: 40,
+    fontWeight: '700' as const,
+    letterSpacing: -0.5,
+  },
+  h2: {
+    fontSize: 24,
+    lineHeight: 32,
+    fontWeight: '700' as const,
+    letterSpacing: -0.3,
+  },
+  h3: {
+    fontSize: 20,
+    lineHeight: 28,
+    fontWeight: '600' as const,
+    letterSpacing: -0.2,
+  },
+  h4: {
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: '600' as const,
+  },
+  body: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '400' as const,
+  },
+  bodyMedium: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '500' as const,
+  },
+  bodySm: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '400' as const,
+  },
+  bodySmMedium: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '500' as const,
+  },
+  caption: {
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '400' as const,
+  },
+  captionMedium: {
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '500' as const,
+  },
+  label: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '600' as const,
+  },
+  button: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '600' as const,
+  },
+  buttonSm: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '600' as const,
+  },
+  tabLabel: {
+    fontSize: 10,
+    lineHeight: 14,
+    fontWeight: '500' as const,
+  },
+};
+
+export const shadows = Platform.select({
+  ios: {
+    sm: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+    },
+    md: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.08,
+      shadowRadius: 8,
+    },
+    lg: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.12,
+      shadowRadius: 16,
+    },
+  },
+  android: {
+    sm: { elevation: 2 },
+    md: { elevation: 4 },
+    lg: { elevation: 8 },
+  },
+  default: {
+    sm: {},
+    md: {},
+    lg: {},
+  },
+})!;
+
+export const TOUCH_TARGET_SIZE = 44;
+
+export const hitSlop = { top: 8, bottom: 8, left: 8, right: 8 };
