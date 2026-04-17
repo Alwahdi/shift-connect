@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   roleTitle: { fontSize: Typography.sizes.xl, fontWeight: Typography.weights.bold, marginBottom: Spacing.xs },
   roleDesc: { fontSize: Typography.sizes.sm, lineHeight: 20 },
   roleArrow: { position: 'absolute', right: Spacing.xl, top: Spacing.xl },
-  form: { gap: Spacing.xs },
+  form: { gap: Spacing.md },
   errorBox: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing.sm,
     padding: Spacing.md, borderRadius: BorderRadius.md, marginBottom: Spacing.sm,

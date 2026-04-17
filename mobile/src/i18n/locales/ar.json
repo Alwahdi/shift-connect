@@ -166,7 +166,9 @@
     "confirmed": "مؤكدة",
     "declined": "مرفوضة",
     "checkedIn": "تم الحضور",
+    "checked_in": "تم الحضور",
     "checkedOut": "تم الانصراف",
+    "checked_out": "تم الانصراف",
     "completed": "مكتملة",
     "cancelled": "ملغية",
     "checkIn": "تسجيل الحضور",
@@ -192,7 +194,8 @@
     "noDocuments": "لا توجد مستندات مرفوعة",
     "noRatings": "لا توجد تقييمات بعد",
     "memberSince": "عضو منذ {{date}}",
-    "shiftsCompleted": "{{count}} مناوبات مكتملة"
+    "shiftsCompleted": "{{count}} مناوبات مكتملة",
+    "signOutConfirm": "هل أنت متأكد أنك تريد تسجيل الخروج؟"
   },
   "messages": {
     "title": "الرسائل",

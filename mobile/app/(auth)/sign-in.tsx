@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Pressable, TextInput as RNTextInput } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,6 +14,7 @@ export default function SignInScreen() {
   const { t } = useTranslation();
   const { signIn } = useAuth();
   const insets = useSafeAreaInsets();
+  const passwordRef = useRef<RNTextInput>(null);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -80,9 +81,13 @@ export default function SignInScreen() {
             autoCapitalize="none"
             autoCorrect={false}
             leftIcon="mail-outline"
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
+            blurOnSubmit={false}
           />
 
           <Input
+            ref={passwordRef}
             label={t('auth.password')}
             placeholder="••••••••"
             value={password}
@@ -91,6 +96,8 @@ export default function SignInScreen() {
             leftIcon="lock-closed-outline"
             rightIcon={showPassword ? 'eye-off-outline' : 'eye-outline'}
             onRightIconPress={() => setShowPassword(!showPassword)}
+            returnKeyType="go"
+            onSubmitEditing={handleSignIn}
           />
 
           <Button
@@ -123,7 +130,7 @@ const styles = StyleSheet.create({
   header: { marginBottom: Spacing['2xl'] },
   title: { fontSize: Typography.sizes['3xl'], fontWeight: Typography.weights.bold, marginBottom: Spacing.xs },
   subtitle: { fontSize: Typography.sizes.md },
-  form: { gap: Spacing.xs },
+  form: { gap: Spacing.md },
   errorBox: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing.sm,
     padding: Spacing.md, borderRadius: BorderRadius.md, marginBottom: Spacing.sm,

@@ -20,7 +20,7 @@ export const LoadingScreen: React.FC<{ message?: string }> = ({ message = 'Loadi
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Animated.View style={[styles.logoContainer, { opacity: pulseAnim }]}>
+      <Animated.View style={[styles.logoContainer, { opacity: pulseAnim, backgroundColor: colors.primary + '15' }]}>
         <Text style={[styles.logo, { color: colors.primary }]}>S</Text>
       </Animated.View>
       <Text style={[styles.message, { color: colors.textSecondary }]}>{message}</Text>

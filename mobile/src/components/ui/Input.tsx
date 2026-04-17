@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, forwardRef } from 'react';
 import { View, TextInput, Text, StyleSheet, Animated, Pressable, TextInputProps } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -14,10 +14,10 @@ interface InputProps extends TextInputProps {
   containerStyle?: any;
 }
 
-export const Input: React.FC<InputProps> = ({
+export const Input = forwardRef<TextInput, InputProps>(({
   label, error, hint, leftIcon, rightIcon, onRightIconPress,
   containerStyle, style, ...props
-}) => {
+}, ref) => {
   const { colors } = useTheme();
   const [isFocused, setIsFocused] = useState(false);
   const borderAnim = useRef(new Animated.Value(0)).current;
@@ -64,6 +64,7 @@ export const Input: React.FC<InputProps> = ({
           />
         )}
         <TextInput
+          ref={ref}
           style={[
             styles.input,
             { color: colors.text },
@@ -89,7 +90,9 @@ export const Input: React.FC<InputProps> = ({
       )}
     </View>
   );
-};
+});
+
+Input.displayName = 'Input';
 
 const styles = StyleSheet.create({
   container: { marginBottom: Spacing.base },

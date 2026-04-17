@@ -25,7 +25,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({ title, actionLabel
 };
 
 const styles = StyleSheet.create({
-  container: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md },
+  container: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md, paddingHorizontal: Spacing.xl },
   title: { fontSize: Typography.sizes.lg, fontWeight: Typography.weights.bold },
   action: { fontSize: Typography.sizes.sm, fontWeight: Typography.weights.semibold },
 });

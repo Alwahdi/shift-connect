@@ -166,7 +166,9 @@
     "confirmed": "Confirmed",
     "declined": "Declined",
     "checkedIn": "Checked In",
+    "checked_in": "Checked In",
     "checkedOut": "Checked Out",
+    "checked_out": "Checked Out",
     "completed": "Completed",
     "cancelled": "Cancelled",
     "checkIn": "Check In",
@@ -192,7 +194,8 @@
     "noDocuments": "No documents uploaded",
     "noRatings": "No ratings yet",
     "memberSince": "Member since {{date}}",
-    "shiftsCompleted": "{{count}} shifts completed"
+    "shiftsCompleted": "{{count}} shifts completed",
+    "signOutConfirm": "Are you sure you want to sign out?"
   },
   "messages": {
     "title": "Messages",

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, Pressable, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -137,7 +137,13 @@ export default function DashboardScreen() {
 
       {/* Stats Grid */}
       <View style={styles.statsGrid}>
-        {userRole === 'professional' ? (
+        {statsLoading ? (
+          <>
+            <SkeletonStatCard colors={colors} />
+            <SkeletonStatCard colors={colors} />
+            <SkeletonStatCard colors={colors} />
+          </>
+        ) : userRole === 'professional' ? (
           <>
             <StatCard icon="calendar" label={t('dashboard.availableShifts')} value={`${stats?.availableShifts || 0}`} color={colors.primary} colors={colors} />
             <StatCard icon="clipboard" label={t('dashboard.activeBookings')} value={`${stats?.activeBookings || 0}`} color={colors.accent} colors={colors} />
@@ -179,7 +185,11 @@ export default function DashboardScreen() {
         onAction={() => router.push('/(tabs)/shifts')}
       />
 
-      {recentItems && recentItems.length > 0 ? (
+      {recentLoading ? (
+        <View style={{ alignItems: 'center', paddingVertical: Spacing.xl }}>
+          <ActivityIndicator color={colors.primary} size="small" />
+        </View>
+      ) : recentItems && recentItems.length > 0 ? (
         recentItems.map((item: any) => (
           <ShiftCard key={item.id} item={item} userRole={userRole} colors={colors} t={t} />
         ))
@@ -202,6 +212,16 @@ function StatCard({ icon, label, value, color, colors }: any) {
       </View>
       <Text style={[styles.statValue, { color: colors.text }]}>{value}</Text>
       <Text style={[styles.statLabel, { color: colors.textSecondary }]} numberOfLines={1}>{label}</Text>
+    </Card>
+  );
+}
+
+function SkeletonStatCard({ colors }: any) {
+  return (
+    <Card variant="elevated" style={styles.statCard}>
+      <View style={[styles.statIcon, { backgroundColor: colors.skeleton }]} />
+      <View style={{ width: 28, height: 20, backgroundColor: colors.skeleton, borderRadius: 4, marginBottom: 4 }} />
+      <View style={{ width: 48, height: 10, backgroundColor: colors.skeleton, borderRadius: 4 }} />
     </Card>
   );
 }

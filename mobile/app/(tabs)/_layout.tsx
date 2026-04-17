@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -30,6 +31,11 @@ export default function TabLayout() {
           fontSize: 11,
           fontWeight: '600',
           marginTop: 2,
+        },
+      }}
+      screenListeners={{
+        tabPress: () => {
+          Haptics.selectionAsync();
         },
       }}
     >

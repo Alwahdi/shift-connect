@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl, Pressable, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, RefreshControl, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -185,7 +185,14 @@ export default function BookingsScreen() {
         contentContainerStyle={styles.listContent}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
         ListEmptyComponent={
-          isLoading ? null : (
+          isLoading ? (
+            <View style={{ alignItems: 'center', paddingVertical: Spacing['3xl'] }}>
+              <ActivityIndicator color={colors.primary} size="large" />
+              <Text style={{ color: colors.textSecondary, marginTop: Spacing.md, fontSize: Typography.sizes.sm }}>
+                {t('common.loading')}
+              </Text>
+            </View>
+          ) : (
             <EmptyState icon="clipboard-outline" title={t('bookings.noBookings')} description={t('bookings.noBookingsDesc')} />
           )
         }

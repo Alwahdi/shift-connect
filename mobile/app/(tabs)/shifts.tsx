@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl, TextInput, Pressable } from 'react-native';
+import { View, Text, StyleSheet, FlatList, RefreshControl, TextInput, Pressable, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -113,7 +113,7 @@ export default function ShiftsScreen() {
       <Badge label={item.role_required || 'General'} variant="primary" style={{ marginTop: Spacing.sm }} />
 
       {expandedShift === item.id && (
-        <View style={styles.expanded}>
+        <View style={[styles.expanded, { borderTopColor: colors.border }]}>
           {item.description && (
             <Text style={[styles.description, { color: colors.textSecondary }]}>{item.description}</Text>
           )}
@@ -188,7 +188,14 @@ export default function ShiftsScreen() {
         contentContainerStyle={styles.listContent}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
         ListEmptyComponent={
-          isLoading ? null : (
+          isLoading ? (
+            <View style={{ alignItems: 'center', paddingVertical: Spacing['3xl'] }}>
+              <ActivityIndicator color={colors.primary} size="large" />
+              <Text style={{ color: colors.textSecondary, marginTop: Spacing.md, fontSize: Typography.sizes.sm }}>
+                {t('common.loading')}
+              </Text>
+            </View>
+          ) : (
             <EmptyState icon="calendar-outline" title={t('shifts.noShifts')} description={t('shifts.noShiftsDesc')} />
           )
         }
@@ -224,6 +231,6 @@ const styles = StyleSheet.create({
   shiftMeta: { gap: 6 },
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   metaText: { fontSize: Typography.sizes.sm },
-  expanded: { marginTop: Spacing.md, gap: Spacing.md, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#E2E8E0', paddingTop: Spacing.md },
+  expanded: { marginTop: Spacing.md, gap: Spacing.md, borderTopWidth: StyleSheet.hairlineWidth, paddingTop: Spacing.md },
   description: { fontSize: Typography.sizes.sm, lineHeight: 20 },
 });

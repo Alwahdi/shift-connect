@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Dimensions, Animated } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,10 +15,31 @@ export default function WelcomeScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
+  // Animated values for staggered entrance
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+  const featuresFade = useRef(new Animated.Value(0)).current;
+  const featuresSlide = useRef(new Animated.Value(20)).current;
+  const actionsFade = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.stagger(200, [
+      Animated.parallel([
+        Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
+      ]),
+      Animated.parallel([
+        Animated.timing(featuresFade, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(featuresSlide, { toValue: 0, duration: 500, useNativeDriver: true }),
+      ]),
+      Animated.timing(actionsFade, { toValue: 1, duration: 400, useNativeDriver: true }),
+    ]).start();
+  }, []);
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
       {/* Hero Section */}
-      <View style={styles.hero}>
+      <Animated.View style={[styles.hero, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
         <View style={[styles.logoContainer, { backgroundColor: colors.primary + '15' }]}>
           <Ionicons name="medical" size={56} color={colors.primary} />
         </View>
@@ -26,10 +47,10 @@ export default function WelcomeScreen() {
         <Text style={[styles.tagline, { color: colors.textSecondary }]}>
           Healthcare Staffing, Simplified
         </Text>
-      </View>
+      </Animated.View>
 
       {/* Features */}
-      <View style={styles.features}>
+      <Animated.View style={[styles.features, { opacity: featuresFade, transform: [{ translateY: featuresSlide }] }]}>
         {[
           { icon: 'search-outline' as const, title: 'Find Shifts Instantly', desc: 'Browse healthcare shifts near you' },
           { icon: 'shield-checkmark-outline' as const, title: 'Verified Professionals', desc: 'All credentials reviewed and verified' },
@@ -45,10 +66,10 @@ export default function WelcomeScreen() {
             </View>
           </View>
         ))}
-      </View>
+      </Animated.View>
 
       {/* Actions */}
-      <View style={[styles.actions, { paddingBottom: insets.bottom + Spacing.lg }]}>
+      <Animated.View style={[styles.actions, { paddingBottom: insets.bottom + Spacing.lg, opacity: actionsFade }]}>
         <Button
           title={t('auth.signIn')}
           onPress={() => router.push('/(auth)/sign-in')}
@@ -63,7 +84,7 @@ export default function WelcomeScreen() {
           fullWidth
           size="lg"
         />
-      </View>
+      </Animated.View>
     </View>
   );
 }
