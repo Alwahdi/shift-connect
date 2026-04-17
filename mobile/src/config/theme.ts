@@ -73,7 +73,9 @@ export const Colors = {
   },
 } as const;
 
-export type ThemeColors = typeof Colors.light;
+export type ThemeColors = {
+  [K in keyof typeof Colors.light]: string;
+};
 
 export const Spacing = {
   xs: 4,
