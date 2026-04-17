@@ -61,25 +61,27 @@ export default function ClinicOnboarding() {
           description: description.trim(),
           tax_id: taxId.trim(),
           address: address.trim(),
-          website: website.trim(),
+          settings: { website: website.trim() },
           onboarding_completed: true,
         }, { onConflict: 'user_id' });
 
         if (clinicError) throw clinicError;
 
         for (const doc of documents) {
-          const ext = doc.uri.split('.').pop() || 'jpg';
+          const ext = (doc.uri.split('.').pop() || 'jpg').toLowerCase();
           const fileName = `${user.id}/${Date.now()}.${ext}`;
-          const response = await fetch(doc.uri);
-          const blob = await response.blob();
-          await supabase.storage.from('documents').upload(fileName, blob, { contentType: `image/${ext}` });
-          await supabase.from('documents').insert({
+          const formData = new FormData();
+          formData.append('file', { uri: doc.uri, name: fileName, type: `image/${ext}` } as any);
+          const { error: uploadError } = await supabase.storage.from('documents').upload(fileName, formData, { contentType: `image/${ext}` });
+          if (uploadError) throw uploadError;
+          const { error: docInsertError } = await supabase.from('documents').insert({
             user_id: user.id,
-            document_type: doc.name,
+            document_type: 'other',
             name: doc.name,
             file_url: fileName,
             status: 'pending',
           });
+          if (docInsertError) throw docInsertError;
         }
 
         await refreshOnboardingStatus();
