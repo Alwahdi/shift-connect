@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Pressable,
 } from 'react-native';
@@ -25,6 +25,7 @@ export default function ClinicOnboarding() {
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [initializing, setInitializing] = useState(true);
 
   // Step 1
   const [clinicName, setClinicName] = useState('');
@@ -40,32 +41,105 @@ export default function ClinicOnboarding() {
   // Step 3
   const [documents, setDocuments] = useState<{ name: string; uri: string }[]>([]);
 
+  // On mount: load any existing partial data and resume at the right step
+  useEffect(() => {
+    if (!user) return;
+    const loadExisting = async () => {
+      try {
+        const { data } = await supabase
+          .from('clinics')
+          .select('name, email, phone, description, tax_id, address, settings')
+          .eq('user_id', user.id)
+          .single();
+
+        if (data) {
+          setClinicName(data.name || '');
+          setClinicEmail(data.email || '');
+          setClinicPhone(data.phone || '');
+          setDescription(data.description || '');
+          setTaxId(data.tax_id || '');
+          setAddress(data.address || '');
+          setWebsite((data.settings as any)?.website || '');
+
+          // Determine which step to resume from
+          if (data.address?.trim()) {
+            setStep(3); // profile + location done, needs documents
+          } else if (data.name?.trim()) {
+            setStep(2); // profile done, needs location
+          }
+        }
+      } catch {
+        // No existing record — start from step 1
+      } finally {
+        setInitializing(false);
+      }
+    };
+    loadExisting();
+  }, [user]);
+
+  const saveStep1 = async (): Promise<boolean> => {
+    if (!user) return false;
+    const { error } = await supabase.from('clinics').upsert({
+      user_id: user.id,
+      name: clinicName.trim(),
+      email: clinicEmail.trim(),
+      phone: clinicPhone.trim(),
+      description: description.trim(),
+      tax_id: taxId.trim(),
+    }, { onConflict: 'user_id' });
+    if (error) throw error;
+    return true;
+  };
+
+  const saveStep2 = async (): Promise<boolean> => {
+    if (!user) return false;
+    const { error } = await supabase.from('clinics').update({
+      address: address.trim(),
+      settings: { website: website.trim() },
+    }).eq('user_id', user.id);
+    if (error) throw error;
+    return true;
+  };
+
   const handleNext = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     if (step === 1) {
-      if (!clinicName.trim()) { Toast.show({ type: 'error', text1: t('onboarding.clinicName') + ' ' + t('common.required') }); return; }
-      setStep(2);
+      if (!clinicName.trim()) {
+        Toast.show({ type: 'error', text1: t('onboarding.clinicName') + ' ' + t('common.required') });
+        return;
+      }
+      setLoading(true);
+      try {
+        await saveStep1();
+        setStep(2);
+      } catch (err: any) {
+        Toast.show({ type: 'error', text1: t('common.error'), text2: err.message });
+      } finally {
+        setLoading(false);
+      }
     } else if (step === 2) {
-      setStep(3);
+      if (!address.trim()) {
+        Toast.show({ type: 'error', text1: t('onboarding.address') + ' ' + t('common.required') });
+        return;
+      }
+      setLoading(true);
+      try {
+        await saveStep2();
+        setStep(3);
+      } catch (err: any) {
+        Toast.show({ type: 'error', text1: t('common.error'), text2: err.message });
+      } finally {
+        setLoading(false);
+      }
     } else if (step === 3) {
+      if (documents.length === 0) {
+        Toast.show({ type: 'error', text1: t('documents.missingDocuments'), text2: t('documents.missingDocumentsDesc') });
+        return;
+      }
       setLoading(true);
       try {
         if (!user) throw new Error('Not authenticated');
-
-        const { error: clinicError } = await supabase.from('clinics').upsert({
-          user_id: user.id,
-          name: clinicName.trim(),
-          email: clinicEmail.trim(),
-          phone: clinicPhone.trim(),
-          description: description.trim(),
-          tax_id: taxId.trim(),
-          address: address.trim(),
-          settings: { website: website.trim() },
-          onboarding_completed: true,
-        }, { onConflict: 'user_id' });
-
-        if (clinicError) throw clinicError;
 
         for (const doc of documents) {
           const ext = (doc.uri.split('.').pop() || 'jpg').toLowerCase();
@@ -83,6 +157,13 @@ export default function ClinicOnboarding() {
           });
           if (docInsertError) throw docInsertError;
         }
+
+        // Only mark onboarding complete after documents are successfully uploaded
+        const { error: completeError } = await supabase
+          .from('clinics')
+          .update({ onboarding_completed: true })
+          .eq('user_id', user.id);
+        if (completeError) throw completeError;
 
         await refreshOnboardingStatus();
         setStep(4);
@@ -109,6 +190,14 @@ export default function ClinicOnboarding() {
       Toast.show({ type: 'error', text1: t('common.error') });
     }
   };
+
+  if (initializing) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Ionicons name="hourglass-outline" size={32} color={colors.accent} />
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -164,6 +253,7 @@ export default function ClinicOnboarding() {
             <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
               {t('onboarding.businessLicense')} & {t('onboarding.insurance')}
             </Text>
+            <Text style={[styles.requiredNote, { color: colors.error }]}>* {t('common.required')}</Text>
             {documents.map((doc, index) => (
               <Card key={index} variant="outlined" style={styles.docCard}>
                 <View style={styles.docRow}>
@@ -180,7 +270,7 @@ export default function ClinicOnboarding() {
               <Text style={[styles.uploadText, { color: colors.accent }]}>{t('profile.uploadDocument')}</Text>
               <Text style={[styles.uploadHint, { color: colors.textTertiary }]}>{t('onboarding.businessLicense')}, {t('onboarding.insurance')}</Text>
             </Pressable>
-            <Button title={loading ? t('common.loading') : t('common.submit')} onPress={handleNext} loading={loading} fullWidth size="lg" />
+            <Button title={loading ? t('common.loading') : t('common.submit')} onPress={handleNext} loading={loading} disabled={documents.length === 0} fullWidth size="lg" />
           </View>
         )}
 
@@ -219,6 +309,7 @@ const styles = StyleSheet.create({
   },
   uploadText: { fontSize: Typography.sizes.base, fontWeight: Typography.weights.semibold, marginTop: Spacing.sm },
   uploadHint: { fontSize: Typography.sizes.xs, marginTop: 4 },
+  requiredNote: { fontSize: Typography.sizes.xs, marginBottom: Spacing.sm },
   completeContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: Spacing['5xl'] },
   completeIcon: { width: 120, height: 120, borderRadius: 60, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.xl },
   completeTitle: { fontSize: Typography.sizes['3xl'], fontWeight: Typography.weights.bold, marginBottom: Spacing.sm },

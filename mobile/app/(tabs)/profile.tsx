@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, Alert, RefreshControl } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,9 +16,16 @@ export default function ProfileScreen() {
   const { colors, isDark, toggleTheme } = useTheme();
   const { t } = useTranslation();
   const { userRole, signOut, user } = useAuth();
-  const { displayName, avatarUrl, verificationStatus, profile } = useProfile();
+  const { displayName, avatarUrl, verificationStatus, profile, refetch: refetchProfile } = useProfile();
   const { language, toggleLanguage } = useLanguage();
   const insets = useSafeAreaInsets();
+
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetchProfile?.();
+    setRefreshing(false);
+  }, [refetchProfile]);
 
   const handleSignOut = () => {
     Alert.alert(t('auth.signOut'), t('profile.signOutConfirm'), [
@@ -46,6 +53,7 @@ export default function ProfileScreen() {
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={{ paddingTop: insets.top + Spacing.base, paddingBottom: Spacing['3xl'] }}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       showsVerticalScrollIndicator={false}
     >
       {/* Profile Header */}

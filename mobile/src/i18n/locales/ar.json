@@ -102,17 +102,22 @@
     "averageRating": "متوسط التقييم",
     "invitations": "دعوات المناوبات",
     "noInvitations": "لا توجد دعوات جديدة",
+    "invitedToShift": "تمت دعوتك لمناوبة",
+    "invitationPending": "الدعوة في انتظار ردك",
+    "monthlySpend": "الإنفاق الشهري",
+    "fillRate": "معدل الإشغال",
     "viewAll": "عرض الكل",
     "quickActions": "إجراءات سريعة",
     "findShifts": "البحث عن مناوبات",
     "myBookings": "حجوزاتي",
     "myProfile": "ملفي الشخصي",
     "recentActivity": "النشاط الأخير",
+    "recentShifts": "المناوبات الأخيرة",
     "noActivity": "لا يوجد نشاط حديث",
     "totalSpent": "إجمالي الإنفاق",
     "activeShifts": "المناوبات النشطة",
     "postedShifts": "المناوبات المنشورة",
-    "createShift": "إنشاء مناوبة",
+    "createShift": "نشر مناوبة جديدة",
     "manageShifts": "إدارة المناوبات",
     "applicants": "المتقدمون",
     "hiredProfessionals": "المتخصصون المعينون",
@@ -120,6 +125,10 @@
     "profileIncompleteDesc": "أكمل إعداد ملفك الشخصي لبدء استخدام المنصة",
     "verificationPending": "في انتظار التحقق",
     "verificationPendingDesc": "ملفك قيد المراجعة. سنخطرك عند التحقق."
+  },
+  "booking": {
+    "activeShifts": "الحجوزات النشطة",
+    "noActiveBookings": "لا توجد حجوزات نشطة"
   },
   "shifts": {
     "search": "بحث المناوبات",
@@ -146,7 +155,12 @@
     "apply": "التقدم للمناوبة",
     "applied": "تم التقديم",
     "filled": "ممتلئة",
+    "open": "متاحة",
     "expired": "منتهية",
+    "today": "اليوم",
+    "week": "هذا الأسبوع",
+    "month": "هذا الشهر",
+    "all": "جميع التواريخ",
     "noShifts": "لا توجد مناوبات متاحة",
     "noShiftsDesc": "تحقق لاحقاً من الفرص الجديدة",
     "createNew": "إنشاء مناوبة جديدة",
@@ -155,7 +169,16 @@
     "startTime": "وقت البدء",
     "endTime": "وقت الانتهاء",
     "isUrgent": "وضع علامة عاجل",
-    "certifications": "الشهادات المطلوبة"
+    "certifications": "الشهادات المطلوبة",
+    "invitations": {
+      "invitation": "دعوة",
+      "accept": "قبول",
+      "decline": "رفض",
+      "accepted": "تم قبول الدعوة",
+      "declined": "تم رفض الدعوة",
+      "acceptedDesc": "لقد قبلت دعوة المناوبة",
+      "declinedDesc": "لقد رفضت دعوة المناوبة"
+    }
   },
   "bookings": {
     "myBookings": "حجوزاتي",
@@ -204,7 +227,21 @@
     "typeMessage": "اكتب رسالة...",
     "send": "إرسال",
     "today": "اليوم",
-    "yesterday": "أمس"
+    "yesterday": "أمس",
+    "typing": "يكتب...",
+    "you": "أنت",
+    "noMessages": "لا توجد رسائل بعد",
+    "startConversation": "قل مرحباً لبدء المحادثة",
+    "sendError": "فشل إرسال الرسالة",
+    "deleteMessage": "حذف الرسالة",
+    "deleteMessageConfirm": "هل تريد حذف هذه الرسالة؟",
+    "deleteConversation": "حذف المحادثة",
+    "deleteConversationConfirm": "سيتم حذف جميع الرسائل في هذه المحادثة نهائياً.",
+    "deleted": "تم حذف الرسالة",
+    "photo": "صورة",
+    "file": "ملف",
+    "clinic": "عيادة",
+    "professional": "متخصص"
   },
   "settings": {
     "title": "الإعدادات",

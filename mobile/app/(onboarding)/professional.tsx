@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform,
   Pressable, Animated, Alert,
@@ -27,6 +27,7 @@ export default function ProfessionalOnboarding() {
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [initializing, setInitializing] = useState(true);
 
   // Step 1: Profile
   const [fullName, setFullName] = useState('');
@@ -41,49 +42,118 @@ export default function ProfessionalOnboarding() {
   // Step 3: Documents
   const [documents, setDocuments] = useState<{ name: string; uri: string }[]>([]);
 
+  // On mount: load existing partial data and resume at the right step
+  useEffect(() => {
+    if (!user) return;
+    const loadExisting = async () => {
+      try {
+        const { data } = await supabase
+          .from('profiles')
+          .select('full_name, phone, bio, location_address, hourly_rate, specialties')
+          .eq('user_id', user.id)
+          .single();
+
+        if (data) {
+          setFullName(data.full_name || '');
+          setPhone(data.phone || '');
+          setBio(data.bio || '');
+          setLocation(data.location_address || '');
+          setHourlyRate(data.hourly_rate ? String(data.hourly_rate) : '');
+          setSelectedSpecialties(data.specialties || []);
+
+          if (data.specialties?.length > 0) {
+            setStep(3); // profile + specialties done, needs documents
+          } else if (data.full_name?.trim()) {
+            setStep(2); // profile done, needs specialties
+          }
+        }
+      } catch {
+        // No existing record — start from step 1
+      } finally {
+        setInitializing(false);
+      }
+    };
+    loadExisting();
+  }, [user]);
+
+  const saveStep1 = async () => {
+    if (!user) return;
+    const { error } = await supabase.from('profiles').upsert({
+      user_id: user.id,
+      email: user.email ?? '',
+      full_name: fullName.trim(),
+      phone: phone.trim(),
+      bio: bio.trim(),
+      location_address: location.trim(),
+      hourly_rate: parseFloat(hourlyRate) || 0,
+    }, { onConflict: 'user_id' });
+    if (error) throw error;
+  };
+
+  const saveStep2 = async () => {
+    if (!user) return;
+    const { error } = await supabase.from('profiles')
+      .update({ specialties: selectedSpecialties })
+      .eq('user_id', user.id);
+    if (error) throw error;
+  };
+
   const handleNext = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     if (step === 1) {
       if (!fullName.trim()) { Toast.show({ type: 'error', text1: t('onboarding.fullName') + ' ' + t('common.required') }); return; }
-      setStep(2);
+      setLoading(true);
+      try {
+        await saveStep1();
+        setStep(2);
+      } catch (err: any) {
+        Toast.show({ type: 'error', text1: t('common.error'), text2: err.message });
+      } finally {
+        setLoading(false);
+      }
     } else if (step === 2) {
-      setStep(3);
+      setLoading(true);
+      try {
+        await saveStep2();
+        setStep(3);
+      } catch (err: any) {
+        Toast.show({ type: 'error', text1: t('common.error'), text2: err.message });
+      } finally {
+        setLoading(false);
+      }
     } else if (step === 3) {
+      if (documents.length === 0) {
+        Toast.show({ type: 'error', text1: t('documents.missingDocuments'), text2: t('documents.missingDocumentsDesc') });
+        return;
+      }
       setLoading(true);
       try {
         if (!user) throw new Error('Not authenticated');
 
-        const { error: profileError } = await supabase.from('profiles').upsert({
-          user_id: user.id,
-          full_name: fullName.trim(),
-          phone: phone.trim(),
-          bio: bio.trim(),
-          location_address: location.trim(),
-          hourly_rate: parseFloat(hourlyRate) || 0,
-          specialties: selectedSpecialties,
-          onboarding_completed: true,
-        }, { onConflict: 'user_id' });
-
-        if (profileError) throw profileError;
-
-        // Upload documents
         for (const doc of documents) {
-          const ext = doc.uri.split('.').pop() || 'jpg';
+          const ext = (doc.uri.split('.').pop() || 'jpg').toLowerCase();
           const fileName = `${user.id}/${Date.now()}.${ext}`;
-          const response = await fetch(doc.uri);
-          const blob = await response.blob();
-
-          await supabase.storage.from('documents').upload(fileName, blob, { contentType: `image/${ext}` });
-
-          await supabase.from('documents').insert({
+          const formData = new FormData();
+          formData.append('file', { uri: doc.uri, name: fileName, type: `image/${ext}` } as any);
+          const { error: uploadError } = await supabase.storage.from('documents').upload(fileName, formData, { contentType: `image/${ext}` });
+          if (uploadError) throw uploadError;
+          const { error: docInsertError } = await supabase.from('documents').insert({
             user_id: user.id,
-            document_type: doc.name,
+            document_type: 'other',
             name: doc.name,
             file_url: fileName,
             status: 'pending',
           });
+          if (docInsertError) throw docInsertError;
         }
+
+        // Only mark onboarding complete after documents are successfully uploaded
+        const { error: completeError } = await supabase
+          .from('profiles')
+          .update({ onboarding_completed: true })
+          .eq('user_id', user.id);
+        if (completeError) throw completeError;
 
         await refreshOnboardingStatus();
         setStep(4);
@@ -120,6 +190,14 @@ export default function ProfessionalOnboarding() {
       Toast.show({ type: 'error', text1: t('common.error') });
     }
   };
+
+  if (initializing) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Ionicons name="hourglass-outline" size={32} color={colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -202,6 +280,7 @@ export default function ProfessionalOnboarding() {
           <View>
             <Text style={[styles.title, { color: colors.text }]}>{t('onboarding.documents')}</Text>
             <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t('onboarding.documentTypes')}</Text>
+            <Text style={[styles.requiredNote, { color: colors.error }]}>* {t('common.required')}</Text>
 
             {documents.map((doc, index) => (
               <Card key={index} variant="outlined" style={styles.docCard}>
@@ -224,7 +303,7 @@ export default function ProfessionalOnboarding() {
               <Text style={[styles.uploadHint, { color: colors.textTertiary }]}>ID, License, Certifications</Text>
             </Pressable>
 
-            <Button title={loading ? t('common.loading') : t('common.submit')} onPress={handleNext} loading={loading} fullWidth size="lg" />
+            <Button title={loading ? t('common.loading') : t('common.submit')} onPress={handleNext} loading={loading} disabled={documents.length === 0} fullWidth size="lg" />
           </View>
         )}
 
@@ -277,6 +356,7 @@ const styles = StyleSheet.create({
   },
   uploadText: { fontSize: Typography.sizes.base, fontWeight: Typography.weights.semibold, marginTop: Spacing.sm },
   uploadHint: { fontSize: Typography.sizes.xs, marginTop: 4 },
+  requiredNote: { fontSize: Typography.sizes.xs, marginBottom: Spacing.sm },
   completeContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: Spacing['5xl'] },
   completeIcon: { width: 120, height: 120, borderRadius: 60, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.xl },
   completeTitle: { fontSize: Typography.sizes['3xl'], fontWeight: Typography.weights.bold, marginBottom: Spacing.sm },

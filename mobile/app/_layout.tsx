@@ -39,6 +39,9 @@ function RootNavigator() {
         <Stack.Screen name="(auth)" options={{ animation: 'fade' }} />
         <Stack.Screen name="(onboarding)" options={{ gestureEnabled: false }} />
         <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
+        <Stack.Screen name="chat/[id]" options={{ headerShown: false, animation: 'slide_from_right' }} />
+        <Stack.Screen name="professional/[id]" options={{ headerShown: false, animation: 'slide_from_right' }} />
+        <Stack.Screen name="clinic/[id]" options={{ headerShown: false, animation: 'slide_from_right' }} />
       </Stack>
     </>
   );

@@ -44,8 +44,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setTheme(resolvedTheme === 'light' ? 'dark' : 'light');
   };
 
-  if (!isLoaded) return null;
-
   return (
     <ThemeContext.Provider value={{ theme, resolvedTheme, colors, isDark, setTheme, toggleTheme }}>
       {children}
@@ -53,8 +51,16 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 };
 
+const defaultTheme: ThemeContextType = {
+  theme: 'system',
+  resolvedTheme: 'light',
+  colors: Colors.light,
+  isDark: false,
+  setTheme: () => {},
+  toggleTheme: () => {},
+};
+
 export const useTheme = () => {
   const context = useContext(ThemeContext);
-  if (!context) throw new Error('useTheme must be used within a ThemeProvider');
-  return context;
+  return context ?? defaultTheme;
 };

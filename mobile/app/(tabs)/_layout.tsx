@@ -64,6 +64,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="clipboard-outline" size={22} color={color} />
           ),
+          href: userRole === 'clinic' ? null : undefined,
         }}
       />
       <Tabs.Screen
