@@ -17,7 +17,7 @@ import { UserEntity } from './entities/user.entity';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
 import { KAFKA_TOPICS, UserRegisteredEvent, AppRole } from '@syndeocare/shared-types';
 import { JwtPayload } from './strategies/jwt.strategy';
-import { randomBytes } from 'crypto';
+import { randomInt } from 'crypto';
 
 const OTP_PREFIX = 'otp:';
 const BCRYPT_ROUNDS = 12;
@@ -111,7 +111,7 @@ export class AuthService {
       return { message: 'If the email exists, an OTP has been sent.' };
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = randomInt(100000, 1000000).toString();
     const ttl = this.config.get<number>('OTP_TTL_SECONDS', 300);
 
     await this.redis.setex(`${OTP_PREFIX}${email}`, ttl, otp);

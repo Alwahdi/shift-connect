@@ -23,7 +23,7 @@ import { ShiftsModule } from '../shifts/shifts.module';
             brokers: (config.get<string | string[]>('KAFKA_BROKERS', 'localhost:9092') as string)
               .toString().split(',').map((b) => b.trim()),
           },
-          producer: { allowAutoTopicCreation: true },
+          producer: { allowAutoTopicCreation: false },
         },
       }),
     }]),

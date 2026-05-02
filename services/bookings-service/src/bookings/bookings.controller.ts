@@ -9,7 +9,7 @@ export class CreateBookingDto {
   @IsUUID() shiftId: string;
   @IsUUID() clinicId: string;
   /** Optional idempotency key — same key returns the existing booking without creating a duplicate */
-  @IsOptional() @IsString() idempotencyKey?: string;
+  @IsOptional() @IsUUID() idempotencyKey?: string;
 }
 
 export class UpdateBookingStatusDto {

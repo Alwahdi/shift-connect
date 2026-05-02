@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { HttpExceptionFilter, LoggingInterceptor } from '@syndeocare/shared-config';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -19,8 +20,11 @@ async function bootstrap() {
     }),
   );
 
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalInterceptors(new LoggingInterceptor());
+
   app.enableCors({
-    origin: process.env.ALLOWED_ORIGINS?.split(',') ?? '*',
+    origin: process.env.ALLOWED_ORIGINS?.split(',') ?? [],
     credentials: true,
   });
 
