@@ -1,10 +1,7 @@
-import { Injectable, NotFoundException, ForbiddenException, Inject, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ClientKafka } from '@nestjs/microservices';
 import { ShiftEntity } from './shift.entity';
-import { KAFKA_TOPICS } from '@syndeocare/shared-types';
-import { randomUUID } from 'crypto';
 
 @Injectable()
 export class ShiftsService {
@@ -13,8 +10,6 @@ export class ShiftsService {
   constructor(
     @InjectRepository(ShiftEntity)
     private readonly shiftRepo: Repository<ShiftEntity>,
-    @Inject('KAFKA_CLIENT')
-    private readonly kafka: ClientKafka,
   ) {}
 
   async create(clinicId: string, data: Partial<ShiftEntity>): Promise<ShiftEntity> {

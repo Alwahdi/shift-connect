@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 import { ClientKafka } from '@nestjs/microservices';
 import { BookingEntity } from './booking.entity';
 import { BookingStatus, KAFKA_TOPICS, BookingCreatedEvent, BookingStatusChangedEvent } from '@syndeocare/shared-types';
+import { ShiftsService } from '../shifts/shifts.service';
 import { randomUUID } from 'crypto';
 
 const VALID_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
@@ -35,6 +36,7 @@ export class BookingsService {
     private readonly bookingRepo: Repository<BookingEntity>,
     @Inject('KAFKA_CLIENT')
     private readonly kafka: ClientKafka,
+    private readonly shiftsService: ShiftsService,
   ) {}
 
   async createBooking(
@@ -56,10 +58,12 @@ export class BookingsService {
     const existing = await this.bookingRepo.findOne({ where: { shiftId, professionalId } });
     if (existing) throw new ConflictException('Already applied to this shift');
 
+    // Fetch the shift to validate it exists and populate the Kafka event payload
+    const shift = await this.shiftsService.findOne(shiftId);
+
     const booking = this.bookingRepo.create({ shiftId, professionalId, clinicId, idempotencyKey });
     const saved = await this.bookingRepo.save(booking);
 
-    // Emit Kafka event
     const event: BookingCreatedEvent = {
       eventId: randomUUID(),
       timestamp: new Date().toISOString(),
@@ -70,10 +74,12 @@ export class BookingsService {
         shiftId: saved.shiftId,
         professionalId: saved.professionalId,
         clinicId: saved.clinicId,
-        shiftDate: '',
-        startTime: '',
-        endTime: '',
-        hourlyRate: 0,
+        shiftDate: shift.shiftDate instanceof Date
+          ? shift.shiftDate.toISOString().split('T')[0]
+          : String(shift.shiftDate),
+        startTime: shift.startTime,
+        endTime: shift.endTime,
+        hourlyRate: Number(shift.hourlyRate),
       },
     };
 

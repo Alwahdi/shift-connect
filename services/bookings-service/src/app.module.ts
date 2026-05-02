@@ -1,14 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 import { BullModule } from '@nestjs/bullmq';
 import { TerminusModule } from '@nestjs/terminus';
-import { BaseEnvSchema, createConfigValidation } from '@syndeocare/shared-config';
+import { BaseEnvSchema, JwtAuthModule, createConfigValidation } from '@syndeocare/shared-config';
 import { ShiftsModule } from './shifts/shifts.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { HealthController } from './health.controller';
-import { JwtAuthModule } from '@syndeocare/shared-config';
 
 @Module({
   imports: [
@@ -23,21 +21,6 @@ import { JwtAuthModule } from '@syndeocare/shared-config';
         synchronize: config.get<string>('NODE_ENV') !== 'production',
       }),
     }),
-
-    ClientsModule.registerAsync([{
-      name: 'KAFKA_CLIENT',
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        transport: Transport.KAFKA,
-        options: {
-          client: {
-            clientId: config.get<string>('KAFKA_CLIENT_ID', 'bookings-service'),
-            brokers: config.get<string[]>('KAFKA_BROKERS', ['localhost:9092']),
-          },
-          producer: { allowAutoTopicCreation: true },
-        },
-      }),
-    }]),
 
     BullModule.forRootAsync({
       inject: [ConfigService],
