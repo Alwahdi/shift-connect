@@ -3,25 +3,29 @@
 // =====================================================
 // This file centralizes all backend connection settings.
 //
-// SELF-HOSTED MIGRATION:
-// To switch from Lovable Cloud to your own Supabase instance:
-// 1. Set up your own Supabase project
-// 2. Run all migrations from supabase/migrations/
-// 3. Deploy edge functions: supabase functions deploy
-// 4. Update the environment variables below to point to your instance:
-//    - VITE_SUPABASE_URL → Your Supabase project URL
-//    - VITE_SUPABASE_PUBLISHABLE_KEY → Your Supabase anon/public key
+// The platform uses a self-hosted NestJS microservices stack (services/*)
+// exposed via an nginx API gateway.
 //
-// No code changes are needed — only environment variables.
+// Set VITE_API_URL to the base URL of the API gateway, e.g.:
+//   Development : http://localhost:8080
+//   Production  : https://api.syndeocare.ai
+//
+// Legacy Supabase integration (apps/web/src/integrations/supabase/)
+// is still used for certain UI-layer features during the migration period.
+// New features should call the API gateway directly using `API_BASE_URL`.
 // =====================================================
 
 export const BACKEND_CONFIG = {
+  /** Base URL of the NestJS API gateway. Override via VITE_API_URL env var. */
+  apiUrl: (import.meta.env.VITE_API_URL as string | undefined) ?? '',
+
+  // ── Legacy Supabase connection (kept for backwards-compat during migration) ──
   /** Supabase project URL. Override via VITE_SUPABASE_URL env var. */
   supabaseUrl: import.meta.env.VITE_SUPABASE_URL as string,
 
   /** Supabase anon/public key. Override via VITE_SUPABASE_PUBLISHABLE_KEY env var. */
   supabaseAnonKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string,
-
-  /** Supabase project ID (used for constructing edge function URLs). */
-  supabaseProjectId: import.meta.env.VITE_SUPABASE_PROJECT_ID as string,
 } as const;
+
+/** Convenience alias for the API gateway base URL. */
+export const API_BASE_URL = BACKEND_CONFIG.apiUrl;

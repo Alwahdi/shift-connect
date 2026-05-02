@@ -130,7 +130,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
       KAFKA_NUM_PARTITIONS: 3
       KAFKA_DEFAULT_REPLICATION_FACTOR: 1
     volumes:
@@ -155,6 +155,31 @@ services:
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
     ports:
       - "${KAFKA_UI_PORT:-8090}:8080"
+
+  # Creates all Kafka topics required by the services.
+  # Runs once at startup; fails fast if Kafka is unreachable.
+  kafka-init:
+    <<: *service-defaults
+    image: confluentinc/cp-kafka:7.6.1
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: >
+      sh -c "
+        kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic syndeocare.auth.user-registered.v1     --partitions 3 --replication-factor 1 &&
+        kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic syndeocare.auth.otp-requested.v1       --partitions 3 --replication-factor 1 &&
+        kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic syndeocare.bookings.booking-created.v1  --partitions 3 --replication-factor 1 &&
+        kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic syndeocare.bookings.booking-status-changed.v1 --partitions 3 --replication-factor 1 &&
+        kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic syndeocare.payments.payment-completed.v1 --partitions 3 --replication-factor 1 &&
+        kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic syndeocare.payments.payment-failed.v1    --partitions 3 --replication-factor 1 &&
+        kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic syndeocare.notifications.email-send.v1  --partitions 3 --replication-factor 1 &&
+        kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic syndeocare.auth.dead-letter             --partitions 1 --replication-factor 1 &&
+        kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic syndeocare.bookings.dead-letter          --partitions 1 --replication-factor 1 &&
+        kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic syndeocare.payments.dead-letter          --partitions 1 --replication-factor 1 &&
+        kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic syndeocare.notifications.dead-letter     --partitions 1 --replication-factor 1 &&
+        echo 'All Kafka topics created.'
+      "
+    restart: "no"
 
   minio:
     <<: *service-defaults
@@ -206,6 +231,8 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
     environment:
       <<: *nestjs-env
       PORT: 3001
@@ -214,6 +241,7 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/auth_db
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       OTP_TTL_SECONDS: ${OTP_TTL_SECONDS:-300}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost,http://localhost:80}
     ports:
       - "3001:3001"
     healthcheck:
@@ -235,6 +263,8 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
       minio:
         condition: service_healthy
     environment:
@@ -249,6 +279,7 @@ services:
       S3_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-minioadmin}
       S3_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
       S3_FORCE_PATH_STYLE: "true"
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost,http://localhost:80}
     ports:
       - "3002:3002"
     healthcheck:
@@ -270,12 +301,15 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
     environment:
       <<: *nestjs-env
       PORT: 3003
       KAFKA_CLIENT_ID: bookings-service
       # bookings-service owns bookings_db — isolated from all other services
       DATABASE_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/bookings_db
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost,http://localhost:80}
     ports:
       - "3003:3003"
     healthcheck:
@@ -297,6 +331,8 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
     environment:
       <<: *nestjs-env
       PORT: 3004
@@ -304,6 +340,7 @@ services:
       # notifications-service owns notifications_db — isolated from all other services
       DATABASE_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/notifications_db
       RESEND_API_KEY: ${RESEND_API_KEY:-}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost,http://localhost:80}
     ports:
       - "3004:3004"
     healthcheck:
@@ -325,6 +362,8 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
     environment:
       <<: *nestjs-env
       PORT: 3005
@@ -333,6 +372,7 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/payments_db
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_placeholder}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_placeholder}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost,http://localhost:80}
     ports:
       - "3005:3005"
     healthcheck:
@@ -356,13 +396,9 @@ services:
       <<: *nestjs-env
       PORT: 3006
       KAFKA_CLIENT_ID: admin-service
-      # admin-service owns admin_db — but can also connect to service DBs for aggregation
-      # Service DB URLs (read-only aggregation — use separate read-only roles in prod)
+      # admin-service owns admin_db — admin reads aggregated data via service APIs, NOT direct DB access
       DATABASE_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/admin_db
-      AUTH_DB_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/auth_db
-      USERS_DB_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/users_db
-      BOOKINGS_DB_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/bookings_db
-      PAYMENTS_DB_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/payments_db
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost,http://localhost:80}
     ports:
       - "3006:3006"
     healthcheck:
@@ -408,8 +444,8 @@ services:
     depends_on:
       - api-gateway
     environment:
-      VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-http://localhost:8080}
-      VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY:-placeholder}
+      # API gateway URL consumed by the frontend. Override to point to a custom domain.
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}
     ports:
       - "${FRONTEND_PORT:-80}:80"
 
