@@ -15,7 +15,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "migration:generate": "typeorm -d dist/data-source.js migration:generate src/migrations/migration",
+    "migration:run": "typeorm -d dist/data-source.js migration:run",
+    "migration:revert": "typeorm -d dist/data-source.js migration:revert",
+    "migration:show": "typeorm -d dist/data-source.js migration:show"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.0",

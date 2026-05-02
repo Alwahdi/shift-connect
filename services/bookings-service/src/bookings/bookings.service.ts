@@ -37,11 +37,26 @@ export class BookingsService {
     private readonly kafka: ClientKafka,
   ) {}
 
-  async createBooking(professionalId: string, shiftId: string, clinicId: string): Promise<BookingEntity> {
+  async createBooking(
+    professionalId: string,
+    shiftId: string,
+    clinicId: string,
+    idempotencyKey?: string,
+  ): Promise<BookingEntity> {
+    // Idempotency: if the client provided a key and we already processed it, return existing
+    if (idempotencyKey) {
+      const byKey = await this.bookingRepo.findOne({ where: { idempotencyKey } });
+      if (byKey) {
+        this.logger.debug(`Returning existing booking for idempotency key ${idempotencyKey}`);
+        return byKey;
+      }
+    }
+
+    // Natural duplicate check (same professional + same shift)
     const existing = await this.bookingRepo.findOne({ where: { shiftId, professionalId } });
     if (existing) throw new ConflictException('Already applied to this shift');
 
-    const booking = this.bookingRepo.create({ shiftId, professionalId, clinicId });
+    const booking = this.bookingRepo.create({ shiftId, professionalId, clinicId, idempotencyKey });
     const saved = await this.bookingRepo.save(booking);
 
     // Emit Kafka event

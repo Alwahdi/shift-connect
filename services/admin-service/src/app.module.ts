@@ -5,6 +5,7 @@ import { TerminusModule } from '@nestjs/terminus';
 import { BaseEnvSchema, createConfigValidation } from '@syndeocare/shared-config';
 import { AdminModule } from './admin/admin.module';
 import { HealthController } from './health.controller';
+import { JwtAuthModule } from '@syndeocare/shared-config';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { HealthController } from './health.controller';
       }),
     }),
 
+    JwtAuthModule,
     TerminusModule,
     AdminModule,
   ],

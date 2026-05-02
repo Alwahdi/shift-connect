@@ -35,6 +35,7 @@ x-service-defaults: &service-defaults
       max-size: "10m"
       max-file: "3"
 
+# Shared env vars for all NestJS services (no DATABASE_URL — each service has its own)
 x-nestjs-env: &nestjs-env
   NODE_ENV: ${NODE_ENV:-development}
   REDIS_HOST: redis
@@ -46,6 +47,12 @@ x-nestjs-env: &nestjs-env
   JWT_ACCESS_EXPIRES_IN: ${JWT_ACCESS_EXPIRES_IN:-15m}
   JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
 
+# ── Per-service database credentials (isolated databases, same Postgres instance) ──
+x-db-creds: &db-creds
+  POSTGRES_USER: ${POSTGRES_USER:-syndeocare}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+  POSTGRES_HOST: postgres
+
 services:
 
   # ─────────────────────────────────────────────────────────────────────────
@@ -56,12 +63,14 @@ services:
     <<: *service-defaults
     image: postgres:16-alpine
     environment:
+      # The default database is used only as a superuser connection target during init.
+      # Service databases (auth_db, users_db, etc.) are created by init.sh.
       POSTGRES_DB: ${POSTGRES_DB:-syndeocare}
       POSTGRES_USER: ${POSTGRES_USER:-syndeocare}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./infra/config/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./infra/config/postgres/init.sh:/docker-entrypoint-initdb.d/init.sh:ro
     ports:
       - "${POSTGRES_EXTERNAL_PORT:-5432}:5432"
     healthcheck:
@@ -201,7 +210,8 @@ services:
       <<: *nestjs-env
       PORT: 3001
       KAFKA_CLIENT_ID: auth-service
-      DATABASE_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-syndeocare}
+      # auth-service owns auth_db — isolated from all other services
+      DATABASE_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/auth_db
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       OTP_TTL_SECONDS: ${OTP_TTL_SECONDS:-300}
     ports:
@@ -231,7 +241,8 @@ services:
       <<: *nestjs-env
       PORT: 3002
       KAFKA_CLIENT_ID: users-service
-      DATABASE_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-syndeocare}
+      # users-service owns users_db — isolated from all other services
+      DATABASE_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/users_db
       S3_ENDPOINT: http://minio:9000
       S3_REGION: ${S3_REGION:-us-east-1}
       S3_BUCKET_NAME: ${S3_BUCKET_NAME:-syndeocare}
@@ -263,7 +274,8 @@ services:
       <<: *nestjs-env
       PORT: 3003
       KAFKA_CLIENT_ID: bookings-service
-      DATABASE_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-syndeocare}
+      # bookings-service owns bookings_db — isolated from all other services
+      DATABASE_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/bookings_db
     ports:
       - "3003:3003"
     healthcheck:
@@ -289,7 +301,8 @@ services:
       <<: *nestjs-env
       PORT: 3004
       KAFKA_CLIENT_ID: notifications-service
-      DATABASE_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-syndeocare}
+      # notifications-service owns notifications_db — isolated from all other services
+      DATABASE_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/notifications_db
       RESEND_API_KEY: ${RESEND_API_KEY:-}
     ports:
       - "3004:3004"
@@ -316,7 +329,8 @@ services:
       <<: *nestjs-env
       PORT: 3005
       KAFKA_CLIENT_ID: payments-service
-      DATABASE_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-syndeocare}
+      # payments-service owns payments_db — isolated from all other services
+      DATABASE_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/payments_db
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_placeholder}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_placeholder}
     ports:
@@ -342,7 +356,13 @@ services:
       <<: *nestjs-env
       PORT: 3006
       KAFKA_CLIENT_ID: admin-service
-      DATABASE_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-syndeocare}
+      # admin-service owns admin_db — but can also connect to service DBs for aggregation
+      # Service DB URLs (read-only aggregation — use separate read-only roles in prod)
+      DATABASE_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/admin_db
+      AUTH_DB_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/auth_db
+      USERS_DB_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/users_db
+      BOOKINGS_DB_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/bookings_db
+      PAYMENTS_DB_URL: postgres://${POSTGRES_USER:-syndeocare}:${POSTGRES_PASSWORD}@postgres:5432/payments_db
     ports:
       - "3006:3006"
     healthcheck:

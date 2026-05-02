@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bullmq';
 import { TerminusModule } from '@nestjs/terminus';
-import { BaseEnvSchema, createConfigValidation } from '@syndeocare/shared-config';
+import { BaseEnvSchema, JwtAuthModule, createConfigValidation } from '@syndeocare/shared-config';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ConsumersModule } from './consumers/consumers.module';
 import { HealthController } from './health/health.controller';
@@ -34,6 +34,7 @@ import { HealthController } from './health/health.controller';
     }),
 
     TerminusModule,
+    JwtAuthModule,
     NotificationsModule,
     ConsumersModule,
   ],

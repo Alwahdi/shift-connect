@@ -68,6 +68,44 @@ A healthcare staffing marketplace connecting **dental/medical professionals** wi
 └── turbo.json
 ```
 
+
+## Architecture Decisions
+
+### Database isolation
+Each service owns a **dedicated PostgreSQL database** (not just a schema) within the single Postgres container. This provides:
+- Independent schema evolution and migrations
+- No cross-service joins (forces explicit APIs / events)
+- Easy split to separate RDS instances in production
+
+| Service | Database |
+|---|---|
+| auth-service | `auth_db` |
+| users-service | `users_db` |
+| bookings-service | `bookings_db` |
+| notifications-service | `notifications_db` |
+| payments-service | `payments_db` |
+| admin-service | `admin_db` |
+
+### Inter-service authentication
+All services validate JWTs using the shared `JwtAuthModule` from `@syndeocare/shared-config`. Every service receives the same `JWT_ACCESS_SECRET` at runtime, so tokens issued by `auth-service` are accepted everywhere — no inter-service calls required for auth validation.
+
+### Idempotency
+- **Kafka consumers**: every event is deduplicated by `eventId` in Redis (7-day TTL). Duplicate events are silently skipped.
+- **Booking creation**: clients may supply an `Idempotency-Key` header or `idempotencyKey` body field — the same key returns the existing booking without creating a duplicate.
+- **Payments**: Stripe idempotency keys are stored with each PaymentIntent record.
+
+### Kafka topic versioning
+All topics carry a `.v1` suffix (e.g. `syndeocare.auth.user-registered.v1`). New incompatible schemas get a new version; old consumers continue on `.v1` until migrated.
+
+### Matching engine
+The `MatchingEngineService` in `bookings-service/src/matching/` is an isolated, side-effect-free scoring module. It implements a rule-based scoring algorithm (role match → certifications → distance → rate → urgency). The module is designed to be swappable for an ML-based approach without changing the calling API.
+
+### TypeORM migrations
+Each service has a `src/data-source.ts` file for TypeORM CLI migrations. Use `synchronize: true` in development only; production builds run:
+```bash
+DATABASE_URL=postgres://... pnpm --filter @syndeocare/<service> migration:run
+```
+
 ---
 
 ## Quick Start (Microservices Stack)

@@ -8,6 +8,7 @@ import { BaseEnvSchema, createConfigValidation } from '@syndeocare/shared-config
 import { ShiftsModule } from './shifts/shifts.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { HealthController } from './health.controller';
+import { JwtAuthModule } from '@syndeocare/shared-config';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { HealthController } from './health.controller';
       }),
     }),
 
+    JwtAuthModule,
     TerminusModule,
     ShiftsModule,
     BookingsModule,

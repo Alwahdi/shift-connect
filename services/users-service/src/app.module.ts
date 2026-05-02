@@ -9,6 +9,7 @@ import { ClinicsModule } from './clinics/clinics.module';
 import { DocumentsModule } from './documents/documents.module';
 import { StorageModule } from './storage/storage.module';
 import { HealthController } from './health/health.controller';
+import { JwtAuthModule } from '@syndeocare/shared-config';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { HealthController } from './health/health.controller';
       },
     ]),
 
+    JwtAuthModule,
     TerminusModule,
     StorageModule,
     ProfilesModule,

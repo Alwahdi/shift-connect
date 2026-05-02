@@ -7,6 +7,7 @@ import { PaymentsEnvSchema, createConfigValidation } from '@syndeocare/shared-co
 import { PaymentsModule } from './payments/payments.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 import { HealthController } from './health.controller';
+import { JwtAuthModule } from '@syndeocare/shared-config';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { HealthController } from './health.controller';
       }),
     }]),
 
+    JwtAuthModule,
     TerminusModule,
     PaymentsModule,
     WebhooksModule,

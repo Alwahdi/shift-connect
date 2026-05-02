@@ -24,22 +24,22 @@ export interface UserRegisteredEvent extends KafkaEvent<UserRegisteredPayload> {
 }
 
 export const KAFKA_TOPICS = {
-  // Auth
-  AUTH_USER_REGISTERED: 'syndeocare.auth.user-registered',
-  AUTH_OTP_REQUESTED: 'syndeocare.auth.otp-requested',
+  // Auth — v1
+  AUTH_USER_REGISTERED: 'syndeocare.auth.user-registered.v1',
+  AUTH_OTP_REQUESTED: 'syndeocare.auth.otp-requested.v1',
 
-  // Bookings
-  BOOKINGS_CREATED: 'syndeocare.bookings.booking-created',
-  BOOKINGS_STATUS_CHANGED: 'syndeocare.bookings.booking-status-changed',
+  // Bookings — v1
+  BOOKINGS_CREATED: 'syndeocare.bookings.booking-created.v1',
+  BOOKINGS_STATUS_CHANGED: 'syndeocare.bookings.booking-status-changed.v1',
 
-  // Payments
-  PAYMENTS_COMPLETED: 'syndeocare.payments.payment-completed',
-  PAYMENTS_FAILED: 'syndeocare.payments.payment-failed',
+  // Payments — v1
+  PAYMENTS_COMPLETED: 'syndeocare.payments.payment-completed.v1',
+  PAYMENTS_FAILED: 'syndeocare.payments.payment-failed.v1',
 
-  // Notifications
-  NOTIFICATIONS_EMAIL_SEND: 'syndeocare.notifications.email-send',
+  // Notifications — v1
+  NOTIFICATIONS_EMAIL_SEND: 'syndeocare.notifications.email-send.v1',
 
-  // Dead-letter topics
+  // Dead-letter topics (no version — DLTs are infrastructure, not domain)
   DLT_AUTH: 'syndeocare.auth.dead-letter',
   DLT_BOOKINGS: 'syndeocare.bookings.dead-letter',
   DLT_PAYMENTS: 'syndeocare.payments.dead-letter',
