@@ -17,6 +17,8 @@ dist-ssr
 .env.docker
 .env.production
 .env.local
+.env.microservices
+.env.*.local
 
 # Editor directories and files
 .vscode/*
