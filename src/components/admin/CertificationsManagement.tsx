@@ -249,7 +249,10 @@ const CertificationsManagement = () => {
                           {cert.abbreviation}
                         </Badge>
                       )}
-                      <p className="font-medium text-foreground text-sm truncate">{cert.name}</p>
+                      <p className="font-medium text-foreground text-sm truncate">
+                        {isRTL && cert.name_ar ? cert.name_ar : cert.name}
+                        {isRTL && cert.name_ar && <span className="ms-1 text-xs text-muted-foreground">({cert.name})</span>}
+                      </p>
                     </div>
                     {cert.description && (
                       <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
