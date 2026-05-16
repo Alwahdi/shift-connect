@@ -565,6 +565,11 @@
     "missionText": "To transform healthcare staffing by connecting qualified professionals with facilities that need them, when they need them.",
     "story": "Our Story",
     "storyText": "SyndeoCare was founded by healthcare professionals who understood the challenges of staffing firsthand. We built the platform we wished existed.",
+    "stats": {
+      "professionals": "Professionals",
+      "clinics": "Facilities",
+      "locations": "Locations"
+    },
     "values": {
       "title": "Our Values",
       "quality": "Quality Care",
@@ -593,6 +598,10 @@
     "hero": {
       "title": "Staff Your Facility with Confidence",
       "subtitle": "Access a network of verified healthcare professionals ready to fill your shifts."
+    },
+    "stats": {
+      "clinics": "Facilities",
+      "professionals": "Professionals"
     },
     "benefits": {
       "verified": "Verified Professionals",

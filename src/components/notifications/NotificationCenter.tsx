@@ -61,16 +61,16 @@ const getNotificationIcon = (type: string) => {
 const getNotificationColor = (type: string) => {
   switch (type) {
     case "booking_accepted":
-      return "text-green-500";
+      return "text-success";
     case "booking_declined":
     case "booking_cancelled":
       return "text-destructive";
     case "new_message":
-      return "text-blue-500";
+      return "text-sky";
     case "verification_update":
-      return "text-amber-500";
+      return "text-warning";
     case "rating_received":
-      return "text-yellow-500";
+      return "text-warning";
     default:
       return "text-primary";
   }

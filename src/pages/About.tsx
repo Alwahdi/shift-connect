@@ -41,10 +41,10 @@ const About = () => {
   ];
 
   const team = [
-    { name: t("nav.forProfessionals").replace("For ", "").replace("للمهنيين", "المهنيون"), count: "10,000+", description: t("home.features.verification.desc") },
-    { name: t("nav.forClinics").replace("For ", "").replace("للعيادات", "المنشآت"), count: "500+", description: t("clinics.benefits.verifiedDesc") },
+    { name: t("about.stats.professionals"), count: "10,000+", description: t("home.features.verification.desc") },
+    { name: t("about.stats.clinics"), count: "500+", description: t("clinics.benefits.verifiedDesc") },
     { name: t("dashboard.completedShifts"), count: "50,000+", description: t("home.features.booking.desc") },
-    { name: t("location.useCurrentLocation").split(" ")[0], count: "100+", description: t("professionals.benefits.flexibilityDesc") }
+    { name: t("about.stats.locations"), count: "100+", description: t("professionals.benefits.flexibilityDesc") }
   ];
 
   return (

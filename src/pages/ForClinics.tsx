@@ -186,8 +186,8 @@ const ForClinics = () => {
           <div className="container mx-auto px-4 sm:px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
               {[
-                { value: "500+", label: t("nav.forClinics").replace("For ", "").replace("للعيادات", "منشأة") },
-                { value: "10K+", label: t("nav.forProfessionals").replace("For ", "").replace("للمهنيين", "مهني") },
+                { value: "500+", label: t("clinics.stats.clinics") },
+                { value: "10K+", label: t("clinics.stats.professionals") },
                 { value: "95%", label: t("dashboard.stats.fillRate") },
                 { value: "4.8★", label: t("dashboard.stats.avgRating") }
               ].map((stat, index) => (

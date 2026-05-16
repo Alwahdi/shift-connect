@@ -3,6 +3,30 @@ import App from "./App.tsx";
 import "./index.css";
 import "./i18n";
 
+const CHUNK_RELOAD_KEY = "syndeocare-chunk-reload-at";
+const CHUNK_RELOAD_THROTTLE_MS = 30_000;
+
+const reloadOnChunkError = () => {
+  const lastReloadAt = Number(sessionStorage.getItem(CHUNK_RELOAD_KEY) ?? "0");
+  if (Date.now() - lastReloadAt < CHUNK_RELOAD_THROTTLE_MS) return;
+
+  sessionStorage.setItem(CHUNK_RELOAD_KEY, String(Date.now()));
+  window.location.reload();
+};
+
+window.addEventListener("vite:preloadError", (event) => {
+  event.preventDefault();
+  reloadOnChunkError();
+});
+
+window.addEventListener("unhandledrejection", (event) => {
+  const reason = String((event as PromiseRejectionEvent).reason ?? "");
+  if (reason.includes("Failed to fetch dynamically imported module")) {
+    event.preventDefault();
+    reloadOnChunkError();
+  }
+});
+
 // Initialize theme before render to prevent flash
 const initializeTheme = () => {
   const stored = localStorage.getItem("syndeocare-theme");

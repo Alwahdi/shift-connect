@@ -42,14 +42,14 @@ export const VerificationBadge = ({
   const config = {
     verified: {
       icon: BadgeCheck,
-      color: "text-green-500",
-      bgColor: "bg-green-500/10",
+      color: "text-success",
+      bgColor: "bg-success/10",
       label: t("verification.verified"),
     },
     pending: {
       icon: Clock,
-      color: "text-amber-500",
-      bgColor: "bg-amber-500/10",
+      color: "text-warning",
+      bgColor: "bg-warning/10",
       label: t("verification.pending"),
     },
     rejected: {
