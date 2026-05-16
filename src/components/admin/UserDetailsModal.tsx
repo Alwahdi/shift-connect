@@ -16,6 +16,7 @@ import {
   Briefcase
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
 
 interface Profile {
   id: string;
@@ -63,6 +64,7 @@ interface UserDetailsModalProps {
 }
 
 const UserDetailsModal = ({ type, user, onClose, onVerify }: UserDetailsModalProps) => {
+  const { t } = useTranslation();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -91,11 +93,11 @@ const UserDetailsModal = ({ type, user, onClose, onVerify }: UserDetailsModalPro
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "verified":
-        return <Badge className="bg-success/10 text-success border-success/20"><CheckCircle2 className="w-3 h-3 mr-1" />Verified</Badge>;
+        return <Badge className="bg-success/10 text-success border-success/20"><CheckCircle2 className="w-3 h-3 mr-1" />{t("common.verified")}</Badge>;
       case "rejected":
-        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />Rejected</Badge>;
+        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />{t("common.rejected")}</Badge>;
       default:
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary">{t("common.pending")}</Badge>;
     }
   };
 

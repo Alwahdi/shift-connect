@@ -33,6 +33,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import DocumentUploadCard from "@/components/onboarding/DocumentUploadCard";
+import { useTranslation } from "react-i18next";
 
 interface Profile {
   id: string;
@@ -74,6 +75,7 @@ interface DocumentUpload {
 }
 
 const ProfessionalProfile = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, userRole, signOut, isLoading: authLoading } = useAuth();
@@ -356,11 +358,11 @@ const ProfessionalProfile = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "verified":
-        return <Badge className="bg-success/10 text-success border-success/20"><CheckCircle2 className="w-3 h-3 mr-1" />Verified</Badge>;
+        return <Badge className="bg-success/10 text-success border-success/20"><CheckCircle2 className="w-3 h-3 mr-1" />{t("common.verified")}</Badge>;
       case "rejected":
-        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />Rejected</Badge>;
+        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />{t("common.rejected")}</Badge>;
       default:
-        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
+        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />{t("common.pending")}</Badge>;
     }
   };
 
