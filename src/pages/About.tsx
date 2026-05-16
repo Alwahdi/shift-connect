@@ -40,12 +40,7 @@ const About = () => {
     }
   ];
 
-  const team = [
-    { name: t("about.stats.professionals"), count: "10,000+", description: t("home.features.verification.desc") },
-    { name: t("about.stats.clinics"), count: "500+", description: t("clinics.benefits.verifiedDesc") },
-    { name: t("dashboard.completedShifts"), count: "50,000+", description: t("home.features.booking.desc") },
-    { name: t("about.stats.locations"), count: "100+", description: t("professionals.benefits.flexibilityDesc") }
-  ];
+  // Stats removed pre-launch — bring back once we have real numbers.
 
   return (
     <div className="min-h-screen bg-background">
