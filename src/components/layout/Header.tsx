@@ -149,7 +149,7 @@ const Header = () => {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="lg:hidden bg-background/98 backdrop-blur-xl border-b border-border fixed top-14 sm:top-16 left-0 right-0 z-40 max-h-[calc(100vh-3.5rem)] overflow-y-auto"
+            className="lg:hidden bg-background/95 backdrop-blur-xl border-b border-border fixed top-14 sm:top-16 left-0 right-0 z-40 max-h-[calc(100vh-3.5rem)] overflow-y-auto"
           >
             <div className="container mx-auto px-4 py-4 space-y-1 safe-area-inset-bottom">
               {NAV_LINKS.map((link) => (
