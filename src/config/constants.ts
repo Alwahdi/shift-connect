@@ -9,35 +9,23 @@
 export const SITE_CONFIG = {
   name: "SyndeoCare",
   tagline: "Healthcare Staffing, Simplified",
-  description: "Connect healthcare professionals with facilities seamlessly",
+  description: "Connect healthcare professionals with facilities seamlessly across Yemen",
   url: "https://syndeocare.ai",
   supportEmail: "support@syndeocare.ai",
-  supportPhone: "+966-55-000-0000",
-  location: "Riyadh, Saudi Arabia",
+  supportPhone: "+967-77-000-0000",
+  location: "Sana'a, Yemen",
+  country: "Yemen",
+  countryCode: "YE",
+  phonePrefix: "+967",
+  currency: "YER",
+  currencySymbol: "ر.ي",
 } as const;
 
 /**
- * Platform statistics - Update these as your platform grows
- * These are displayed on the homepage and about page
+ * Platform statistics are intentionally not displayed pre-launch.
+ * Re-introduce real numbers once we have verified traction data.
  */
-export const PLATFORM_STATS = {
-  professionals: {
-    value: "100+",
-    labelKey: "stats.professionals",
-  },
-  facilities: {
-    value: "25+",
-    labelKey: "stats.facilities",
-  },
-  completedShifts: {
-    value: "500+",
-    labelKey: "stats.completedShifts",
-  },
-  averageRating: {
-    value: "4.8",
-    labelKey: "stats.avgRating",
-  },
-} as const;
+export const PLATFORM_STATS = {} as const;
 
 /**
  * Authentication configuration
