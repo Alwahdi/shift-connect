@@ -9,7 +9,7 @@ import { Loader2 } from "lucide-react";
 const DashboardLayout = () => {
   const { i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
-  const { user, userRole, signOut, isLoading: authLoading, isOnboardingComplete } = useAuth();
+  const { user, userRole, isLoading: authLoading, isOnboardingComplete } = useAuth();
   const navigate = useNavigate();
   const { displayName, avatarUrl, verificationStatus, isLoading: isLoadingProfile } = useProfile();
 
@@ -31,8 +31,7 @@ const DashboardLayout = () => {
   }, [user, userRole, authLoading, isOnboardingComplete, navigate]);
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
+    navigate("/logout");
   };
 
   const getDashboardType = (): "professional" | "clinic" | "admin" => {

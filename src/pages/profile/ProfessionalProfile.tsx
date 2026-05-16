@@ -78,7 +78,7 @@ const ProfessionalProfile = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, userRole, signOut, isLoading: authLoading } = useAuth();
+  const { user, userRole, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
@@ -351,8 +351,7 @@ const ProfessionalProfile = () => {
   };
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
+    navigate("/logout");
   };
 
   const getStatusBadge = (status: string) => {

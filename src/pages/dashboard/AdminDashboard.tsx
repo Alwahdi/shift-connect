@@ -74,7 +74,7 @@ interface Document {
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { user, userRole, signOut, isLoading: authLoading } = useAuth();
+  const { user, userRole, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
@@ -253,8 +253,7 @@ const AdminDashboard = () => {
   };
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
+    navigate("/logout");
   };
 
   const getStatusBadge = (status: string) => {

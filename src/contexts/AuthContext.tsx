@@ -236,11 +236,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [fetchUserRole, checkOnboardingStatus]);
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
-    setUserRole(null);
-    setIsOnboardingComplete(false);
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Sign out error:", error);
+    } finally {
+      setUser(null);
+      setSession(null);
+      setUserRole(null);
+      setIsOnboardingComplete(false);
+    }
   }, []);
 
   return (

@@ -67,7 +67,7 @@ const ClinicDashboard = () => {
   const [showManageShift, setShowManageShift] = useState(false);
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
   const [monthlySpend, setMonthlySpend] = useState(0);
-  const { user, userRole, signOut, isLoading: authLoading, isOnboardingComplete } = useAuth();
+  const { user, userRole, isLoading: authLoading, isOnboardingComplete } = useAuth();
   const navigate = useNavigate();
 
   const fetchShifts = async () => {
@@ -174,8 +174,7 @@ const ClinicDashboard = () => {
   }, [user, isOnboardingComplete]);
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
+    navigate("/logout");
   };
 
   if (authLoading || isLoading) {

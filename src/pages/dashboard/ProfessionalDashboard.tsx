@@ -101,7 +101,7 @@ const ProfessionalDashboard = () => {
   const [monthlyEarnings, setMonthlyEarnings] = useState(0);
   const [completedShifts, setCompletedShifts] = useState(0);
   const [invitations, setInvitations] = useState<any[]>([]);
-  const { user, userRole, signOut, isLoading: authLoading, isOnboardingComplete } = useAuth();
+  const { user, userRole, isLoading: authLoading, isOnboardingComplete } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -280,8 +280,7 @@ const ProfessionalDashboard = () => {
   }, [filters]);
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
+    navigate("/logout");
   };
 
   const clearFilters = () => {

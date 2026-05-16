@@ -31,7 +31,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 export const UserProfileMenu = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { user, userRole, signOut } = useAuth();
+  const { user, userRole } = useAuth();
   const { theme, setTheme } = useTheme();
   const { displayName: profileName, avatarUrl: profileAvatar, verificationStatus } = useProfile();
   const [open, setOpen] = useState(false);
@@ -63,8 +63,7 @@ export const UserProfileMenu = () => {
 
   const handleSignOut = async () => {
     setOpen(false);
-    await signOut();
-    navigate("/");
+    navigate("/logout");
   };
 
   const toggleTheme = () => {

@@ -11,6 +11,8 @@ interface State {
 }
 
 class ErrorBoundary extends Component<Props, State> {
+  private readonly chunkReloadKey = '__sc_chunk_error_reloaded__';
+
   public state: State = {
     hasError: false,
     error: null,
@@ -22,6 +24,25 @@ class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('[SyndeoCare] Uncaught error:', error, errorInfo);
+
+    // Auto-recover once from stale chunk/import errors after deployments.
+    const message = error?.message || '';
+    const isChunkError =
+      message.includes('Failed to fetch dynamically imported module') ||
+      message.includes('ChunkLoadError') ||
+      message.includes('Importing a module script failed');
+
+    if (isChunkError) {
+      try {
+        const hasReloaded = sessionStorage.getItem(this.chunkReloadKey) === '1';
+        if (!hasReloaded) {
+          sessionStorage.setItem(this.chunkReloadKey, '1');
+          window.location.reload();
+        }
+      } catch {
+        // Ignore storage access failures and keep fallback UI visible.
+      }
+    }
   }
 
   private handleRetry = () => {
@@ -30,6 +51,18 @@ class ErrorBoundary extends Component<Props, State> {
 
   private handleReload = () => {
     window.location.reload();
+  };
+
+  private handleSafeLogout = () => {
+    try {
+      Object.keys(localStorage).forEach((key) => {
+        if (/^sb-.*-auth-token$/.test(key)) {
+          localStorage.removeItem(key);
+        }
+      });
+    } finally {
+      window.location.assign('/logout');
+    }
   };
 
   public render() {
@@ -71,6 +104,12 @@ class ErrorBoundary extends Component<Props, State> {
                 className="px-6 py-3 rounded-xl border border-border text-foreground font-semibold hover:bg-muted transition-colors"
               >
                 Reload Page
+              </button>
+              <button
+                onClick={this.handleSafeLogout}
+                className="px-6 py-3 rounded-xl border border-border text-foreground font-semibold hover:bg-muted transition-colors"
+              >
+                Sign Out Safely
               </button>
             </div>
             <p className="text-xs text-muted-foreground">

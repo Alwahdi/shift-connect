@@ -36,6 +36,7 @@ const SearchProfessionals = lazy(() => import("./pages/SearchProfessionals"));
 const DesignSystem = lazy(() => import("./pages/DesignSystem"));
 const Messages = lazy(() => import("./pages/Messages"));
 const Settings = lazy(() => import("./pages/profile/Settings"));
+const Logout = lazy(() => import("./pages/Logout"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -74,6 +75,7 @@ const App = () => (
                       <Route path="/for-clinics" element={<ForClinics />} />
                       <Route path="/about" element={<About />} />
                       <Route path="/design-system" element={<DesignSystem />} />
+                      <Route path="/logout" element={<Logout />} />
                       
                       {/* Onboarding routes (no layout) */}
                       <Route path="/onboarding/professional" element={<ProfessionalOnboarding />} />
