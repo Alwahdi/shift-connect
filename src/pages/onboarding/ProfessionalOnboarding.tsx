@@ -27,6 +27,7 @@ import OnboardingProgress from "@/components/onboarding/OnboardingProgress";
 import DocumentUploadCard from "@/components/onboarding/DocumentUploadCard";
 import AvatarUpload from "@/components/onboarding/AvatarUpload";
 import LocationPicker from "@/components/location/LocationPicker";
+import TaxonomyPicker from "@/components/onboarding/TaxonomyPicker";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 
@@ -541,69 +542,37 @@ const ProfessionalOnboarding = () => {
                 {/* Specialties */}
                 <div className="space-y-3">
                   <Label>{t("onboarding.fields.specialties")}</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder={t("onboarding.fields.addSpecialty")}
-                      value={qualifications.newSpecialty}
-                      onChange={(e) => setQualifications({ ...qualifications, newSpecialty: e.target.value })}
-                      onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addSpecialty())}
-                    />
-                    <Button type="button" variant="secondary" onClick={addSpecialty}>
-                      {t("common.apply")}
-                    </Button>
-                  </div>
-                  <div className="flex flex-wrap gap-2" role="list" aria-label={t("onboarding.fields.specialties")}>
-                    {qualifications.specialties.map((item, i) => (
-                      <span
-                        key={i}
-                        role="listitem"
-                        className="inline-flex items-center gap-1 px-3 py-2 rounded-full bg-primary/10 text-primary text-sm"
-                      >
-                        {item}
-                        <button 
-                          onClick={() => removeItem("specialties", i)}
-                          aria-label={`Remove ${item}`}
-                          className="p-0.5 hover:bg-primary/20 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        >
-                          <X className="w-3.5 h-3.5" aria-hidden="true" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {t("onboarding.fields.specialtiesHelp")}
+                  </p>
+                  <TaxonomyPicker
+                    table="specialties"
+                    value={qualifications.specialties}
+                    onChange={(next) =>
+                      setQualifications({ ...qualifications, specialties: next })
+                    }
+                    searchPlaceholder={t("onboarding.fields.searchSpecialties")}
+                    emptyMessage={t("onboarding.fields.noSpecialtiesFound")}
+                    variant="primary"
+                  />
                 </div>
 
-                {/* Qualifications */}
+                {/* Certifications / Qualifications */}
                 <div className="space-y-3">
                   <Label>{t("onboarding.fields.qualifications")}</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder={t("onboarding.fields.addQualification")}
-                      value={qualifications.newQualification}
-                      onChange={(e) => setQualifications({ ...qualifications, newQualification: e.target.value })}
-                      onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addQualification())}
-                    />
-                    <Button type="button" variant="secondary" onClick={addQualification}>
-                      {t("common.apply")}
-                    </Button>
-                  </div>
-                  <div className="flex flex-wrap gap-2" role="list" aria-label={t("onboarding.fields.qualifications")}>
-                    {qualifications.qualifications.map((item, i) => (
-                      <span
-                        key={i}
-                        role="listitem"
-                        className="inline-flex items-center gap-1 px-3 py-2 rounded-full bg-secondary text-foreground text-sm"
-                      >
-                        {item}
-                        <button 
-                          onClick={() => removeItem("qualifications", i)}
-                          aria-label={`Remove ${item}`}
-                          className="p-0.5 hover:bg-muted rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        >
-                          <X className="w-3.5 h-3.5" aria-hidden="true" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {t("onboarding.fields.qualificationsHelp")}
+                  </p>
+                  <TaxonomyPicker
+                    table="certifications"
+                    value={qualifications.qualifications}
+                    onChange={(next) =>
+                      setQualifications({ ...qualifications, qualifications: next })
+                    }
+                    searchPlaceholder={t("onboarding.fields.searchCertifications")}
+                    emptyMessage={t("onboarding.fields.noCertificationsFound")}
+                    variant="secondary"
+                  />
                 </div>
 
                 <div className="flex gap-3 pt-4">

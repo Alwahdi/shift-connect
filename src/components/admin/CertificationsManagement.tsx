@@ -50,6 +50,7 @@ const CertificationsManagement = () => {
   
   const [formData, setFormData] = useState({
     name: "",
+    name_ar: "",
     abbreviation: "",
     description: "",
     is_active: true,
@@ -84,6 +85,7 @@ const CertificationsManagement = () => {
       setEditingCert(cert);
       setFormData({
         name: cert.name,
+        name_ar: cert.name_ar || "",
         abbreviation: cert.abbreviation || "",
         description: cert.description || "",
         is_active: cert.is_active,
@@ -92,6 +94,7 @@ const CertificationsManagement = () => {
       setEditingCert(null);
       setFormData({
         name: "",
+        name_ar: "",
         abbreviation: "",
         description: "",
         is_active: true,
@@ -106,15 +109,17 @@ const CertificationsManagement = () => {
 
     setIsSubmitting(true);
     try {
+      const payload = {
+        name: formData.name,
+        name_ar: formData.name_ar || null,
+        abbreviation: formData.abbreviation || null,
+        description: formData.description || null,
+        is_active: formData.is_active,
+      };
       if (editingCert) {
         const { error } = await supabase
           .from("certifications")
-          .update({
-            name: formData.name,
-            abbreviation: formData.abbreviation || null,
-            description: formData.description || null,
-            is_active: formData.is_active,
-          })
+          .update(payload)
           .eq("id", editingCert.id);
 
         if (error) throw error;
@@ -122,12 +127,7 @@ const CertificationsManagement = () => {
       } else {
         const { error } = await supabase
           .from("certifications")
-          .insert({
-            name: formData.name,
-            abbreviation: formData.abbreviation || null,
-            description: formData.description || null,
-            is_active: formData.is_active,
-          });
+          .insert(payload);
 
         if (error) throw error;
         toast({ title: t("admin.config.certificationCreated") });
@@ -249,7 +249,10 @@ const CertificationsManagement = () => {
                           {cert.abbreviation}
                         </Badge>
                       )}
-                      <p className="font-medium text-foreground text-sm truncate">{cert.name}</p>
+                      <p className="font-medium text-foreground text-sm truncate">
+                        {isRTL && cert.name_ar ? cert.name_ar : cert.name}
+                        {isRTL && cert.name_ar && <span className="ms-1 text-xs text-muted-foreground">({cert.name})</span>}
+                      </p>
                     </div>
                     {cert.description && (
                       <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
@@ -314,6 +317,18 @@ const CertificationsManagement = () => {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder={t("admin.config.certNamePlaceholder")}
                   required
+                  className="min-h-[44px]"
+                />
+              </div>
+
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="name_ar">{t("admin.config.certNameAr")}</Label>
+                <Input
+                  id="name_ar"
+                  value={formData.name_ar}
+                  onChange={(e) => setFormData({ ...formData, name_ar: e.target.value })}
+                  placeholder={t("admin.config.certNameArPlaceholder")}
+                  dir="rtl"
                   className="min-h-[44px]"
                 />
               </div>

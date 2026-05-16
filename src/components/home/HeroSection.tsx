@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, CheckCircle2, Users, Building2, Star, Play, Shield, Zap } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { PLATFORM_STATS } from "@/config/constants";
 import { forwardRef, useRef } from "react";
 
 const HeroSection = forwardRef<HTMLElement>((_, ref) => {
@@ -18,34 +17,6 @@ const HeroSection = forwardRef<HTMLElement>((_, ref) => {
   
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-
-  // Stats using centralized configuration
-  const stats = [
-    { 
-      value: PLATFORM_STATS.professionals.value, 
-      label: t("stats.professionals"),
-      icon: Users,
-      color: "text-accent"
-    },
-    { 
-      value: PLATFORM_STATS.facilities.value, 
-      label: t("stats.facilities"),
-      icon: Building2,
-      color: "text-primary"
-    },
-    { 
-      value: PLATFORM_STATS.completedShifts.value, 
-      label: t("stats.completedShifts"),
-      icon: Zap,
-      color: "text-sky"
-    },
-    { 
-      value: PLATFORM_STATS.averageRating.value, 
-      label: t("stats.avgRating"),
-      icon: Star,
-      color: "text-accent"
-    },
-  ];
 
   const floatingAnimation = {
     y: [0, -10, 0],
@@ -192,33 +163,6 @@ const HeroSection = forwardRef<HTMLElement>((_, ref) => {
                 {t("auth.imClinic")}
               </Button>
             </Link>
-          </motion.div>
-
-          {/* Stats - Premium glassmorphism card */}
-          <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.7, delay: 0.5 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-3xl mx-auto bg-white/10 backdrop-blur-2xl rounded-2xl md:rounded-3xl p-6 md:p-8 border border-white/20 shadow-2xl"
-          >
-            {stats.map((stat, index) => (
-              <motion.div 
-                key={stat.label} 
-                className="text-center py-2 group cursor-default"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.6 + index * 0.1 }}
-                whileHover={{ scale: 1.05 }}
-              >
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <stat.icon className={`w-5 h-5 ${stat.color} group-hover:scale-110 transition-transform`} />
-                  <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight">
-                    {stat.value}
-                  </span>
-                </div>
-                <div className="text-xs sm:text-sm text-white/75 font-medium">{stat.label}</div>
-              </motion.div>
-            ))}
           </motion.div>
 
           {/* Scroll indicator */}

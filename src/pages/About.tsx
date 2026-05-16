@@ -40,12 +40,7 @@ const About = () => {
     }
   ];
 
-  const team = [
-    { name: t("about.stats.professionals"), count: "10,000+", description: t("home.features.verification.desc") },
-    { name: t("about.stats.clinics"), count: "500+", description: t("clinics.benefits.verifiedDesc") },
-    { name: t("dashboard.completedShifts"), count: "50,000+", description: t("home.features.booking.desc") },
-    { name: t("about.stats.locations"), count: "100+", description: t("professionals.benefits.flexibilityDesc") }
-  ];
+  // Stats removed pre-launch — bring back once we have real numbers.
 
   return (
     <div className="min-h-screen bg-background">
@@ -163,27 +158,7 @@ const About = () => {
           </div>
         </section>
 
-        {/* Stats */}
-        <section className="py-20 bg-card">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {team.map((stat, index) => (
-                <motion.div
-                  key={stat.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="text-center p-6 rounded-2xl bg-background border border-border"
-                >
-                  <div className="text-3xl font-bold text-primary mb-2">{stat.count}</div>
-                  <h4 className="font-semibold text-foreground mb-1">{stat.name}</h4>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
+        {/* Stats section removed pre-launch */}
         {/* CTA */}
         <section className="py-20">
           <div className="container mx-auto px-4">
