@@ -15,6 +15,7 @@ interface UseGeocodingReturn {
 
 // Using OpenStreetMap Nominatim (free, no API key required)
 const NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org";
+const MAPSCO_BASE_URL = "https://geocode.maps.co";
 
 export const useGeocoding = (): UseGeocodingReturn => {
   const [isLoading, setIsLoading] = useState(false);
@@ -66,7 +67,7 @@ export const useGeocoding = (): UseGeocodingReturn => {
     setError(null);
 
     try {
-      const response = await fetch(
+      const nominatimResponse = await fetch(
         `${NOMINATIM_BASE_URL}/reverse?format=json&lat=${lat}&lon=${lng}`,
         {
           headers: {
@@ -75,18 +76,32 @@ export const useGeocoding = (): UseGeocodingReturn => {
         }
       );
 
-      if (!response.ok) {
+      if (nominatimResponse.ok) {
+        const nominatimData = await nominatimResponse.json();
+        if (!nominatimData.error && nominatimData.display_name) {
+          return nominatimData.display_name;
+        }
+      }
+
+      const fallbackResponse = await fetch(
+        `${MAPSCO_BASE_URL}/reverse?lat=${lat}&lon=${lng}`,
+        {
+          headers: {
+            "Accept": "application/json",
+          },
+        }
+      );
+
+      if (!fallbackResponse.ok) {
         throw new Error("Reverse geocoding request failed");
       }
 
-      const data = await response.json();
-      
-      if (data.error) {
-        setError(data.error);
-        return null;
+      const fallbackData = await fallbackResponse.json();
+      if (fallbackData.display_name) {
+        return fallbackData.display_name;
       }
 
-      return data.display_name;
+      throw new Error("No reverse geocoding result found");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to reverse geocode");
       return null;

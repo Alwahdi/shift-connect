@@ -631,7 +631,11 @@
     "locationError": "تعذر تحديد الموقع",
     "permissionDenied": "تم رفض إذن الوصول للموقع",
     "noResults": "لا توجد نتائج",
-    "popularSuggestions": "اقتراحات شائعة"
+    "popularSuggestions": "اقتراحات شائعة",
+    "mustSelect": "اختر موقعاً من الاقتراحات أو استخدم موقعك الحالي.",
+    "currentLocationFailed": "تعذر تحديد موقعك الحالي. يرجى السماح بالوصول للموقع ثم المحاولة مرة أخرى.",
+    "selectionRequiredTitle": "اختيار الموقع مطلوب",
+    "selectionRequiredDesc": "يرجى اختيار موقع من الاقتراحات أو استخدام موقعك الحالي قبل المتابعة."
   },
   "viewProfile": {
     "notFound": "لم يتم العثور على الملف المطلوب",

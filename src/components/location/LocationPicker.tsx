@@ -55,10 +55,37 @@ const FALLBACK_LOCATION_SUGGESTIONS: SearchResult[] = [
   { display_name: "San Francisco, CA, USA", lat: "37.7749", lon: "-122.4194" },
 ];
 
+const dedupeSuggestions = (items: SearchResult[]): SearchResult[] => {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = `${item.display_name.toLowerCase()}|${item.lat}|${item.lon}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
+
+const searchWithOpenMeteo = async (query: string): Promise<SearchResult[]> => {
+  const response = await fetch(
+    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=en&format=json`
+  );
+
+  if (!response.ok) return [];
+
+  const data = await response.json();
+  if (!Array.isArray(data?.results)) return [];
+
+  return data.results.map((item: any) => ({
+    display_name: [item.name, item.admin1, item.country].filter(Boolean).join(", "),
+    lat: String(item.latitude),
+    lon: String(item.longitude),
+  }));
+};
+
 const LocationPicker = ({ value, onChange, placeholder, className = "" }: LocationPickerProps) => {
   const { t } = useTranslation();
-  const { reverseGeocode, isLoading: isGeocoding } = useGeocoding();
-  const { getCurrentLocation, isLoading: isGettingLocation } = useUserLocation();
+  const { reverseGeocode, isLoading: isGeocoding, error: geocodingError } = useGeocoding();
+  const { getCurrentLocation, isLoading: isGettingLocation, error: userLocationError } = useUserLocation();
   
   const [inputValue, setInputValue] = useState(value?.address || "");
   const [suggestions, setSuggestions] = useState<SearchResult[]>([]);
@@ -66,6 +93,7 @@ const LocationPicker = ({ value, onChange, placeholder, className = "" }: Locati
   const [isSearching, setIsSearching] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [hasNetworkResults, setHasNetworkResults] = useState(false);
+  const [locationErrorMessage, setLocationErrorMessage] = useState<string | null>(null);
 
   const debouncedInput = useDebounceValue(inputValue, 500);
 
@@ -115,12 +143,20 @@ const LocationPicker = ({ value, onChange, placeholder, className = "" }: Locati
 
         if (!isMounted) return;
 
-        if (Array.isArray(data) && data.length > 0) {
-          setSuggestions(data);
+        const nominatimResults: SearchResult[] = Array.isArray(data) ? data : [];
+
+        if (nominatimResults.length > 0) {
+          setSuggestions(dedupeSuggestions(nominatimResults));
           setHasNetworkResults(true);
         } else {
-          setSuggestions(buildFallbackSuggestions(query));
-          setHasNetworkResults(false);
+          const openMeteoResults = await searchWithOpenMeteo(query);
+          if (openMeteoResults.length > 0) {
+            setSuggestions(dedupeSuggestions(openMeteoResults));
+            setHasNetworkResults(true);
+          } else {
+            setSuggestions(buildFallbackSuggestions(query));
+            setHasNetworkResults(false);
+          }
         }
 
         setActiveIndex(-1);
@@ -128,8 +164,19 @@ const LocationPicker = ({ value, onChange, placeholder, className = "" }: Locati
       } catch (error) {
         if (!isMounted || (error as Error).name === "AbortError") return;
         console.error("Failed to search addresses:", error);
-        setSuggestions(buildFallbackSuggestions(query));
-        setHasNetworkResults(false);
+        try {
+          const openMeteoResults = await searchWithOpenMeteo(query);
+          if (openMeteoResults.length > 0) {
+            setSuggestions(dedupeSuggestions(openMeteoResults));
+            setHasNetworkResults(true);
+          } else {
+            setSuggestions(buildFallbackSuggestions(query));
+            setHasNetworkResults(false);
+          }
+        } catch {
+          setSuggestions(buildFallbackSuggestions(query));
+          setHasNetworkResults(false);
+        }
         setActiveIndex(-1);
         setShowSuggestions(true);
       } finally {
@@ -149,6 +196,7 @@ const LocationPicker = ({ value, onChange, placeholder, className = "" }: Locati
 
   const handleSelectSuggestion = (suggestion: SearchResult) => {
     setInputValue(suggestion.display_name);
+    setLocationErrorMessage(null);
     onChange({
       address: suggestion.display_name,
       lat: parseFloat(suggestion.lat),
@@ -162,6 +210,7 @@ const LocationPicker = ({ value, onChange, placeholder, className = "" }: Locati
   const handleInputChange = (text: string) => {
     setInputValue(text);
     setActiveIndex(-1);
+    setLocationErrorMessage(null);
 
     // Keep parent form in sync even before selecting from suggestions.
     onChange({
@@ -199,18 +248,25 @@ const LocationPicker = ({ value, onChange, placeholder, className = "" }: Locati
   };
 
   const handleUseCurrentLocation = async () => {
+    setLocationErrorMessage(null);
     const location = await getCurrentLocation();
     if (location) {
       const address = await reverseGeocode(location.lat, location.lng);
-      if (address) {
-        setInputValue(address);
-        onChange({
-          address,
-          lat: location.lat,
-          lng: location.lng,
-        });
-      }
+      const detectedAddress = address || `${location.lat.toFixed(5)}, ${location.lng.toFixed(5)}`;
+
+      setInputValue(detectedAddress);
+      onChange({
+        address: detectedAddress,
+        lat: location.lat,
+        lng: location.lng,
+      });
+      setShowSuggestions(false);
+      setSuggestions([]);
+      setActiveIndex(-1);
+      return;
     }
+
+    setLocationErrorMessage(t("location.currentLocationFailed"));
   };
 
   const handleClear = () => {
@@ -219,6 +275,7 @@ const LocationPicker = ({ value, onChange, placeholder, className = "" }: Locati
     setSuggestions([]);
     setShowSuggestions(false);
     setActiveIndex(-1);
+    setLocationErrorMessage(null);
   };
 
   const isLoading = isGeocoding || isGettingLocation || isSearching;
@@ -314,6 +371,16 @@ const LocationPicker = ({ value, onChange, placeholder, className = "" }: Locati
           <p className="text-sm text-muted-foreground">{t("location.noResults")}</p>
         </div>
       )}
+
+      {(locationErrorMessage || userLocationError || geocodingError) && (
+        <p className="text-xs text-destructive mt-1">
+          {locationErrorMessage || userLocationError || geocodingError}
+        </p>
+      )}
+
+      {value?.lat == null || value?.lng == null ? (
+        <p className="text-xs text-amber-500 mt-1">{t("location.mustSelect")}</p>
+      ) : null}
 
       {/* Location coordinates display */}
       {value?.lat && value?.lng && (

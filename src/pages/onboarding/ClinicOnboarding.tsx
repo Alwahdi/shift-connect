@@ -274,6 +274,20 @@ const ClinicOnboarding = () => {
 
   const saveLocation = async () => {
     if (!user) return;
+
+    const hasValidLocation =
+      !!locationData.address.trim() &&
+      locationData.location_lat !== null &&
+      locationData.location_lng !== null;
+
+    if (!hasValidLocation) {
+      toast({
+        variant: "destructive",
+        title: t("location.selectionRequiredTitle"),
+        description: t("location.selectionRequiredDesc"),
+      });
+      return;
+    }
     
     setIsSubmitting(true);
     try {

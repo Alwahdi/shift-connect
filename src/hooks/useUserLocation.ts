@@ -23,44 +23,66 @@ export const useUserLocation = (): UseUserLocationReturn => {
       return null;
     }
 
+    if (!window.isSecureContext) {
+      setError("Location requires a secure connection (HTTPS)");
+      return null;
+    }
+
     setIsLoading(true);
     setError(null);
 
-    return new Promise((resolve) => {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userLocation = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-          setLocation(userLocation);
-          setIsLoading(false);
-          resolve(userLocation);
-        },
-        (err) => {
-          let errorMessage = "Failed to get location";
-          switch (err.code) {
-            case err.PERMISSION_DENIED:
-              errorMessage = "Location permission denied";
-              break;
-            case err.POSITION_UNAVAILABLE:
-              errorMessage = "Location information unavailable";
-              break;
-            case err.TIMEOUT:
-              errorMessage = "Location request timed out";
-              break;
-          }
-          setError(errorMessage);
-          setIsLoading(false);
-          resolve(null);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 300000, // Cache for 5 minutes
+    const getPosition = (options: PositionOptions): Promise<GeolocationPosition> =>
+      new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, options);
+      });
+
+    try {
+      const highAccuracyPosition = await getPosition({
+        enableHighAccuracy: true,
+        timeout: 12000,
+        maximumAge: 0,
+      });
+
+      const userLocation = {
+        lat: highAccuracyPosition.coords.latitude,
+        lng: highAccuracyPosition.coords.longitude,
+      };
+      setLocation(userLocation);
+      return userLocation;
+    } catch (firstErr) {
+      try {
+        const fallbackPosition = await getPosition({
+          enableHighAccuracy: false,
+          timeout: 15000,
+          maximumAge: 600000,
+        });
+
+        const userLocation = {
+          lat: fallbackPosition.coords.latitude,
+          lng: fallbackPosition.coords.longitude,
+        };
+        setLocation(userLocation);
+        return userLocation;
+      } catch (secondErr) {
+        const err = secondErr as GeolocationPositionError;
+        let errorMessage = "Failed to get location";
+        switch (err.code) {
+          case err.PERMISSION_DENIED:
+            errorMessage = "Location permission denied";
+            break;
+          case err.POSITION_UNAVAILABLE:
+            errorMessage = "Location information unavailable";
+            break;
+          case err.TIMEOUT:
+            errorMessage = "Location request timed out";
+            break;
         }
-      );
-    });
+        setError(errorMessage);
+        return null;
+      }
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   return { location, isLoading, error, getCurrentLocation };

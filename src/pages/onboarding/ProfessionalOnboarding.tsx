@@ -249,6 +249,20 @@ const ProfessionalOnboarding = () => {
       });
       return;
     }
+
+    const hasValidLocation =
+      !!profileData.location_address.trim() &&
+      profileData.location_lat !== null &&
+      profileData.location_lng !== null;
+
+    if (!hasValidLocation) {
+      toast({
+        variant: "destructive",
+        title: t("location.selectionRequiredTitle"),
+        description: t("location.selectionRequiredDesc"),
+      });
+      return;
+    }
     
     setIsSubmitting(true);
     try {
