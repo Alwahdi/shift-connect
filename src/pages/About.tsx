@@ -69,7 +69,7 @@ const About = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6"
+                className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"
               >
                 {t("about.title")}
               </motion.h1>
@@ -78,7 +78,7 @@ const About = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="text-xl text-muted-foreground"
+                className="text-xl text-white/85"
               >
                 {t("about.missionText")}
               </motion.p>
