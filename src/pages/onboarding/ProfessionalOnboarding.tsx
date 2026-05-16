@@ -27,6 +27,7 @@ import OnboardingProgress from "@/components/onboarding/OnboardingProgress";
 import DocumentUploadCard from "@/components/onboarding/DocumentUploadCard";
 import AvatarUpload from "@/components/onboarding/AvatarUpload";
 import LocationPicker from "@/components/location/LocationPicker";
+import TaxonomyPicker from "@/components/onboarding/TaxonomyPicker";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 
