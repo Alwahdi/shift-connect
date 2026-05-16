@@ -194,33 +194,6 @@ const HeroSection = forwardRef<HTMLElement>((_, ref) => {
             </Link>
           </motion.div>
 
-          {/* Stats - Premium glassmorphism card */}
-          <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.7, delay: 0.5 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-3xl mx-auto bg-white/10 backdrop-blur-2xl rounded-2xl md:rounded-3xl p-6 md:p-8 border border-white/20 shadow-2xl"
-          >
-            {stats.map((stat, index) => (
-              <motion.div 
-                key={stat.label} 
-                className="text-center py-2 group cursor-default"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.6 + index * 0.1 }}
-                whileHover={{ scale: 1.05 }}
-              >
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <stat.icon className={`w-5 h-5 ${stat.color} group-hover:scale-110 transition-transform`} />
-                  <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight">
-                    {stat.value}
-                  </span>
-                </div>
-                <div className="text-xs sm:text-sm text-white/75 font-medium">{stat.label}</div>
-              </motion.div>
-            ))}
-          </motion.div>
-
           {/* Scroll indicator */}
           <motion.div
             initial={{ opacity: 0 }}
