@@ -318,6 +318,18 @@ const CertificationsManagement = () => {
                 />
               </div>
 
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="name_ar">{t("admin.config.certNameAr")}</Label>
+                <Input
+                  id="name_ar"
+                  value={formData.name_ar}
+                  onChange={(e) => setFormData({ ...formData, name_ar: e.target.value })}
+                  placeholder={t("admin.config.certNameArPlaceholder")}
+                  dir="rtl"
+                  className="min-h-[44px]"
+                />
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="abbreviation">{t("admin.config.certAbbreviation")}</Label>
                 <Input
