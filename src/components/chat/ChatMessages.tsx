@@ -96,7 +96,7 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
   const [deleteMessageId, setDeleteMessageId] = useState<string | null>(null);
   const [deleteConversationOpen, setDeleteConversationOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const allImages = useMemo(() =>
     messages.filter(m => m.file_type?.startsWith("image/") && m.file_url).map(m => m.file_url!),
