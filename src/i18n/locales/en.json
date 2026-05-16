@@ -631,7 +631,7 @@
     "locationError": "Could not detect location",
     "permissionDenied": "Location permission denied",
     "noResults": "No results found",
-    "popularSuggestions": "Popular suggestions",
+    "popularSuggestions": "Suggested places in Yemen",
     "mustSelect": "Select a location from suggestions or use current location.",
     "currentLocationFailed": "Could not detect your current location. Please allow location access and try again.",
     "selectionRequiredTitle": "Location selection required",

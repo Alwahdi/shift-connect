@@ -36,6 +36,25 @@ export const useUserLocation = (): UseUserLocationReturn => {
         navigator.geolocation.getCurrentPosition(resolve, reject, options);
       });
 
+    const getApproximateLocationFromIP = async (): Promise<UserLocation | null> => {
+      try {
+        const response = await fetch("https://ipapi.co/json/");
+        if (!response.ok) return null;
+
+        const data = await response.json();
+        const lat = Number(data?.latitude);
+        const lng = Number(data?.longitude);
+
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          return null;
+        }
+
+        return { lat, lng };
+      } catch {
+        return null;
+      }
+    };
+
     try {
       const highAccuracyPosition = await getPosition({
         enableHighAccuracy: true,
@@ -64,6 +83,13 @@ export const useUserLocation = (): UseUserLocationReturn => {
         setLocation(userLocation);
         return userLocation;
       } catch (secondErr) {
+        const ipLocation = await getApproximateLocationFromIP();
+        if (ipLocation) {
+          setLocation(ipLocation);
+          setError(null);
+          return ipLocation;
+        }
+
         const err = secondErr as GeolocationPositionError;
         let errorMessage = "Failed to get location";
         switch (err.code) {

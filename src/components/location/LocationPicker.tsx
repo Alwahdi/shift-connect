@@ -41,18 +41,16 @@ interface SearchResult {
 }
 
 const FALLBACK_LOCATION_SUGGESTIONS: SearchResult[] = [
-  { display_name: "Riyadh, Saudi Arabia", lat: "24.7136", lon: "46.6753" },
-  { display_name: "Jeddah, Saudi Arabia", lat: "21.5433", lon: "39.1728" },
-  { display_name: "Mecca, Saudi Arabia", lat: "21.3891", lon: "39.8579" },
-  { display_name: "Medina, Saudi Arabia", lat: "24.5247", lon: "39.5692" },
-  { display_name: "Dammam, Saudi Arabia", lat: "26.4207", lon: "50.0888" },
-  { display_name: "Khobar, Saudi Arabia", lat: "26.2172", lon: "50.1971" },
-  { display_name: "Dubai, United Arab Emirates", lat: "25.2048", lon: "55.2708" },
-  { display_name: "Abu Dhabi, United Arab Emirates", lat: "24.4539", lon: "54.3773" },
-  { display_name: "Cairo, Egypt", lat: "30.0444", lon: "31.2357" },
-  { display_name: "London, United Kingdom", lat: "51.5074", lon: "-0.1278" },
-  { display_name: "New York, USA", lat: "40.7128", lon: "-74.0060" },
-  { display_name: "San Francisco, CA, USA", lat: "37.7749", lon: "-122.4194" },
+  { display_name: "Sana'a, Yemen", lat: "15.3694", lon: "44.1910" },
+  { display_name: "Aden, Yemen", lat: "12.7855", lon: "45.0187" },
+  { display_name: "Taiz, Yemen", lat: "13.5795", lon: "44.0209" },
+  { display_name: "Al Hudaydah, Yemen", lat: "14.7978", lon: "42.9545" },
+  { display_name: "Ibb, Yemen", lat: "13.9667", lon: "44.1833" },
+  { display_name: "Mukalla, Yemen", lat: "14.5412", lon: "49.1242" },
+  { display_name: "Dhamar, Yemen", lat: "14.5578", lon: "44.3876" },
+  { display_name: "Seiyun, Yemen", lat: "15.9481", lon: "48.7864" },
+  { display_name: "Saada, Yemen", lat: "16.9402", lon: "43.7639" },
+  { display_name: "Marib, Yemen", lat: "15.4701", lon: "45.3258" },
 ];
 
 const dedupeSuggestions = (items: SearchResult[]): SearchResult[] => {
@@ -128,7 +126,7 @@ const LocationPicker = ({ value, onChange, placeholder, className = "" }: Locati
       setIsSearching(true);
       try {
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`,
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=8&addressdetails=1&countrycodes=ye`,
           {
             headers: { "Accept-Language": "en,ar" },
             signal: controller.signal,
@@ -266,7 +264,7 @@ const LocationPicker = ({ value, onChange, placeholder, className = "" }: Locati
       return;
     }
 
-    setLocationErrorMessage(t("location.currentLocationFailed"));
+    setLocationErrorMessage(userLocationError || t("location.currentLocationFailed"));
   };
 
   const handleClear = () => {
@@ -291,6 +289,10 @@ const LocationPicker = ({ value, onChange, placeholder, className = "" }: Locati
             onChange={(e) => handleInputChange(e.target.value)}
             onFocus={() => {
               if (inputValue.trim().length >= 2) {
+                setShowSuggestions(true);
+              } else {
+                setSuggestions(FALLBACK_LOCATION_SUGGESTIONS.slice(0, 8));
+                setHasNetworkResults(false);
                 setShowSuggestions(true);
               }
             }}
