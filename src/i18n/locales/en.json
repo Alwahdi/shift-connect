@@ -63,6 +63,13 @@
     "toggleTheme": "Toggle theme",
     "redirecting": "Redirecting"
   },
+  "errors": {
+    "unexpectedTitle": "Something went wrong",
+    "unexpectedMessage": "We're sorry, but something unexpected happened. Please try again.",
+    "tryAgain": "Try Again",
+    "reloadPage": "Reload Page",
+    "safeLogout": "Sign Out Safely"
+  },
   "stats": {
     "professionals": "Professionals",
     "facilities": "Facilities",

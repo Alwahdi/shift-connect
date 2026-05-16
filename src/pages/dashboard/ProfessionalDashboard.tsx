@@ -279,10 +279,6 @@ const ProfessionalDashboard = () => {
     }
   }, [filters]);
 
-  const handleSignOut = async () => {
-    navigate("/logout");
-  };
-
   const clearFilters = () => {
     setFilters({ role: "All Roles", minRate: "", dateRange: "all" });
   };

@@ -350,10 +350,6 @@ const ProfessionalProfile = () => {
     });
   };
 
-  const handleSignOut = async () => {
-    navigate("/logout");
-  };
-
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "verified":

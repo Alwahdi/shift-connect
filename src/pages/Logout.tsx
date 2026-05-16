@@ -2,10 +2,12 @@ import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 
 const Logout = () => {
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const runLogout = async () => {
@@ -30,7 +32,7 @@ const Logout = () => {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="flex items-center gap-2 text-muted-foreground">
         <Loader2 className="w-5 h-5 animate-spin" />
-        <span>Signing out...</span>
+        <span>{t("auth.signingOut")}</span>
       </div>
     </div>
   );

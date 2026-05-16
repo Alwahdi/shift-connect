@@ -11,7 +11,7 @@ const DashboardLayout = () => {
   const isRTL = i18n.language === "ar";
   const { user, userRole, isLoading: authLoading, isOnboardingComplete } = useAuth();
   const navigate = useNavigate();
-  const { displayName, avatarUrl, verificationStatus, isLoading: isLoadingProfile } = useProfile();
+  const { isLoading: isLoadingProfile } = useProfile();
 
   useEffect(() => {
     if (authLoading) return;
@@ -30,16 +30,6 @@ const DashboardLayout = () => {
     }
   }, [user, userRole, authLoading, isOnboardingComplete, navigate]);
 
-  const handleSignOut = async () => {
-    navigate("/logout");
-  };
-
-  const getDashboardType = (): "professional" | "clinic" | "admin" => {
-    if (userRole === "admin" || userRole === "super_admin") return "admin";
-    if (userRole === "clinic") return "clinic";
-    return "professional";
-  };
-
   if (authLoading || isLoadingProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -54,13 +44,7 @@ const DashboardLayout = () => {
 
   return (
     <div className="min-h-screen bg-background" dir={isRTL ? "rtl" : "ltr"}>
-      <DashboardHeader
-        type={getDashboardType()}
-        onSignOut={handleSignOut}
-        avatarUrl={avatarUrl}
-        name={displayName}
-        verificationStatus={verificationStatus}
-      />
+      <DashboardHeader />
       <main className="pb-20 md:pb-0">
         <Outlet />
       </main>

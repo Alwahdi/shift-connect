@@ -173,10 +173,6 @@ const ClinicDashboard = () => {
     }
   }, [user, isOnboardingComplete]);
 
-  const handleSignOut = async () => {
-    navigate("/logout");
-  };
-
   if (authLoading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">

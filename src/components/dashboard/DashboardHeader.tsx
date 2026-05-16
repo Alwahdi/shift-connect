@@ -6,15 +6,7 @@ import { NotificationCenter } from "@/components/notifications/NotificationCente
 import { UserProfileMenu } from "@/components/layout/UserProfileMenu";
 import syndeoCarelogo from "@/assets/syndeocare-logo.png";
 
-interface DashboardHeaderProps {
-  type: "professional" | "clinic" | "admin";
-  onSignOut: () => void;
-  avatarUrl?: string | null;
-  name?: string;
-  verificationStatus?: "pending" | "verified" | "rejected" | null;
-}
-
-const DashboardHeader = ({ type, onSignOut, avatarUrl, name, verificationStatus }: DashboardHeaderProps) => {
+const DashboardHeader = () => {
   const { t } = useTranslation();
 
   return (

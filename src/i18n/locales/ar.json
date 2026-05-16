@@ -63,6 +63,13 @@
     "toggleTheme": "تغيير المظهر",
     "redirecting": "جارٍ التحويل"
   },
+  "errors": {
+    "unexpectedTitle": "حدث خطأ غير متوقع",
+    "unexpectedMessage": "نعتذر، حدث أمر غير متوقع. يرجى المحاولة مرة أخرى.",
+    "tryAgain": "حاول مرة أخرى",
+    "reloadPage": "إعادة تحميل الصفحة",
+    "safeLogout": "تسجيل خروج آمن"
+  },
   "stats": {
     "professionals": "مختص صحي",
     "facilities": "منشأة صحية",

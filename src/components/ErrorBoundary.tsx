@@ -1,4 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import i18n from '@/i18n';
 
 interface Props {
   children: ReactNode;
@@ -82,9 +83,9 @@ class ErrorBoundary extends Component<Props, State> {
               </svg>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground mb-2">Something went wrong</h1>
+              <h1 className="text-2xl font-bold text-foreground mb-2">{i18n.t('errors.unexpectedTitle')}</h1>
               <p className="text-muted-foreground">
-                We're sorry, but something unexpected happened. Please try again.
+                {i18n.t('errors.unexpectedMessage')}
               </p>
             </div>
             {import.meta.env.DEV && this.state.error && (
@@ -97,19 +98,19 @@ class ErrorBoundary extends Component<Props, State> {
                 onClick={this.handleRetry}
                 className="px-6 py-3 rounded-xl gradient-brand text-white font-semibold hover:opacity-90 transition-opacity"
               >
-                Try Again
+                {i18n.t('errors.tryAgain')}
               </button>
               <button
                 onClick={this.handleReload}
                 className="px-6 py-3 rounded-xl border border-border text-foreground font-semibold hover:bg-muted transition-colors"
               >
-                Reload Page
+                {i18n.t('errors.reloadPage')}
               </button>
               <button
                 onClick={this.handleSafeLogout}
                 className="px-6 py-3 rounded-xl border border-border text-foreground font-semibold hover:bg-muted transition-colors"
               >
-                Sign Out Safely
+                {i18n.t('errors.safeLogout')}
               </button>
             </div>
             <p className="text-xs text-muted-foreground">
