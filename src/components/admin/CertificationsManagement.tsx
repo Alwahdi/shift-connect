@@ -50,6 +50,7 @@ const CertificationsManagement = () => {
   
   const [formData, setFormData] = useState({
     name: "",
+    name_ar: "",
     abbreviation: "",
     description: "",
     is_active: true,
