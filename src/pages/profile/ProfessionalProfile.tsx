@@ -103,9 +103,9 @@ const ProfessionalProfile = () => {
   });
 
   const [documentUploads, setDocumentUploads] = useState<DocumentUpload[]>([
-    { type: "id", name: "Government ID", description: "Passport, driver's license, or national ID", required: true, file: null, uploading: false, uploaded: false },
-    { type: "license", name: "Professional License", description: "Your nursing or healthcare license", required: true, file: null, uploading: false, uploaded: false },
-    { type: "certification", name: "Certifications", description: "ACLS, BLS, or other certifications", required: false, file: null, uploading: false, uploaded: false },
+    { type: "id", name: t("documents.governmentId"), description: t("documents.governmentIdDesc"), required: true, file: null, uploading: false, uploaded: false },
+    { type: "license", name: t("documents.professionalLicense"), description: t("documents.professionalLicenseDesc"), required: true, file: null, uploading: false, uploaded: false },
+    { type: "certification", name: t("documents.certifications"), description: t("documents.certificationsDesc"), required: false, file: null, uploading: false, uploaded: false },
   ]);
 
   useEffect(() => {
@@ -193,8 +193,8 @@ const ProfessionalProfile = () => {
       if (error) throw error;
 
       toast({
-        title: "Profile updated",
-        description: "Your changes have been saved.",
+        title: t("profile.profileUpdated"),
+        description: t("profile.profileUpdatedDesc"),
       });
 
       setIsEditing(false);
@@ -202,7 +202,7 @@ const ProfessionalProfile = () => {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error saving profile",
+        title: t("common.error"),
         description: error.message,
       });
     } finally {
@@ -237,15 +237,15 @@ const ProfessionalProfile = () => {
       if (updateError) throw updateError;
 
       toast({
-        title: "Avatar updated",
-        description: "Your profile picture has been changed.",
+        title: t("profile.photoUploaded"),
+        description: t("profile.photoUploadedDesc"),
       });
 
       fetchProfileData();
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Upload failed",
+        title: t("documents.uploadFailed"),
         description: error.message,
       });
     } finally {
@@ -307,8 +307,8 @@ const ProfessionalProfile = () => {
       setDocumentUploads(newDocs);
 
       toast({
-        title: "Document uploaded",
-        description: `${doc.name} has been uploaded for verification.`,
+        title: t("documents.documentUploaded"),
+        description: t("documents.documentUploadedDesc", { name: doc.name }),
       });
 
       fetchProfileData();
@@ -317,7 +317,7 @@ const ProfessionalProfile = () => {
       setDocumentUploads(newDocs);
       toast({
         variant: "destructive",
-        title: "Upload failed",
+        title: t("documents.uploadFailed"),
         description: error.message,
       });
     }
@@ -395,7 +395,7 @@ const ProfessionalProfile = () => {
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Dashboard
+          {t("nav.backToDashboard")}
         </Link>
 
         {/* Profile Header */}
@@ -453,15 +453,15 @@ const ProfessionalProfile = () => {
             <div className="flex gap-6">
               <div className="text-center">
                 <p className="text-2xl font-bold text-foreground">{totalDocs}</p>
-                <p className="text-xs text-muted-foreground">Documents</p>
+                <p className="text-xs text-muted-foreground">{t("profile.documents")}</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-success">{verifiedDocs}</p>
-                <p className="text-xs text-muted-foreground">Verified</p>
+                <p className="text-xs text-muted-foreground">{t("common.verified")}</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-warning">{pendingDocs}</p>
-                <p className="text-xs text-muted-foreground">Pending</p>
+                <p className="text-xs text-muted-foreground">{t("common.pending")}</p>
               </div>
             </div>
           </div>
@@ -478,9 +478,9 @@ const ProfessionalProfile = () => {
             <div className="flex items-center gap-3">
               <Shield className="w-5 h-5 text-warning" />
               <div>
-                <h3 className="font-medium text-foreground">Verification Pending</h3>
+                <h3 className="font-medium text-foreground">{t("profile.verificationPending")}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Your profile and documents are being reviewed. This usually takes 1-2 business days.
+                  {t("profile.verificationPendingDesc")}
                 </p>
               </div>
             </div>
@@ -490,10 +490,10 @@ const ProfessionalProfile = () => {
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="qualifications">Qualifications</TabsTrigger>
+            <TabsTrigger value="profile">{t("profile.tabs.profile")}</TabsTrigger>
+            <TabsTrigger value="qualifications">{t("profile.tabs.qualifications")}</TabsTrigger>
             <TabsTrigger value="documents">
-              Documents
+              {t("profile.tabs.documents")}
               {pendingDocs > 0 && (
                 <span className="ml-2 px-1.5 py-0.5 text-xs bg-warning text-warning-foreground rounded-full">
                   {pendingDocs}
@@ -510,11 +510,11 @@ const ProfessionalProfile = () => {
               className="bg-card rounded-2xl border border-border p-6 shadow-card"
             >
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-foreground">Personal Information</h2>
+                <h2 className="text-lg font-semibold text-foreground">{t("profile.personalInfo")}</h2>
                 {!isEditing ? (
                   <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
                     <Edit2 className="w-4 h-4 mr-2" />
-                    Edit
+                    {t("common.edit")}
                   </Button>
                 ) : (
                   <div className="flex gap-2">
@@ -530,7 +530,7 @@ const ProfessionalProfile = () => {
                       });
                     }}>
                       <X className="w-4 h-4 mr-2" />
-                      Cancel
+                      {t("common.cancel")}
                     </Button>
                     <Button size="sm" onClick={handleSaveProfile} disabled={isSaving}>
                       {isSaving ? (
@@ -538,7 +538,7 @@ const ProfessionalProfile = () => {
                       ) : (
                         <>
                           <Save className="w-4 h-4 mr-2" />
-                          Save
+                          {t("common.save")}
                         </>
                       )}
                     </Button>
@@ -549,7 +549,7 @@ const ProfessionalProfile = () => {
               <div className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="full_name">Full Name</Label>
+                    <Label htmlFor="full_name">{t("auth.fullName")}</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <Input
@@ -563,7 +563,7 @@ const ProfessionalProfile = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
+                    <Label htmlFor="phone">{t("profile.phone")}</Label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <Input
@@ -579,7 +579,7 @@ const ProfessionalProfile = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="location">Location</Label>
+                    <Label htmlFor="location">{t("profile.location")}</Label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <Input
@@ -593,7 +593,7 @@ const ProfessionalProfile = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="hourly_rate">Hourly Rate ($)</Label>
+                    <Label htmlFor="hourly_rate">{t("profile.hourlyRate")}</Label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <Input
@@ -609,14 +609,14 @@ const ProfessionalProfile = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="bio">Bio</Label>
+                  <Label htmlFor="bio">{t("profile.bio")}</Label>
                   <Textarea
                     id="bio"
                     value={formData.bio}
                     onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                     disabled={!isEditing}
                     rows={4}
-                    placeholder="Tell clinics about your experience..."
+                    placeholder={t("onboarding.fields.bioPlaceholder")}
                   />
                 </div>
               </div>
@@ -631,11 +631,11 @@ const ProfessionalProfile = () => {
               className="bg-card rounded-2xl border border-border p-6 shadow-card"
             >
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-foreground">Specialties & Qualifications</h2>
+                <h2 className="text-lg font-semibold text-foreground">{t("profile.professionalInfo")}</h2>
                 {!isEditing ? (
                   <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
                     <Edit2 className="w-4 h-4 mr-2" />
-                    Edit
+                    {t("common.edit")}
                   </Button>
                 ) : (
                   <div className="flex gap-2">
@@ -648,7 +648,7 @@ const ProfessionalProfile = () => {
                       });
                     }}>
                       <X className="w-4 h-4 mr-2" />
-                      Cancel
+                      {t("common.cancel")}
                     </Button>
                     <Button size="sm" onClick={handleSaveProfile} disabled={isSaving}>
                       {isSaving ? (
@@ -656,7 +656,7 @@ const ProfessionalProfile = () => {
                       ) : (
                         <>
                           <Save className="w-4 h-4 mr-2" />
-                          Save
+                          {t("common.save")}
                         </>
                       )}
                     </Button>
@@ -667,7 +667,7 @@ const ProfessionalProfile = () => {
               <div className="space-y-6">
                 {/* Specialties */}
                 <div className="space-y-3">
-                  <Label>Specialties</Label>
+                  <Label>{t("profile.specialties")}</Label>
                   {isEditing && (
                     <div className="flex gap-2">
                       <Input
@@ -696,14 +696,14 @@ const ProfessionalProfile = () => {
                       </span>
                     ))}
                     {formData.specialties.length === 0 && (
-                      <span className="text-sm text-muted-foreground">No specialties added</span>
+                      <span className="text-sm text-muted-foreground">{t("common.noData")}</span>
                     )}
                   </div>
                 </div>
 
                 {/* Qualifications */}
                 <div className="space-y-3">
-                  <Label>Qualifications & Certifications</Label>
+                  <Label>{t("profile.qualifications")}</Label>
                   {isEditing && (
                     <div className="flex gap-2">
                       <Input
@@ -732,7 +732,7 @@ const ProfessionalProfile = () => {
                       </span>
                     ))}
                     {formData.qualifications.length === 0 && (
-                      <span className="text-sm text-muted-foreground">No qualifications added</span>
+                      <span className="text-sm text-muted-foreground">{t("common.noData")}</span>
                     )}
                   </div>
                 </div>
@@ -749,9 +749,9 @@ const ProfessionalProfile = () => {
             >
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-lg font-semibold text-foreground">Verification Documents</h2>
+                  <h2 className="text-lg font-semibold text-foreground">{t("profile.documents")}</h2>
                   <p className="text-sm text-muted-foreground">
-                    Upload and manage your verification documents
+                    {t("documents.pendingVerification")}
                   </p>
                 </div>
               </div>

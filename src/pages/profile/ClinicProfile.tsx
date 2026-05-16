@@ -97,8 +97,8 @@ const ClinicProfile = () => {
   });
 
   const [documentUploads, setDocumentUploads] = useState<DocumentUpload[]>([
-    { type: "business_license", name: "Business License", description: "Your healthcare facility license", required: true, file: null, uploading: false, uploaded: false },
-    { type: "insurance", name: "Liability Insurance", description: "Professional liability insurance certificate", required: true, file: null, uploading: false, uploaded: false },
+    { type: "business_license", name: t("documents.businessLicense"), description: t("documents.businessLicenseDesc"), required: true, file: null, uploading: false, uploaded: false },
+    { type: "insurance", name: t("documents.insurance"), description: t("documents.insuranceDesc"), required: true, file: null, uploading: false, uploaded: false },
   ]);
 
   useEffect(() => {
@@ -183,8 +183,8 @@ const ClinicProfile = () => {
       if (error) throw error;
 
       toast({
-        title: "Clinic updated",
-        description: "Your changes have been saved.",
+        title: t("profile.clinicUpdated"),
+        description: t("profile.clinicUpdatedDesc"),
       });
 
       setIsEditing(false);
@@ -192,7 +192,7 @@ const ClinicProfile = () => {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error saving clinic",
+        title: t("common.error"),
         description: error.message,
       });
     } finally {
@@ -227,15 +227,15 @@ const ClinicProfile = () => {
       if (updateError) throw updateError;
 
       toast({
-        title: "Logo updated",
-        description: "Your clinic logo has been changed.",
+        title: t("profile.photoUploaded"),
+        description: t("profile.photoUploadedDesc"),
       });
 
       fetchClinicData();
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Upload failed",
+        title: t("documents.uploadFailed"),
         description: error.message,
       });
     } finally {
@@ -296,8 +296,8 @@ const ClinicProfile = () => {
       setDocumentUploads(newDocs);
 
       toast({
-        title: "Document uploaded",
-        description: `${doc.name} has been uploaded for verification.`,
+        title: t("documents.documentUploaded"),
+        description: t("documents.documentUploadedDesc", { name: doc.name }),
       });
 
       fetchClinicData();
@@ -306,7 +306,7 @@ const ClinicProfile = () => {
       setDocumentUploads(newDocs);
       toast({
         variant: "destructive",
-        title: "Upload failed",
+        title: t("documents.uploadFailed"),
         description: error.message,
       });
     }
@@ -357,7 +357,7 @@ const ClinicProfile = () => {
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Dashboard
+          {t("nav.backToDashboard")}
         </Link>
 
         {/* Clinic Header */}
@@ -415,15 +415,15 @@ const ClinicProfile = () => {
             <div className="flex gap-6">
               <div className="text-center">
                 <p className="text-2xl font-bold text-foreground">{totalDocs}</p>
-                <p className="text-xs text-muted-foreground">Documents</p>
+                <p className="text-xs text-muted-foreground">{t("profile.documents")}</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-success">{verifiedDocs}</p>
-                <p className="text-xs text-muted-foreground">Verified</p>
+                <p className="text-xs text-muted-foreground">{t("common.verified")}</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-warning">{pendingDocs}</p>
-                <p className="text-xs text-muted-foreground">Pending</p>
+                <p className="text-xs text-muted-foreground">{t("common.pending")}</p>
               </div>
             </div>
           </div>
@@ -440,9 +440,9 @@ const ClinicProfile = () => {
             <div className="flex items-center gap-3">
               <Shield className="w-5 h-5 text-warning" />
               <div>
-                <h3 className="font-medium text-foreground">Verification Pending</h3>
+                <h3 className="font-medium text-foreground">{t("profile.verificationPending")}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Your clinic profile and documents are being reviewed. This usually takes 1-2 business days.
+                  {t("profile.verificationPendingDesc")}
                 </p>
               </div>
             </div>
@@ -452,9 +452,9 @@ const ClinicProfile = () => {
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="profile">Clinic Details</TabsTrigger>
+            <TabsTrigger value="profile">{t("profile.tabs.clinicDetails")}</TabsTrigger>
             <TabsTrigger value="documents">
-              Documents
+              {t("profile.tabs.documents")}
               {pendingDocs > 0 && (
                 <span className="ml-2 px-1.5 py-0.5 text-xs bg-warning text-warning-foreground rounded-full">
                   {pendingDocs}
@@ -471,11 +471,11 @@ const ClinicProfile = () => {
               className="bg-card rounded-2xl border border-border p-6 shadow-card"
             >
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-foreground">Organization Information</h2>
+                <h2 className="text-lg font-semibold text-foreground">{t("profile.organizationInfo")}</h2>
                 {!isEditing ? (
                   <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
                     <Edit2 className="w-4 h-4 mr-2" />
-                    Edit
+                    {t("common.edit")}
                   </Button>
                 ) : (
                   <div className="flex gap-2">
@@ -492,7 +492,7 @@ const ClinicProfile = () => {
                       });
                     }}>
                       <X className="w-4 h-4 mr-2" />
-                      Cancel
+                      {t("common.cancel")}
                     </Button>
                     <Button size="sm" onClick={handleSaveClinic} disabled={isSaving} className="bg-accent hover:bg-accent/90">
                       {isSaving ? (
@@ -500,7 +500,7 @@ const ClinicProfile = () => {
                       ) : (
                         <>
                           <Save className="w-4 h-4 mr-2" />
-                          Save
+                          {t("common.save")}
                         </>
                       )}
                     </Button>
@@ -525,7 +525,7 @@ const ClinicProfile = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Contact Email</Label>
+                    <Label htmlFor="email">{t("auth.email")}</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <Input
@@ -540,7 +540,7 @@ const ClinicProfile = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
+                    <Label htmlFor="phone">{t("profile.phone")}</Label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <Input
@@ -556,7 +556,7 @@ const ClinicProfile = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="tax_id">Tax ID / EIN</Label>
+                    <Label htmlFor="tax_id">{t("onboarding.fields.taxId")}</Label>
                     <Input
                       id="tax_id"
                       value={formData.tax_id}
@@ -566,7 +566,7 @@ const ClinicProfile = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="website">Website</Label>
+                    <Label htmlFor="website">{t("onboarding.fields.website")}</Label>
                     <div className="relative">
                       <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <Input
@@ -581,7 +581,7 @@ const ClinicProfile = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="address">Address</Label>
+                  <Label htmlFor="address">{t("profile.address")}</Label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
                     <Textarea
@@ -595,14 +595,14 @@ const ClinicProfile = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description">{t("onboarding.fields.description")}</Label>
                   <Textarea
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     disabled={!isEditing}
                     rows={4}
-                    placeholder="Tell professionals about your facility..."
+                    placeholder={t("onboarding.fields.descriptionPlaceholder")}
                   />
                 </div>
               </div>
@@ -618,9 +618,9 @@ const ClinicProfile = () => {
             >
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-lg font-semibold text-foreground">Business Documents</h2>
+                  <h2 className="text-lg font-semibold text-foreground">{t("profile.documents")}</h2>
                   <p className="text-sm text-muted-foreground">
-                    Upload and manage your verification documents
+                    {t("documents.pendingVerification")}
                   </p>
                 </div>
               </div>

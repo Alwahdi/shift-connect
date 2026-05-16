@@ -129,14 +129,14 @@ const UserDetailsModal = ({ type, user, onClose, onVerify }: UserDetailsModalPro
               : "bg-warning/10 border border-warning/20"
           }`}>
             <div className="flex items-center justify-between">
-              <span className="font-medium">Verification Status</span>
+              <span className="font-medium">{t("profile.verificationStatus")}</span>
               {getStatusBadge(user.verification_status)}
             </div>
           </div>
 
           {/* Basic Info */}
           <div className="bg-secondary rounded-lg p-4">
-            <h4 className="font-medium text-foreground mb-3">Basic Information</h4>
+            <h4 className="font-medium text-foreground mb-3">{t("onboarding.basicInfo")}</h4>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-muted-foreground" />
@@ -170,14 +170,14 @@ const UserDetailsModal = ({ type, user, onClose, onVerify }: UserDetailsModalPro
             <>
               {profile.bio && (
                 <div className="bg-secondary rounded-lg p-4">
-                  <h4 className="font-medium text-foreground mb-2">Bio</h4>
+                  <h4 className="font-medium text-foreground mb-2">{t("profile.bio")}</h4>
                   <p className="text-muted-foreground">{profile.bio}</p>
                 </div>
               )}
 
               {profile.hourly_rate && (
                 <div className="bg-secondary rounded-lg p-4">
-                  <h4 className="font-medium text-foreground mb-2">Hourly Rate</h4>
+                  <h4 className="font-medium text-foreground mb-2">{t("profile.hourlyRate")}</h4>
                   <p className="text-2xl font-bold text-primary">${profile.hourly_rate}/hr</p>
                 </div>
               )}
@@ -186,7 +186,7 @@ const UserDetailsModal = ({ type, user, onClose, onVerify }: UserDetailsModalPro
                 <div className="bg-secondary rounded-lg p-4">
                   <h4 className="font-medium text-foreground mb-3 flex items-center gap-2">
                     <Briefcase className="w-4 h-4" />
-                    Specialties
+                    {t("profile.specialties")}
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {profile.specialties.map((specialty, i) => (
@@ -200,7 +200,7 @@ const UserDetailsModal = ({ type, user, onClose, onVerify }: UserDetailsModalPro
 
               {profile.qualifications && profile.qualifications.length > 0 && (
                 <div className="bg-secondary rounded-lg p-4">
-                  <h4 className="font-medium text-foreground mb-3">Qualifications</h4>
+                  <h4 className="font-medium text-foreground mb-3">{t("profile.qualifications")}</h4>
                   <div className="flex flex-wrap gap-2">
                     {profile.qualifications.map((qual, i) => (
                       <Badge key={i} variant="outline" className="bg-success/5 text-success border-success/20">
@@ -218,14 +218,14 @@ const UserDetailsModal = ({ type, user, onClose, onVerify }: UserDetailsModalPro
             <>
               {clinic.description && (
                 <div className="bg-secondary rounded-lg p-4">
-                  <h4 className="font-medium text-foreground mb-2">Description</h4>
+                  <h4 className="font-medium text-foreground mb-2">{t("onboarding.fields.description")}</h4>
                   <p className="text-muted-foreground">{clinic.description}</p>
                 </div>
               )}
 
               {clinic.tax_id && (
                 <div className="bg-secondary rounded-lg p-4">
-                  <h4 className="font-medium text-foreground mb-2">Tax ID / EIN</h4>
+                  <h4 className="font-medium text-foreground mb-2">{t("onboarding.fields.taxId")}</h4>
                   <p className="text-foreground font-mono">{clinic.tax_id}</p>
                 </div>
               )}
@@ -236,7 +236,7 @@ const UserDetailsModal = ({ type, user, onClose, onVerify }: UserDetailsModalPro
           <div className="bg-secondary rounded-lg p-4">
             <h4 className="font-medium text-foreground mb-3 flex items-center gap-2">
               <FileText className="w-4 h-4" />
-              Uploaded Documents
+              {t("profile.documents")}
             </h4>
             {isLoading ? (
               <div className="flex items-center justify-center py-4">
@@ -260,7 +260,7 @@ const UserDetailsModal = ({ type, user, onClose, onVerify }: UserDetailsModalPro
                 ))}
               </div>
             ) : (
-              <p className="text-muted-foreground text-center py-4">No documents uploaded</p>
+              <p className="text-muted-foreground text-center py-4">{t("admin.noDocumentsFound")}</p>
             )}
           </div>
 
@@ -274,7 +274,7 @@ const UserDetailsModal = ({ type, user, onClose, onVerify }: UserDetailsModalPro
                 disabled={isVerifying}
               >
                 <XCircle className="w-4 h-4 mr-2" />
-                Reject
+                {t("common.reject")}
               </Button>
               <Button
                 className="flex-1 bg-success hover:bg-success/90"
@@ -286,7 +286,7 @@ const UserDetailsModal = ({ type, user, onClose, onVerify }: UserDetailsModalPro
                 ) : (
                   <>
                     <CheckCircle2 className="w-4 h-4 mr-2" />
-                    Verify {isProfessional ? "Professional" : "Clinic"}
+                    {t("common.approve")}
                   </>
                 )}
               </Button>
