@@ -510,7 +510,7 @@ const ClinicProfile = () => {
 
               <div className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Organization Name</Label>
+                  <Label htmlFor="name">{t("onboarding.fields.orgName")}</Label>
                   <div className="relative">
                     <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
@@ -651,8 +651,7 @@ const ClinicProfile = () => {
 
               <div className="mt-6 p-4 rounded-lg bg-secondary">
                 <p className="text-sm text-muted-foreground">
-                  <strong>Note:</strong> All documents are securely stored and only accessible to you and our verification team.
-                  Verification typically takes 1-2 business days.
+                  <strong>{t("common.note")}:</strong> {t("profile.documentsNote")}
                 </p>
               </div>
             </motion.div>

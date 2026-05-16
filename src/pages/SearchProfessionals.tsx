@@ -216,7 +216,7 @@ export default function SearchProfessionals() {
               key={star}
               onClick={() => setFilters({ ...filters, minRating: filters.minRating === star ? 0 : star })}
               className={`p-1 rounded transition-colors ${
-                star <= filters.minRating ? "text-yellow-500" : "text-muted-foreground/30"
+                star <= filters.minRating ? "text-warning" : "text-muted-foreground/30"
               }`}
             >
               <Star className="h-6 w-6 fill-current" />
@@ -395,7 +395,7 @@ export default function SearchProfessionals() {
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                       {pro.rating_avg ? (
                         <span className="flex items-center gap-1">
-                          <Star className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />
+                          <Star className="h-3.5 w-3.5 fill-warning text-warning" />
                           {pro.rating_avg.toFixed(1)}
                           {pro.rating_count && <span>({pro.rating_count})</span>}
                         </span>

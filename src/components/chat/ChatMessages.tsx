@@ -72,9 +72,9 @@ const renderMessageContent = (content: string, isOwn: boolean) => {
 
 const getFileIcon = (fileName?: string | null) => {
   const ext = fileName?.split(".").pop()?.toLowerCase();
-  if (ext === "pdf") return <FileText className="h-5 w-5 text-red-500" />;
-  if (ext === "doc" || ext === "docx") return <FileText className="h-5 w-5 text-blue-500" />;
-  if (ext === "xls" || ext === "xlsx") return <FileSpreadsheet className="h-5 w-5 text-green-500" />;
+  if (ext === "pdf") return <FileText className="h-5 w-5 text-destructive" />;
+  if (ext === "doc" || ext === "docx") return <FileText className="h-5 w-5 text-sky" />;
+  if (ext === "xls" || ext === "xlsx") return <FileSpreadsheet className="h-5 w-5 text-success" />;
   return <FileIcon className="h-5 w-5" />;
 };
 

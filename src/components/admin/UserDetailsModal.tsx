@@ -159,7 +159,7 @@ const UserDetailsModal = ({ type, user, onClose, onVerify }: UserDetailsModalPro
               <div className="flex items-center gap-3">
                 <Calendar className="w-4 h-4 text-muted-foreground" />
                 <span className="text-muted-foreground">
-                  Joined {new Date(user.created_at).toLocaleDateString()}
+                  {t("profile.joinedOn", { date: new Date(user.created_at).toLocaleDateString() })}
                 </span>
               </div>
             </div>

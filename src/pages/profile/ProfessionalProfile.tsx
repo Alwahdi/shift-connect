@@ -671,13 +671,13 @@ const ProfessionalProfile = () => {
                   {isEditing && (
                     <div className="flex gap-2">
                       <Input
-                        placeholder="e.g., Critical Care, Pediatrics"
+                        placeholder={t("onboarding.fields.addSpecialty")}
                         value={formData.newSpecialty}
                         onChange={(e) => setFormData({ ...formData, newSpecialty: e.target.value })}
                         onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSpecialty())}
                       />
                       <Button type="button" onClick={addSpecialty} variant="outline">
-                        Add
+                        {t("common.add")}
                       </Button>
                     </div>
                   )}
@@ -707,13 +707,13 @@ const ProfessionalProfile = () => {
                   {isEditing && (
                     <div className="flex gap-2">
                       <Input
-                        placeholder="e.g., RN, BSN, ACLS"
+                        placeholder={t("onboarding.fields.addQualification")}
                         value={formData.newQualification}
                         onChange={(e) => setFormData({ ...formData, newQualification: e.target.value })}
                         onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addQualification())}
                       />
                       <Button type="button" onClick={addQualification} variant="outline">
-                        Add
+                        {t("common.add")}
                       </Button>
                     </div>
                   )}
@@ -782,8 +782,7 @@ const ProfessionalProfile = () => {
 
               <div className="mt-6 p-4 rounded-lg bg-secondary">
                 <p className="text-sm text-muted-foreground">
-                  <strong>Note:</strong> All documents are securely stored and only accessible to you and our verification team.
-                  Verification typically takes 1-2 business days.
+                  <strong>{t("common.note")}:</strong> {t("profile.documentsNote")}
                 </p>
               </div>
             </motion.div>
