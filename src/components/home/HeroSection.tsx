@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, CheckCircle2, Users, Building2, Star, Play, Shield, Zap } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { PLATFORM_STATS } from "@/config/constants";
 import { forwardRef, useRef } from "react";
 
 const HeroSection = forwardRef<HTMLElement>((_, ref) => {
@@ -18,34 +17,6 @@ const HeroSection = forwardRef<HTMLElement>((_, ref) => {
   
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-
-  // Stats using centralized configuration
-  const stats = [
-    { 
-      value: PLATFORM_STATS.professionals.value, 
-      label: t("stats.professionals"),
-      icon: Users,
-      color: "text-accent"
-    },
-    { 
-      value: PLATFORM_STATS.facilities.value, 
-      label: t("stats.facilities"),
-      icon: Building2,
-      color: "text-primary"
-    },
-    { 
-      value: PLATFORM_STATS.completedShifts.value, 
-      label: t("stats.completedShifts"),
-      icon: Zap,
-      color: "text-sky"
-    },
-    { 
-      value: PLATFORM_STATS.averageRating.value, 
-      label: t("stats.avgRating"),
-      icon: Star,
-      color: "text-accent"
-    },
-  ];
 
   const floatingAnimation = {
     y: [0, -10, 0],
