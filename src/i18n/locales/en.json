@@ -630,7 +630,8 @@
     "detecting": "Detecting location...",
     "locationError": "Could not detect location",
     "permissionDenied": "Location permission denied",
-    "noResults": "No results found"
+    "noResults": "No results found",
+    "popularSuggestions": "Popular suggestions"
   },
   "viewProfile": {
     "notFound": "Professional not found",

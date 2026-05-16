@@ -630,7 +630,8 @@
     "detecting": "جارٍ تحديد الموقع...",
     "locationError": "تعذر تحديد الموقع",
     "permissionDenied": "تم رفض إذن الوصول للموقع",
-    "noResults": "لا توجد نتائج"
+    "noResults": "لا توجد نتائج",
+    "popularSuggestions": "اقتراحات شائعة"
   },
   "viewProfile": {
     "notFound": "لم يتم العثور على الملف المطلوب",
