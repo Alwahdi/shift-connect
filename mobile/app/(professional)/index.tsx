@@ -9,6 +9,7 @@ import { Card } from '@/src/components/common/Card';
 import { EmptyState } from '@/src/components/common/EmptyState';
 import { LoadingSpinner } from '@/src/components/common/LoadingSpinner';
 import { StatsCard } from '@/src/components/common/StatsCard';
+import { FLOATING_TAB_BOTTOM_INSET } from '@/src/components/navigation/FloatingTabBar';
 import { ASSUMED_SHIFT_HOURS, theme } from '@/src/constants/theme';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useBookings } from '@/src/hooks/useBookings';
@@ -90,7 +91,7 @@ export default function ProfessionalDashboardScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: theme.colors.background },
-  container: { padding: theme.spacing.lg, gap: theme.spacing.lg },
+  container: { padding: theme.spacing.lg, gap: theme.spacing.lg, paddingBottom: FLOATING_TAB_BOTTOM_INSET },
   kicker: { color: theme.colors.primary, fontWeight: '700' },
   title: { color: theme.colors.text, fontSize: theme.typography.sizes.xxl, fontWeight: '800', marginTop: 4 },
   description: { color: theme.colors.muted, marginTop: 6 },

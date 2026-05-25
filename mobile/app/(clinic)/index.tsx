@@ -12,6 +12,7 @@ import { LoadingSpinner } from '@/src/components/common/LoadingSpinner';
 import { StatsCard } from '@/src/components/common/StatsCard';
 import { CreateShiftSheet } from '@/src/components/shifts/CreateShiftSheet';
 import { ShiftCard } from '@/src/components/shifts/ShiftCard';
+import { FLOATING_TAB_BOTTOM_INSET } from '@/src/components/navigation/FloatingTabBar';
 import { ASSUMED_SHIFT_HOURS, theme } from '@/src/constants/theme';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useBookings } from '@/src/hooks/useBookings';
@@ -101,7 +102,7 @@ const styles = StyleSheet.create({
   container: {
     padding: theme.spacing.lg,
     gap: theme.spacing.lg,
-    paddingBottom: 96,
+    paddingBottom: FLOATING_TAB_BOTTOM_INSET,
   },
   header: {
     flexDirection: 'row',
@@ -162,6 +163,6 @@ const styles = StyleSheet.create({
   fabWrap: {
     position: 'absolute',
     right: theme.spacing.lg,
-    bottom: 28,
+    bottom: 96,
   },
 });

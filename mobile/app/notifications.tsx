@@ -1,11 +1,12 @@
-import React from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback } from 'react';
+import { Alert, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Badge } from '@/src/components/common/Badge';
 import { Button } from '@/src/components/common/Button';
 import { Card } from '@/src/components/common/Card';
 import { EmptyState } from '@/src/components/common/EmptyState';
+import { ErrorState } from '@/src/components/common/ErrorState';
 import { LoadingSpinner } from '@/src/components/common/LoadingSpinner';
 import { theme } from '@/src/constants/theme';
 import { useAuth } from '@/src/contexts/AuthContext';
@@ -14,6 +15,8 @@ import { useNotifications } from '@/src/hooks/useNotifications';
 export default function NotificationsScreen() {
   const { user } = useAuth();
   const notifications = useNotifications(user?.id);
+
+  const onRefresh = useCallback(() => { notifications.refetch().catch(() => undefined); }, [notifications]);
 
   if (!user || notifications.isLoading) {
     return <LoadingSpinner fullScreen label="Loading notifications..." />;
@@ -36,41 +39,73 @@ export default function NotificationsScreen() {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.title}>Notifications</Text>
-            <Text style={styles.description}>Stay updated on applications, bookings, and messages.</Text>
+    <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
+      <FlatList
+        data={notifications.data ?? []}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.container}
+        refreshControl={
+          <RefreshControl
+            refreshing={notifications.isFetching && !notifications.isLoading}
+            onRefresh={onRefresh}
+            tintColor={theme.colors.primary}
+          />
+        }
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <View style={styles.headerText}>
+              <Text style={styles.title}>Notifications</Text>
+              <Text style={styles.description}>Stay updated on applications, bookings, and messages.</Text>
+            </View>
+            <Button
+              title="Mark all read"
+              variant="outline"
+              size="sm"
+              onPress={markAll}
+              loading={notifications.markAllAsRead.isPending}
+            />
+            {notifications.isError ? <ErrorState onRetry={onRefresh} /> : null}
           </View>
-          <Button title="Mark all read" variant="outline" size="sm" onPress={markAll} loading={notifications.markAllAsRead.isPending} />
-        </View>
-
-        <View style={styles.list}>
-          {notifications.data?.length ? notifications.data.map((item) => (
-            <Card key={item.id} style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                {!item.is_read ? <Badge label="New" variant="primary" /> : null}
-              </View>
-              <Text style={styles.cardMessage}>{item.message}</Text>
-              <Text style={styles.cardMeta}>{item.created_at.replace('T', ' ').slice(0, 16)}</Text>
-              {!item.is_read ? <Button title="Mark as read" variant="ghost" onPress={() => markOne(item.id)} /> : null}
-            </Card>
-          )) : <EmptyState title="No notifications" description="When something important happens, you will see it here." />}
-        </View>
-      </ScrollView>
+        }
+        ListEmptyComponent={
+          !notifications.isError ? (
+            <EmptyState title="No notifications" description="When something important happens, you will see it here." />
+          ) : null
+        }
+        renderItem={({ item }) => (
+          <Card style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>{item.title}</Text>
+              {!item.is_read ? <Badge label="New" variant="primary" /> : null}
+            </View>
+            <Text style={styles.cardMessage}>{item.message}</Text>
+            <Text style={styles.cardMeta}>{item.created_at.replace('T', ' ').slice(0, 16)}</Text>
+            {!item.is_read ? (
+              <Button title="Mark as read" variant="ghost" onPress={() => markOne(item.id)} />
+            ) : null}
+          </Card>
+        )}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: theme.colors.background },
-  container: { padding: theme.spacing.lg, gap: theme.spacing.lg },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: theme.spacing.md },
+  container: { padding: theme.spacing.lg, gap: theme.spacing.md },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
+    flexWrap: 'wrap',
+  },
+  headerText: { flex: 1 },
   title: { color: theme.colors.text, fontWeight: '800', fontSize: theme.typography.sizes.xxl },
-  description: { color: theme.colors.muted, marginTop: 6, maxWidth: 260 },
-  list: { gap: theme.spacing.md },
+  description: { color: theme.colors.muted, marginTop: 6 },
+  separator: { height: theme.spacing.md },
   card: { gap: theme.spacing.sm },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', gap: theme.spacing.md },
   cardTitle: { color: theme.colors.text, fontWeight: '700', flex: 1 },

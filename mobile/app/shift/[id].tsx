@@ -1,6 +1,7 @@
-import { useLocalSearchParams } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/src/components/common/Avatar';
@@ -8,6 +9,7 @@ import { Badge } from '@/src/components/common/Badge';
 import { Button } from '@/src/components/common/Button';
 import { Card } from '@/src/components/common/Card';
 import { EmptyState } from '@/src/components/common/EmptyState';
+import { ErrorState } from '@/src/components/common/ErrorState';
 import { LoadingSpinner } from '@/src/components/common/LoadingSpinner';
 import { theme } from '@/src/constants/theme';
 import { useAuth } from '@/src/contexts/AuthContext';
@@ -20,33 +22,42 @@ export default function ShiftDetailScreen() {
   const [shift, setShift] = useState<Shift | null>(null);
   const [applicants, setApplicants] = useState<Array<Booking & { professional: Profile | null }>>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const { data, error } = await supabase.from('shifts').select('*, clinic:clinics(*)').eq('id', id).maybeSingle();
-        if (error) {
-          throw error;
-        }
-        setShift((data as Shift | null) ?? null);
+  const load = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('shifts')
+        .select('*, clinic:clinics(*)')
+        .eq('id', id)
+        .maybeSingle();
+      if (fetchError) throw fetchError;
+      setShift((data as Shift | null) ?? null);
 
-        if (role === 'clinic' && data) {
-          const { data: bookingData } = await supabase.from('bookings').select('*, professional:profiles(*)').eq('shift_id', data.id);
-          setApplicants((bookingData ?? []) as Array<Booking & { professional: Profile | null }>);
-        }
-      } finally {
-        setLoading(false);
+      if (role === 'clinic' && data) {
+        const { data: bookingData } = await supabase
+          .from('bookings')
+          .select('*, professional:profiles(*)')
+          .eq('shift_id', data.id);
+        setApplicants((bookingData ?? []) as Array<Booking & { professional: Profile | null }>);
       }
-    };
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to load shift details.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    load().catch(() => setLoading(false));
+  useEffect(() => {
+    load().catch(() => undefined);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, role]);
 
   const applyForShift = async () => {
-    if (!shift || !profile) {
-      return;
-    }
+    if (!shift || !profile) return;
 
     setSubmitting(true);
     try {
@@ -62,52 +73,103 @@ export default function ShiftDetailScreen() {
         return;
       }
 
-      const { error } = await supabase.from('bookings').insert({
+      const { error: insertError } = await supabase.from('bookings').insert({
         shift_id: shift.id,
         clinic_id: shift.clinic_id,
         professional_id: profile.id,
         status: 'requested',
       });
-
-      if (error) {
-        throw error;
-      }
+      if (insertError) throw insertError;
 
       Alert.alert('Application sent', 'The clinic can now review your application.');
-    } catch (error) {
-      Alert.alert('Unable to apply', error instanceof Error ? error.message : 'Please try again.');
+    } catch (err) {
+      Alert.alert('Unable to apply', err instanceof Error ? err.message : 'Please try again.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const confirmApplicantAndFillShift = async (booking: Booking) => {
-    try {
-      const { error: bookingError } = await supabase.from('bookings').update({ status: 'confirmed' }).eq('id', booking.id);
-      if (bookingError) {
-        throw bookingError;
-      }
-      const { error: shiftError } = await supabase.from('shifts').update({ is_filled: true }).eq('id', booking.shift_id);
-      if (shiftError) {
-        throw shiftError;
-      }
-      Alert.alert('Applicant confirmed', 'Shift filled successfully.');
-    } catch (error) {
-      Alert.alert('Unable to confirm applicant', error instanceof Error ? error.message : 'Please try again.');
-    }
+  const confirmApplicant = (booking: Booking) => {
+    const name = booking.professional?.full_name ?? 'this applicant';
+    Alert.alert(
+      'Confirm applicant',
+      `Confirm ${name} and mark this shift as filled? This cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Confirm',
+          onPress: async () => {
+            try {
+              const { error: bookingError } = await supabase
+                .from('bookings')
+                .update({ status: 'confirmed' })
+                .eq('id', booking.id);
+              if (bookingError) throw bookingError;
+
+              const { error: shiftError } = await supabase
+                .from('shifts')
+                .update({ is_filled: true })
+                .eq('id', booking.shift_id);
+              if (shiftError) throw shiftError;
+
+              Alert.alert('Applicant confirmed', 'Shift filled successfully.');
+              load().catch(() => undefined);
+            } catch (err) {
+              Alert.alert('Unable to confirm applicant', err instanceof Error ? err.message : 'Please try again.');
+            }
+          },
+        },
+      ],
+    );
   };
 
   if (loading) {
     return <LoadingSpinner fullScreen label="Loading shift details..." />;
   }
 
+  if (error) {
+    return (
+      <SafeAreaView edges={['top']} style={styles.safeArea}>
+        <View style={styles.backRow}>
+          <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={8}>
+            <Ionicons name="chevron-back" size={24} color={theme.colors.primary} />
+          </Pressable>
+        </View>
+        <View style={styles.center}>
+          <ErrorState title="Unable to load shift" description={error} onRetry={() => load().catch(() => undefined)} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   if (!shift) {
-    return <LoadingSpinner fullScreen label="Shift not found" />;
+    return (
+      <SafeAreaView edges={['top']} style={styles.safeArea}>
+        <View style={styles.backRow}>
+          <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={8}>
+            <Ionicons name="chevron-back" size={24} color={theme.colors.primary} />
+          </Pressable>
+        </View>
+        <View style={styles.center}>
+          <EmptyState
+            icon="calendar-outline"
+            title="Shift not found"
+            description="This shift may have been removed or the link is no longer valid."
+          />
+        </View>
+      </SafeAreaView>
+    );
   }
 
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.backRow}>
+          <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={8}>
+            <Ionicons name="chevron-back" size={24} color={theme.colors.primary} />
+          </Pressable>
+        </View>
+
         <Card style={styles.hero}>
           <Text style={styles.title}>{shift.title}</Text>
           <Text style={styles.subtitle}>{shift.clinic?.name ?? clinic?.name ?? 'Clinic'}</Text>
@@ -122,29 +184,59 @@ export default function ShiftDetailScreen() {
         <Card style={styles.section}>
           <Text style={styles.sectionTitle}>Shift details</Text>
           <Text style={styles.detail}>Date: {shift.shift_date}</Text>
-          <Text style={styles.detail}>Time: {shift.start_time.slice(0, 5)} - {shift.end_time.slice(0, 5)}</Text>
+          <Text style={styles.detail}>
+            Time: {shift.start_time.slice(0, 5)} – {shift.end_time.slice(0, 5)}
+          </Text>
           <Text style={styles.detail}>Location: {shift.location_address ?? 'Address not provided'}</Text>
           <Text style={styles.detail}>Rate: ${shift.hourly_rate}/hr</Text>
-          <Text style={styles.detail}>Required certifications: {shift.required_certifications?.join(', ') || 'None specified'}</Text>
+          <Text style={styles.detail}>
+            Required certifications: {shift.required_certifications?.join(', ') || 'None specified'}
+          </Text>
         </Card>
 
-        {role === 'professional' ? <Button title="Apply for this shift" fullWidth onPress={applyForShift} loading={submitting} disabled={Boolean(shift.is_filled)} /> : null}
+        {role === 'professional' ? (
+          <Button
+            title="Apply for this shift"
+            fullWidth
+            onPress={applyForShift}
+            loading={submitting}
+            disabled={Boolean(shift.is_filled)}
+          />
+        ) : null}
 
         {role === 'clinic' ? (
           <Card style={styles.section}>
-            <Text style={styles.sectionTitle}>Applicants</Text>
-            {applicants.length ? applicants.map((booking) => (
-              <Card key={booking.id} style={styles.applicantCard}>
-                <View style={styles.applicantRow}>
-                  <Avatar uri={booking.professional?.avatar_url} name={booking.professional?.full_name ?? 'Professional'} />
-                  <View style={styles.applicantText}>
-                    <Text style={styles.applicantName}>{booking.professional?.full_name ?? 'Professional'}</Text>
-                    <Text style={styles.applicantMeta}>{booking.professional?.specialties?.join(', ') || 'No specialties listed'}</Text>
+            <Text style={styles.sectionTitle}>Applicants ({applicants.length})</Text>
+            {applicants.length ? (
+              applicants.map((booking) => (
+                <Card key={booking.id} style={styles.applicantCard}>
+                  <View style={styles.applicantRow}>
+                    <Avatar
+                      uri={booking.professional?.avatar_url}
+                      name={booking.professional?.full_name ?? 'Professional'}
+                    />
+                    <View style={styles.applicantText}>
+                      <Text style={styles.applicantName}>
+                        {booking.professional?.full_name ?? 'Professional'}
+                      </Text>
+                      <Text style={styles.applicantMeta}>
+                        {booking.professional?.specialties?.join(', ') || 'No specialties listed'}
+                      </Text>
+                    </View>
                   </View>
-                </View>
-                <Button title="Confirm applicant" onPress={() => confirmApplicantAndFillShift(booking)} disabled={shift.is_filled === true} />
-              </Card>
-            )) : <EmptyState title="No applicants yet" description="Applicants will appear here once professionals apply." />}
+                  <Button
+                    title="Confirm applicant"
+                    onPress={() => confirmApplicant(booking)}
+                    disabled={shift.is_filled === true}
+                  />
+                </Card>
+              ))
+            ) : (
+              <EmptyState
+                title="No applicants yet"
+                description="Applicants will appear here once professionals apply."
+              />
+            )}
           </Card>
         ) : null}
       </ScrollView>
@@ -154,7 +246,10 @@ export default function ShiftDetailScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: theme.colors.background },
-  container: { padding: theme.spacing.lg, gap: theme.spacing.md },
+  container: { padding: theme.spacing.lg, gap: theme.spacing.md, paddingBottom: 40 },
+  backRow: { flexDirection: 'row', marginBottom: theme.spacing.sm },
+  backBtn: { padding: theme.spacing.xs },
+  center: { flex: 1, padding: theme.spacing.xl, justifyContent: 'center' },
   hero: { gap: theme.spacing.sm },
   title: { color: theme.colors.text, fontSize: theme.typography.sizes.xxl, fontWeight: '800' },
   subtitle: { color: theme.colors.muted },

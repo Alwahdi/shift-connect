@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
@@ -10,6 +10,7 @@ import { Badge } from '@/src/components/common/Badge';
 import { Button } from '@/src/components/common/Button';
 import { Card } from '@/src/components/common/Card';
 import { Input } from '@/src/components/common/Input';
+import { FLOATING_TAB_BOTTOM_INSET } from '@/src/components/navigation/FloatingTabBar';
 import { theme } from '@/src/constants/theme';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { supabase } from '@/src/lib/supabase';
@@ -32,7 +33,18 @@ type ProfileValues = z.infer<typeof profileSchema>;
 type DocumentValues = z.infer<typeof documentSchema>;
 
 export default function ClinicProfileScreen() {
-  const { clinic, user, refreshAuthState } = useAuth();
+  const { clinic, user, refreshAuthState, signOut } = useAuth();
+
+  const handleSignOut = () => {
+    Alert.alert('Sign out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign out',
+        style: 'destructive',
+        onPress: () => signOut().catch(() => undefined),
+      },
+    ]);
+  };
   const profileForm = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
     values: {
@@ -87,7 +99,8 @@ export default function ClinicProfileScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
+        <ScrollView contentContainerStyle={styles.container}>
         <Card style={styles.headerCard}>
           <Avatar uri={clinic.logo_url} name={clinic.name} size={72} />
           <View style={styles.headerText}>
@@ -116,14 +129,21 @@ export default function ClinicProfileScreen() {
           <Controller control={documentForm.control} name="expiry_date" render={({ field }) => <Input label="Expiry date (optional)" value={field.value ?? ''} onChangeText={field.onChange} />} />
           <Button title="Submit document" variant="secondary" fullWidth onPress={uploadDocument} loading={documentForm.formState.isSubmitting} />
         </Card>
+
+        <Card style={styles.section}>
+          <Text style={styles.sectionTitle}>Account</Text>
+          <Button title="Sign out" variant="danger" fullWidth onPress={handleSignOut} />
+        </Card>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: theme.colors.background },
-  container: { padding: theme.spacing.lg, gap: theme.spacing.md },
+  flex: { flex: 1 },
+  container: { padding: theme.spacing.lg, gap: theme.spacing.md, paddingBottom: FLOATING_TAB_BOTTOM_INSET },
   headerCard: { flexDirection: 'row', gap: theme.spacing.md, alignItems: 'center' },
   headerText: { flex: 1, gap: 4 },
   name: { color: theme.colors.text, fontSize: theme.typography.sizes.xl, fontWeight: '800' },

@@ -27,10 +27,12 @@ export function BookingCard({
   booking,
   onCheckIn,
   onCheckOut,
+  onCancel,
 }: {
   booking: Booking;
   onCheckIn?: () => void;
   onCheckOut?: () => void;
+  onCancel?: () => void;
 }) {
   const dateLabel = booking.shift?.shift_date ? format(new Date(booking.shift.shift_date), 'EEE, MMM d') : 'Date unavailable';
   return (
@@ -48,6 +50,9 @@ export function BookingCard({
       <View style={styles.actions}>
         {booking.status === 'confirmed' ? <Button title="Check In" variant="secondary" onPress={onCheckIn} /> : null}
         {booking.status === 'checked_in' ? <Button title="Check Out" onPress={onCheckOut} /> : null}
+        {onCancel && ['requested', 'confirmed'].includes(String(booking.status)) ? (
+          <Button title="Cancel" variant="danger" onPress={onCancel} />
+        ) : null}
       </View>
     </Card>
   );

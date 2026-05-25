@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, router } from 'expo-router';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
@@ -50,6 +50,9 @@ export default function SignInScreen() {
           <Card style={styles.card}>
             <Controller control={control} name="email" render={({ field }) => <Input label="Email" autoCapitalize="none" keyboardType="email-address" value={field.value} onChangeText={field.onChange} error={errors.email?.message} />} />
             <Controller control={control} name="password" render={({ field }) => <Input label="Password" secureTextEntry secureToggle value={field.value} onChangeText={field.onChange} error={errors.password?.message} />} />
+            <Pressable onPress={() => router.push('/(auth)/forgot-password')} style={styles.forgotWrap}>
+              <Text style={styles.forgotLink}>Forgot password?</Text>
+            </Pressable>
             <Button title="Sign In" fullWidth loading={isSubmitting} onPress={onSubmit} />
             <Text style={styles.footerText}>
               New to Shift-Connect?{' '}
@@ -96,6 +99,14 @@ const styles = StyleSheet.create({
   },
   card: {
     gap: theme.spacing.md,
+  },
+  forgotWrap: {
+    alignSelf: 'flex-end',
+  },
+  forgotLink: {
+    color: theme.colors.primary,
+    fontWeight: '600',
+    fontSize: theme.typography.sizes.sm,
   },
   footerText: {
     color: theme.colors.muted,
