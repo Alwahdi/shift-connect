@@ -4,15 +4,21 @@ import React, { useMemo } from 'react';
 
 import { FloatingTabBar } from '@/src/components/navigation/FloatingTabBar';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { useBookings } from '@/src/hooks/useBookings';
 import { useConversations } from '@/src/hooks/useMessages';
 
 export default function ProfessionalTabsLayout() {
   const { profile } = useAuth();
   const conversationsQuery = useConversations({ role: 'professional', entityId: profile?.id });
+  const bookingsQuery = useBookings({ role: 'professional', entityId: profile?.id });
 
   const totalUnread = useMemo(
     () => (conversationsQuery.data ?? []).reduce((sum, c) => sum + (c.unreadCount ?? 0), 0),
     [conversationsQuery.data],
+  );
+  const pendingCount = useMemo(
+    () => (bookingsQuery.data ?? []).filter((booking) => booking.status === 'requested').length,
+    [bookingsQuery.data],
   );
 
   return (
@@ -39,6 +45,7 @@ export default function ProfessionalTabsLayout() {
         name="bookings"
         options={{
           title: 'Bookings',
+          tabBarBadge: pendingCount > 0 ? pendingCount : undefined,
           tabBarIcon: ({ focused, color, size }) => (
             <Ionicons name={focused ? 'briefcase' : 'briefcase-outline'} color={color} size={size} />
           ),

@@ -28,7 +28,7 @@ function RatingButtonWrapper({
   const [ratingTarget, setRatingTarget] = useState<RatingTarget | null>(null);
   const existingRating = useExistingRating({ bookingId: booking.id, reviewerId });
 
-  if (existingRating.data) return null;
+  if (existingRating.data) return <BookingCard booking={booking} />;
 
   return (
     <>

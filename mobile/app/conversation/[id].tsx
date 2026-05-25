@@ -19,16 +19,15 @@ export default function ConversationScreen() {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [otherPartyName, setOtherPartyName] = useState('');
+  const flatListRef = useRef<FlatList<Message>>(null);
   const inputRef = useRef<TextInput>(null);
   const query = useConversationMessages(id);
 
   const senderId = role === 'clinic' ? clinic?.id : profile?.id;
   const senderType = role === 'clinic' ? 'clinic' : 'professional';
 
-  // Inverted list shows newest messages at the bottom; data must be in descending order.
   const reversedMessages = useMemo(() => [...(query.data ?? [])].reverse(), [query.data]);
 
-  // Resolve the other party's display name once.
   useEffect(() => {
     if (!id) return;
     supabase
@@ -47,7 +46,6 @@ export default function ConversationScreen() {
       });
   }, [id, role]);
 
-  // Mark all unread messages from the other party as read when this screen opens.
   useEffect(() => {
     if (!senderId || !id) return;
     supabase
@@ -82,6 +80,7 @@ export default function ConversationScreen() {
         .eq('id', id);
 
       setText('');
+      flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
       query.refetch().catch(() => undefined);
     } catch (error) {
       Alert.alert('Unable to send message', error instanceof Error ? error.message : 'Please try again.');
@@ -115,20 +114,21 @@ export default function ConversationScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
       >
-        {/* Header */}
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={8}>
             <Ionicons name="chevron-back" size={24} color={theme.colors.primary} />
           </Pressable>
           <View style={styles.headerContent}>
             <Text style={styles.headerName} numberOfLines={1}>{otherPartyName || '…'}</Text>
-            <Text style={styles.headerSub}>{reversedMessages.length} messages</Text>
+            <Text style={styles.headerSub}>
+              {role === 'clinic' ? 'Professional' : 'Clinic'} · Tap to view profile
+            </Text>
           </View>
           <Ionicons name="chatbubble-ellipses" size={22} color={theme.colors.primary} />
         </View>
 
-        {/* Inverted message list — newest at bottom */}
         <FlatList
+          ref={flatListRef}
           data={reversedMessages}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
@@ -137,7 +137,6 @@ export default function ConversationScreen() {
           showsVerticalScrollIndicator={false}
         />
 
-        {/* Composer */}
         <View style={styles.composer}>
           <TextInput
             ref={inputRef}

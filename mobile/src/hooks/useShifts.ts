@@ -40,7 +40,7 @@ export function useShifts(options: UseShiftsOptions) {
       }
 
       if (options.search) {
-        query = query.or(`title.ilike.%${options.search}%,role_required.ilike.%${options.search}%`);
+        query = query.or(`title.ilike.%${options.search}%,role_required.ilike.%${options.search}%,location_address.ilike.%${options.search}%`);
       }
 
       if (options.role) {

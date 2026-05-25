@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { format } from 'date-fns';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -123,6 +124,33 @@ export default function ShiftDetailScreen() {
     );
   };
 
+  const declineApplicant = (booking: Booking) => {
+    Alert.alert(
+      'Decline applicant',
+      `Decline ${booking.professional?.full_name ?? 'this applicant'}? They will be notified.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Decline',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const { error } = await supabase
+                .from('bookings')
+                .update({ status: 'declined' })
+                .eq('id', booking.id);
+              if (error) throw error;
+              Alert.alert('Applicant declined', 'The application has been declined.');
+              load().catch(() => undefined);
+            } catch (err) {
+              Alert.alert('Unable to decline', err instanceof Error ? err.message : 'Please try again.');
+            }
+          },
+        },
+      ],
+    );
+  };
+
   if (loading) {
     return <LoadingSpinner fullScreen label="Loading shift details..." />;
   }
@@ -183,7 +211,7 @@ export default function ShiftDetailScreen() {
 
         <Card style={styles.section}>
           <Text style={styles.sectionTitle}>Shift details</Text>
-          <Text style={styles.detail}>Date: {shift.shift_date}</Text>
+          <Text style={styles.detail}>Date: {(() => { try { return format(new Date(shift.shift_date), 'EEEE, MMMM d, yyyy'); } catch { return shift.shift_date; } })()}</Text>
           <Text style={styles.detail}>
             Time: {shift.start_time.slice(0, 5)} – {shift.end_time.slice(0, 5)}
           </Text>
@@ -264,11 +292,23 @@ export default function ShiftDetailScreen() {
                       </Text>
                     </View>
                   </View>
-                  <Button
-                    title="Confirm applicant"
-                    onPress={() => confirmApplicant(booking)}
-                    disabled={shift.is_filled === true}
-                  />
+                  {!['confirmed', 'declined'].includes(String(booking.status)) ? (
+                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                      <Button
+                        title="Confirm applicant"
+                        onPress={() => confirmApplicant(booking)}
+                        disabled={shift.is_filled === true || ['confirmed', 'declined'].includes(String(booking.status))}
+                        style={styles.applicantAction}
+                      />
+                      <Button
+                        title="Decline"
+                        variant="danger"
+                        onPress={() => declineApplicant(booking)}
+                        disabled={['confirmed', 'declined'].includes(String(booking.status))}
+                        style={styles.applicantAction}
+                      />
+                    </View>
+                  ) : null}
                 </Card>
               ))
             ) : (
@@ -303,5 +343,6 @@ const styles = StyleSheet.create({
   applicantText: { flex: 1 },
   applicantName: { color: theme.colors.text, fontWeight: '700' },
   applicantMeta: { color: theme.colors.muted, fontSize: theme.typography.sizes.xs },
+  applicantAction: { flex: 1 },
   actionRow: { gap: theme.spacing.sm },
 });

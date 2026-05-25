@@ -1,5 +1,6 @@
+import { router } from 'expo-router';
 import React, { useCallback } from 'react';
-import { Alert, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { Alert, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Badge } from '@/src/components/common/Badge';
@@ -11,6 +12,30 @@ import { LoadingSpinner } from '@/src/components/common/LoadingSpinner';
 import { theme } from '@/src/constants/theme';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useNotifications } from '@/src/hooks/useNotifications';
+import type { NotificationItem } from '@/src/types';
+
+function getNotificationRoute(item: NotificationItem): string | null {
+  const data = item.data ?? {};
+  const conversationId = typeof data.conversation_id === 'string' ? data.conversation_id : null;
+  const shiftId = typeof data.shift_id === 'string' ? data.shift_id : null;
+
+  switch (item.type) {
+    case 'new_message':
+    case 'message':
+      return conversationId ? `/conversation/${conversationId}` : null;
+    case 'booking_confirmed':
+    case 'booking_requested':
+    case 'booking_cancelled':
+    case 'booking_declined':
+    case 'booking':
+      return null;
+    case 'shift':
+    case 'new_shift':
+      return shiftId ? `/shift/${shiftId}` : null;
+    default:
+      return null;
+  }
+}
 
 export default function NotificationsScreen() {
   const { user } = useAuth();
@@ -72,19 +97,34 @@ export default function NotificationsScreen() {
             <EmptyState title="No notifications" description="When something important happens, you will see it here." />
           ) : null
         }
-        renderItem={({ item }) => (
-          <Card style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>{item.title}</Text>
-              {!item.is_read ? <Badge label="New" variant="primary" /> : null}
-            </View>
-            <Text style={styles.cardMessage}>{item.message}</Text>
-            <Text style={styles.cardMeta}>{item.created_at.replace('T', ' ').slice(0, 16)}</Text>
-            {!item.is_read ? (
-              <Button title="Mark as read" variant="ghost" onPress={() => markOne(item.id)} />
-            ) : null}
-          </Card>
-        )}
+        renderItem={({ item }) => {
+          const route = getNotificationRoute(item);
+
+          return (
+            <Pressable
+              onPress={async () => {
+                if (!item.is_read) {
+                  await markOne(item.id);
+                }
+                if (route) {
+                  router.push(route);
+                }
+              }}
+            >
+              <Card style={[styles.card, !item.is_read ? styles.cardUnread : null]}>
+                <View style={styles.cardHeader}>
+                  <Text style={styles.cardTitle}>{item.title}</Text>
+                  {!item.is_read ? <Badge label="New" variant="primary" /> : null}
+                </View>
+                <Text style={styles.cardMessage}>{item.message}</Text>
+                <Text style={styles.cardMeta}>{item.created_at.replace('T', ' ').slice(0, 16)}</Text>
+                {!item.is_read ? (
+                  <Button title="Mark as read" variant="ghost" onPress={() => markOne(item.id)} />
+                ) : null}
+              </Card>
+            </Pressable>
+          );
+        }}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
     </SafeAreaView>
@@ -107,6 +147,7 @@ const styles = StyleSheet.create({
   description: { color: theme.colors.muted, marginTop: 6 },
   separator: { height: theme.spacing.md },
   card: { gap: theme.spacing.sm },
+  cardUnread: { borderLeftWidth: 3, borderLeftColor: theme.colors.primary },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', gap: theme.spacing.md },
   cardTitle: { color: theme.colors.text, fontWeight: '700', flex: 1 },
   cardMessage: { color: theme.colors.text, lineHeight: 21 },
