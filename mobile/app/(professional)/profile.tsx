@@ -19,7 +19,7 @@ const profileSchema = z.object({
   full_name: z.string().min(2, 'Full name is required.'),
   phone: z.string().min(8, 'Phone number is required.'),
   bio: z.string().min(20, 'Bio is required.'),
-  hourly_rate: z.string().min(1, 'Hourly rate is required.'),
+  hourly_rate: z.string().min(1, 'Hourly rate is required.').refine((v) => Number(v) > 0, 'Rate must be greater than 0.'),
   avatar_url: z.string().optional(),
 });
 
@@ -30,8 +30,19 @@ const documentSchema = z.object({
   expiry_date: z.string().optional(),
 });
 
+const passwordSchema = z
+  .object({
+    newPassword: z.string().min(8, 'Password must be at least 8 characters.'),
+    confirmPassword: z.string().min(8, 'Please confirm your password.'),
+  })
+  .refine((d) => d.newPassword === d.confirmPassword, {
+    message: 'Passwords do not match.',
+    path: ['confirmPassword'],
+  });
+
 type ProfileValues = z.infer<typeof profileSchema>;
 type DocumentValues = z.infer<typeof documentSchema>;
+type PasswordValues = z.infer<typeof passwordSchema>;
 
 const fallbackRoles = ['Registered Nurse', 'LPN/LVN', 'Medical Assistant', 'Dentist', 'Dental Assistant', 'Physiotherapist'];
 const documentTypeOptions = ['id', 'license', 'certification', 'other'] as const;
@@ -50,6 +61,43 @@ export default function ProfessionalProfileScreen() {
       },
     ]);
   };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete account',
+      'This will permanently delete your professional account and all associated data. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete account',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              'Are you absolutely sure?',
+              'All your bookings, messages, and profile data will be removed.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Yes, delete',
+                  style: 'destructive',
+                  onPress: async () => {
+                    try {
+                      if (profile?.id) {
+                        await supabase.from('profiles').delete().eq('id', profile.id);
+                      }
+                      await signOut();
+                    } catch {
+                      Alert.alert('Error', 'Unable to delete account. Please contact support.');
+                    }
+                  },
+                },
+              ],
+            );
+          },
+        },
+      ],
+    );
+  };
   const profileForm = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
     values: {
@@ -63,6 +111,10 @@ export default function ProfessionalProfileScreen() {
   const documentForm = useForm<DocumentValues>({
     resolver: zodResolver(documentSchema),
     defaultValues: { document_type: 'certification', name: '', file_url: '', expiry_date: '' },
+  });
+  const passwordForm = useForm<PasswordValues>({
+    resolver: zodResolver(passwordSchema),
+    defaultValues: { newPassword: '', confirmPassword: '' },
   });
 
   useEffect(() => {
@@ -122,6 +174,17 @@ export default function ProfessionalProfileScreen() {
       Alert.alert('Document added', 'Your certification document is now pending review.');
     } catch (error) {
       Alert.alert('Unable to add document', error instanceof Error ? error.message : 'Please try again.');
+    }
+  });
+
+  const changePassword = passwordForm.handleSubmit(async (values) => {
+    try {
+      const { error } = await supabase.auth.updateUser({ password: values.newPassword });
+      if (error) throw error;
+      passwordForm.reset();
+      Alert.alert('Password updated', 'Your password has been changed successfully.');
+    } catch (error) {
+      Alert.alert('Unable to change password', error instanceof Error ? error.message : 'Please try again.');
     }
   });
 
@@ -193,8 +256,20 @@ export default function ProfessionalProfileScreen() {
         </Card>
 
         <Card style={styles.section}>
+          <Text style={styles.sectionTitle}>Change password</Text>
+          <Controller control={passwordForm.control} name="newPassword" render={({ field }) => <Input label="New password" secureTextEntry value={field.value} onChangeText={field.onChange} error={passwordForm.formState.errors.newPassword?.message} />} />
+          <Controller control={passwordForm.control} name="confirmPassword" render={({ field }) => <Input label="Confirm new password" secureTextEntry value={field.value} onChangeText={field.onChange} error={passwordForm.formState.errors.confirmPassword?.message} />} />
+          <Button title="Update password" variant="secondary" fullWidth onPress={changePassword} loading={passwordForm.formState.isSubmitting} />
+        </Card>
+
+        <Card style={styles.section}>
           <Text style={styles.sectionTitle}>Account</Text>
           <Button title="Sign out" variant="danger" fullWidth onPress={handleSignOut} />
+          <View style={styles.danger}>
+            <Text style={styles.dangerTitle}>Danger zone</Text>
+            <Text style={styles.dangerText}>Permanently delete your professional account and all data associated with it.</Text>
+            <Button title="Delete account" variant="ghost" fullWidth onPress={handleDeleteAccount} />
+          </View>
         </Card>
       </ScrollView>
       </KeyboardAvoidingView>
@@ -221,4 +296,7 @@ const styles = StyleSheet.create({
   pillActive: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
   pillText: { color: theme.colors.text },
   pillTextActive: { color: theme.colors.white, fontWeight: '700' },
+  danger: { borderTopWidth: 1, borderTopColor: theme.colors.border, paddingTop: theme.spacing.md, gap: theme.spacing.sm, marginTop: theme.spacing.sm },
+  dangerTitle: { color: theme.colors.error, fontWeight: '700' },
+  dangerText: { color: theme.colors.muted, fontSize: theme.typography.sizes.sm, lineHeight: 18 },
 });

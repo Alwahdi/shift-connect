@@ -29,8 +29,19 @@ const documentSchema = z.object({
   expiry_date: z.string().optional(),
 });
 
+const passwordSchema = z
+  .object({
+    newPassword: z.string().min(8, 'Password must be at least 8 characters.'),
+    confirmPassword: z.string().min(8, 'Please confirm your password.'),
+  })
+  .refine((d) => d.newPassword === d.confirmPassword, {
+    message: 'Passwords do not match.',
+    path: ['confirmPassword'],
+  });
+
 type ProfileValues = z.infer<typeof profileSchema>;
 type DocumentValues = z.infer<typeof documentSchema>;
+type PasswordValues = z.infer<typeof passwordSchema>;
 
 export default function ClinicProfileScreen() {
   const { clinic, user, refreshAuthState, signOut } = useAuth();
@@ -45,6 +56,44 @@ export default function ClinicProfileScreen() {
       },
     ]);
   };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete account',
+      'This will permanently delete your clinic account and all associated data. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete account',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              'Are you absolutely sure?',
+              'Type "DELETE" to confirm.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Yes, delete',
+                  style: 'destructive',
+                  onPress: async () => {
+                    try {
+                      if (clinic?.id) {
+                        await supabase.from('clinics').delete().eq('id', clinic.id);
+                      }
+                      await signOut();
+                    } catch {
+                      Alert.alert('Error', 'Unable to delete account. Please contact support.');
+                    }
+                  },
+                },
+              ],
+            );
+          },
+        },
+      ],
+    );
+  };
+
   const profileForm = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
     values: {
@@ -58,6 +107,10 @@ export default function ClinicProfileScreen() {
   const documentForm = useForm<DocumentValues>({
     resolver: zodResolver(documentSchema),
     defaultValues: { name: '', file_url: '', expiry_date: '' },
+  });
+  const passwordForm = useForm<PasswordValues>({
+    resolver: zodResolver(passwordSchema),
+    defaultValues: { newPassword: '', confirmPassword: '' },
   });
 
   if (!clinic || !user) {
@@ -97,6 +150,17 @@ export default function ClinicProfileScreen() {
     }
   });
 
+  const changePassword = passwordForm.handleSubmit(async (values) => {
+    try {
+      const { error } = await supabase.auth.updateUser({ password: values.newPassword });
+      if (error) throw error;
+      passwordForm.reset();
+      Alert.alert('Password updated', 'Your password has been changed successfully.');
+    } catch (error) {
+      Alert.alert('Unable to change password', error instanceof Error ? error.message : 'Please try again.');
+    }
+  });
+
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
@@ -131,8 +195,20 @@ export default function ClinicProfileScreen() {
         </Card>
 
         <Card style={styles.section}>
+          <Text style={styles.sectionTitle}>Change password</Text>
+          <Controller control={passwordForm.control} name="newPassword" render={({ field }) => <Input label="New password" secureTextEntry value={field.value} onChangeText={field.onChange} error={passwordForm.formState.errors.newPassword?.message} />} />
+          <Controller control={passwordForm.control} name="confirmPassword" render={({ field }) => <Input label="Confirm new password" secureTextEntry value={field.value} onChangeText={field.onChange} error={passwordForm.formState.errors.confirmPassword?.message} />} />
+          <Button title="Update password" variant="secondary" fullWidth onPress={changePassword} loading={passwordForm.formState.isSubmitting} />
+        </Card>
+
+        <Card style={styles.section}>
           <Text style={styles.sectionTitle}>Account</Text>
           <Button title="Sign out" variant="danger" fullWidth onPress={handleSignOut} />
+          <View style={styles.danger}>
+            <Text style={styles.dangerTitle}>Danger zone</Text>
+            <Text style={styles.dangerText}>Permanently delete your clinic account and all data associated with it.</Text>
+            <Button title="Delete account" variant="ghost" fullWidth onPress={handleDeleteAccount} />
+          </View>
         </Card>
       </ScrollView>
       </KeyboardAvoidingView>
@@ -151,4 +227,7 @@ const styles = StyleSheet.create({
   section: { gap: theme.spacing.md },
   sectionTitle: { color: theme.colors.text, fontWeight: '700', fontSize: theme.typography.sizes.lg },
   sectionDescription: { color: theme.colors.muted, lineHeight: 20 },
+  danger: { borderTopWidth: 1, borderTopColor: theme.colors.border, paddingTop: theme.spacing.md, gap: theme.spacing.sm, marginTop: theme.spacing.sm },
+  dangerTitle: { color: theme.colors.error, fontWeight: '700' },
+  dangerText: { color: theme.colors.muted, fontSize: theme.typography.sizes.sm, lineHeight: 18 },
 });

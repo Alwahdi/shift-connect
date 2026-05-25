@@ -10,19 +10,36 @@ import { Input } from '@/src/components/common/Input';
 import { theme } from '@/src/constants/theme';
 import { supabase } from '@/src/lib/supabase';
 
-const schema = z.object({
-  title: z.string().min(2, 'Title is required.'),
-  role_required: z.string().min(2, 'Role is required.'),
-  shift_date: z.string().min(8, 'Date is required.'),
-  start_time: z.string().min(4, 'Start time is required.'),
-  end_time: z.string().min(4, 'End time is required.'),
-  hourly_rate: z.string().min(1, 'Hourly rate is required.'),
-  location_address: z.string().min(2, 'Location is required.'),
-  description: z.string().min(10, 'Description is required.'),
-  required_certifications: z.string().optional(),
-  max_applicants: z.string().optional(),
-  proposal_deadline: z.string().optional(),
-});
+const schema = z
+  .object({
+    title: z.string().min(2, 'Title is required.'),
+    role_required: z.string().min(2, 'Role is required.'),
+    shift_date: z
+      .string()
+      .min(8, 'Date is required.')
+      .refine((v) => {
+        const d = new Date(v);
+        return !isNaN(d.getTime()) && d >= new Date(new Date().toDateString());
+      }, 'Shift date must be today or a future date.'),
+    start_time: z.string().min(4, 'Start time is required.'),
+    end_time: z.string().min(4, 'End time is required.'),
+    hourly_rate: z
+      .string()
+      .min(1, 'Hourly rate is required.')
+      .refine((v) => Number(v) > 0, 'Rate must be greater than 0.'),
+    location_address: z.string().min(2, 'Location is required.'),
+    description: z.string().min(10, 'Description is required.'),
+    required_certifications: z.string().optional(),
+    max_applicants: z.string().optional(),
+    proposal_deadline: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (!data.start_time || !data.end_time) return true;
+      return data.end_time > data.start_time;
+    },
+    { message: 'End time must be after start time.', path: ['end_time'] },
+  );
 
 type FormValues = z.infer<typeof schema>;
 

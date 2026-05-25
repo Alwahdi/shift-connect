@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
@@ -11,45 +12,32 @@ type Route = {
   name: string;
 };
 
-type TabBarOptions = {
-  tabBarLabel?: string;
-  title?: string;
-  tabBarIcon?: (props: { focused: boolean; color: string; size: number }) => React.ReactNode;
-  tabBarBadge?: number | string;
-};
-
-type FloatingTabBarProps = {
-  state: { routes: Route[]; index: number };
-  descriptors: Record<string, { options: TabBarOptions }>;
-  navigation: {
-    emit: (event: { type: string; target: string; canPreventDefault?: boolean }) => { defaultPrevented: boolean };
-    navigate: (name: string) => void;
-  };
-};
-
 /** Height of the floating tab bar in pixels. Screens inside tab navigators should add at least this as paddingBottom. */
 export const FLOATING_TAB_BAR_HEIGHT = 72;
 
 /** Safe padding bottom for screens inside a tab navigator with the floating bar on modern iPhones. */
 export const FLOATING_TAB_BOTTOM_INSET = 128;
 
-export function FloatingTabBar({ state, descriptors, navigation }: FloatingTabBarProps) {
+export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const bottomOffset = Math.max(insets.bottom, 8) + 8;
 
   return (
     <View style={[styles.wrapper, { bottom: bottomOffset }]} pointerEvents="box-none">
       <View style={styles.bar}>
-        {state.routes.map((route, index) => {
+        {state.routes.map((route: Route, index: number) => {
           const { options } = descriptors[route.key];
+          // Skip hidden tabs (href: null in expo-router)
+          if ((options as Record<string, unknown>).href === null) return null;
           const isFocused = state.index === index;
-          const label = (options.tabBarLabel ?? options.title ?? route.name) as string;
+          const rawLabel = options.tabBarLabel ?? options.title ?? route.name;
+          const label = typeof rawLabel === 'string' ? rawLabel : route.name;
           const badge = options.tabBarBadge;
 
           const onPress = () => {
             const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
             if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name);
+              navigation.navigate(route.name, (route as { params?: Record<string, unknown> }).params);
             }
           };
 

@@ -195,13 +195,53 @@ export default function ShiftDetailScreen() {
         </Card>
 
         {role === 'professional' ? (
-          <Button
-            title="Apply for this shift"
-            fullWidth
-            onPress={applyForShift}
-            loading={submitting}
-            disabled={Boolean(shift.is_filled)}
-          />
+          <View style={styles.actionRow}>
+            <Button
+              title="Apply for this shift"
+              fullWidth
+              onPress={applyForShift}
+              loading={submitting}
+              disabled={Boolean(shift.is_filled)}
+            />
+            {shift.clinic_id ? (
+              <Button
+                title="Message clinic"
+                variant="outline"
+                fullWidth
+                leftIcon={<Ionicons name="chatbubble-outline" size={18} color={theme.colors.primary} />}
+                onPress={async () => {
+                  if (!profile) return;
+                  try {
+                    // Find or create a conversation between this professional and the clinic.
+                    const { data: existing } = await supabase
+                      .from('conversations')
+                      .select('id')
+                      .eq('clinic_id', shift.clinic_id)
+                      .eq('professional_id', profile.id)
+                      .maybeSingle();
+
+                    let conversationId = existing?.id;
+
+                    if (!conversationId) {
+                      const { data: created, error: createError } = await supabase
+                        .from('conversations')
+                        .insert({ clinic_id: shift.clinic_id, professional_id: profile.id })
+                        .select('id')
+                        .single();
+                      if (createError) throw createError;
+                      conversationId = created?.id;
+                    }
+
+                    if (conversationId) {
+                      router.push(`/conversation/${conversationId}`);
+                    }
+                  } catch (err) {
+                    Alert.alert('Unable to open chat', err instanceof Error ? err.message : 'Please try again.');
+                  }
+                }}
+              />
+            ) : null}
+          </View>
         ) : null}
 
         {role === 'clinic' ? (
@@ -263,4 +303,5 @@ const styles = StyleSheet.create({
   applicantText: { flex: 1 },
   applicantName: { color: theme.colors.text, fontWeight: '700' },
   applicantMeta: { color: theme.colors.muted, fontSize: theme.typography.sizes.xs },
+  actionRow: { gap: theme.spacing.sm },
 });

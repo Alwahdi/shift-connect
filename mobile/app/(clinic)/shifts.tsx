@@ -251,6 +251,18 @@ export default function ClinicShiftsScreen() {
         onClose={() => setCreateVisible(false)}
         onCreated={() => queryClient.invalidateQueries({ queryKey: ['shifts'] })}
       />
+
+      {editTarget ? (
+        <EditShiftSheet
+          visible={Boolean(editTarget)}
+          shift={editTarget}
+          onClose={() => setEditTarget(null)}
+          onUpdated={() => {
+            queryClient.invalidateQueries({ queryKey: ['shifts'] });
+            setEditTarget(null);
+          }}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -286,4 +298,5 @@ const styles = StyleSheet.create({
   grow: { flex: 1 },
   applicantName: { color: theme.colors.text, fontWeight: '700' },
   applicantMeta: { color: theme.colors.muted, fontSize: theme.typography.sizes.xs },
+  shiftActions: { flexDirection: 'row' as const, gap: theme.spacing.sm, marginBottom: theme.spacing.md },
 });
