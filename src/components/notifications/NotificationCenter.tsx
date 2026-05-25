@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import type { Json } from "@/integrations/supabase/types";
 import {
   Bell,
   BellRing,
@@ -33,7 +34,7 @@ interface Notification {
   type: string;
   title: string;
   message: string;
-  data: any;
+  data: Json | null;
   is_read: boolean;
   created_at: string;
 }

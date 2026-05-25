@@ -34,6 +34,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import DocumentUploadCard from "@/components/onboarding/DocumentUploadCard";
 import { useTranslation } from "react-i18next";
+import { getErrorMessage } from "@/lib/errors";
+
 
 interface Profile {
   id: string;
@@ -199,11 +201,11 @@ const ProfessionalProfile = () => {
 
       setIsEditing(false);
       fetchProfileData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsSaving(false);
@@ -242,11 +244,11 @@ const ProfessionalProfile = () => {
       });
 
       fetchProfileData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("documents.uploadFailed"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsUploadingAvatar(false);
@@ -312,13 +314,13 @@ const ProfessionalProfile = () => {
       });
 
       fetchProfileData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       newDocs[index] = { ...newDocs[index], uploading: false };
       setDocumentUploads(newDocs);
       toast({
         variant: "destructive",
         title: t("documents.uploadFailed"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     }
   };

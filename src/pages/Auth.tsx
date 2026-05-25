@@ -16,6 +16,8 @@ import { LoadingButton } from "@/components/ui/loading-button";
 import { RoleSelector } from "@/components/ui/role-selector";
 import { FormFeedback, FormFeedbackContainer } from "@/components/ui/form-feedback";
 import syndeoCareLogo from "@/assets/syndeocare-logo.png";
+import { getErrorMessage } from "@/lib/errors";
+
 
 type UserRole = "professional" | "clinic";
 type AuthMode = "login" | "signup";
@@ -176,12 +178,12 @@ const Auth = () => {
         } else {
           navigate("/onboarding/clinic");
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Error creating role:", error);
         toast({
           variant: "destructive",
           title: t("auth.errors.signupFailed"),
-          description: error.message,
+          description: getErrorMessage(error),
         });
       } finally {
         setIsLoading(false);
@@ -274,7 +276,7 @@ const Auth = () => {
       toast({
         variant: "destructive",
         title: t("auth.errors.loginFailed"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     }
   };

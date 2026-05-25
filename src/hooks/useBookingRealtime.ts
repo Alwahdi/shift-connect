@@ -9,6 +9,12 @@ interface UseBookingRealtimeProps {
   onBookingUpdate?: () => void;
 }
 
+interface BookingChangePayload {
+  eventType: "INSERT" | "UPDATE" | "DELETE";
+  new?: { status?: string | null } | null;
+  old?: { status?: string | null } | null;
+}
+
 export const useBookingRealtime = ({
   professionalId,
   clinicId,
@@ -18,7 +24,7 @@ export const useBookingRealtime = ({
   const { t } = useTranslation();
 
   const handleBookingChange = useCallback(
-    (payload: any) => {
+    (payload: BookingChangePayload) => {
       const { eventType, new: newRecord, old: oldRecord } = payload;
 
       // Determine notification message based on event type and status

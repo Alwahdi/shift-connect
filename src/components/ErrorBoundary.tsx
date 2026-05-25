@@ -1,5 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import i18n from '@/i18n';
+import { getErrorMessage } from "@/lib/errors";
+
 
 interface Props {
   children: ReactNode;

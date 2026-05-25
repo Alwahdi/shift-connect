@@ -28,6 +28,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { InlineEmptyState } from "@/components/ui/empty-state";
+import { getErrorMessage } from "@/lib/errors";
+
 
 interface DocumentType {
   id: string;
@@ -76,11 +78,11 @@ const DocumentTypesManagement = () => {
 
       if (error) throw error;
       setDocumentTypes(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsLoading(false);
@@ -152,11 +154,11 @@ const DocumentTypesManagement = () => {
 
       setIsDialogOpen(false);
       fetchDocumentTypes();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsSubmitting(false);
@@ -175,11 +177,11 @@ const DocumentTypesManagement = () => {
       if (error) throw error;
       toast({ title: t("admin.config.documentTypeDeleted") });
       fetchDocumentTypes();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     }
   };
@@ -193,11 +195,11 @@ const DocumentTypesManagement = () => {
 
       if (error) throw error;
       fetchDocumentTypes();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     }
   };

@@ -54,13 +54,13 @@ const TaxonomyPicker = ({
     (async () => {
       setIsLoading(true);
       const { data, error } = await supabase
-        .from(table as any)
+        .from(table)
         .select("id, name, name_ar")
         .eq("is_active", true)
         .order("display_order", { ascending: true })
         .order("name", { ascending: true });
       if (mounted) {
-        if (!error && data) setOptions(data as any);
+        if (!error && data) setOptions(data as TaxonomyOption[]);
         setIsLoading(false);
       }
     })();

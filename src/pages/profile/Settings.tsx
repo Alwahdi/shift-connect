@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Settings as SettingsIcon, Palette, Bell, Globe, Shield, Trash2 } from "lucide-react";
+import { getErrorMessage } from "@/lib/errors";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -124,11 +125,11 @@ export default function Settings() {
         title: t("settings.saved"),
         description: t("settings.savedDesc"),
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setSaving(false);
@@ -172,11 +173,11 @@ export default function Settings() {
       // Sign out and redirect
       await signOut();
       navigate("/");
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsDeleting(false);

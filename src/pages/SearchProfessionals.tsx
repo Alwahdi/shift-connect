@@ -16,6 +16,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Search, MapPin, Star, CheckCircle2, User, MessageCircle, Filter, X, DollarSign } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
+import { getErrorMessage } from "@/lib/errors";
+
 
 
 interface Professional {
@@ -471,8 +473,8 @@ export default function SearchProfessionals() {
                           }
 
                           navigate(`/messages?conversation=${conversationId}`);
-                        } catch (error: any) {
-                          toast({ variant: "destructive", title: t("chat.startError"), description: error.message });
+                        } catch (error: unknown) {
+                          toast({ variant: "destructive", title: t("chat.startError"), description: getErrorMessage(error) });
                         } finally {
                           setStartingChat(null);
                         }

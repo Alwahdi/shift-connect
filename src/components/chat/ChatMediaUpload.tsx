@@ -4,8 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Paperclip, Image, File, Loader2, X, Video, Music } from "lucide-react";
+import { getErrorMessage } from "@/lib/errors";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 interface ChatMediaUploadProps {
@@ -48,9 +52,9 @@ export const ChatMediaUpload = ({ conversationId, onUploadComplete, disabled }: 
       if (error) throw error;
       const { data: urlData } = supabase.storage.from("chat-media").getPublicUrl(data.path);
       onUploadComplete(urlData.publicUrl, file.name, file.type, file.size);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Upload error:", error);
-      toast({ variant: "destructive", title: t("chat.uploadError"), description: error.message });
+      toast({ variant: "destructive", title: t("chat.uploadError"), description: getErrorMessage(error) });
     } finally {
       setUploading(false);
     }

@@ -33,6 +33,8 @@ import AdminManagement from "@/components/admin/AdminManagement";
 import SystemConfiguration from "@/components/admin/SystemConfiguration";
 import { ListItemSkeleton } from "@/components/ui/skeleton-cards";
 import { InlineEmptyState } from "@/components/ui/empty-state";
+import { getErrorMessage } from "@/lib/errors";
+
 
 interface Profile {
   id: string;
@@ -208,18 +210,23 @@ const AdminDashboard = () => {
 
       fetchData();
       setSelectedUser(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     }
   };
 
   const handleVerifyDocument = async (docId: string, status: "verified" | "rejected", reason?: string) => {
     try {
-      const updateData: any = { 
+      const updateData: {
+        status: "verified" | "rejected";
+        reviewed_by?: string;
+        reviewed_at: string;
+        rejection_reason?: string;
+      } = { 
         status, 
         reviewed_by: user?.id,
         reviewed_at: new Date().toISOString(),
@@ -243,11 +250,11 @@ const AdminDashboard = () => {
 
       fetchData();
       setSelectedDocument(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     }
   };

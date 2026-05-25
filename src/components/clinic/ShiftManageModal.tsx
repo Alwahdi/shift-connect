@@ -22,6 +22,8 @@ import { useTranslation } from "react-i18next";
 import ApplicantCard from "./ApplicantCard";
 import { notifyBookingAccepted, notifyBookingDeclined } from "@/lib/notifications";
 import InviteProfessionalsModal from "./InviteProfessionalsModal";
+import { getErrorMessage } from "@/lib/errors";
+
 
 interface Shift {
   id: string;
@@ -52,6 +54,21 @@ interface Applicant {
   };
 }
 
+interface ShiftInvitation {
+  id: string;
+  professional_id: string;
+  status: string;
+  message: string | null;
+  created_at: string;
+  professional?: {
+    id: string;
+    full_name: string;
+    avatar_url: string | null;
+    rating_avg: number | null;
+    specialties: string[] | null;
+  } | null;
+}
+
 interface ShiftManageModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -70,7 +87,7 @@ const ShiftManageModal = ({
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
   const [applicants, setApplicants] = useState<Applicant[]>([]);
-  const [invitations, setInvitations] = useState<any[]>([]);
+  const [invitations, setInvitations] = useState<ShiftInvitation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -94,7 +111,7 @@ const ShiftManageModal = ({
     if (data) {
       // Enrich with professional data
       const enriched = await Promise.all(
-        data.map(async (inv: any) => {
+        data.map(async (inv) => {
           const { data: pro } = await supabase
             .from("profiles")
             .select("id, full_name, avatar_url, rating_avg, specialties")
@@ -133,11 +150,11 @@ const ShiftManageModal = ({
 
       if (error) throw error;
       setApplicants(data as unknown as Applicant[]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsLoading(false);
@@ -237,11 +254,11 @@ const ShiftManageModal = ({
 
       fetchApplicants();
       onUpdate?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setUpdatingId(null);
@@ -291,11 +308,11 @@ const ShiftManageModal = ({
       });
 
       fetchApplicants();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setUpdatingId(null);
@@ -480,7 +497,7 @@ const ShiftManageModal = ({
               {invitations.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">{t("shifts.invitations.noInvitations")}</p>
               ) : (
-                invitations.map((inv: any) => (
+                invitations.map((inv) => (
                   <div key={inv.id} className="flex items-center gap-3 p-3 rounded-lg border border-border">
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm">{inv.professional?.full_name}</p>

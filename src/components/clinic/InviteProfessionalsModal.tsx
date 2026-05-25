@@ -10,6 +10,8 @@ import { Search, User, Star, MapPin, Loader2, Send, Check, UserPlus } from "luci
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import { getErrorMessage } from "@/lib/errors";
+
 
 interface Professional {
   id: string;
@@ -61,7 +63,7 @@ const InviteProfessionalsModal = ({
       .eq("shift_id", shiftId);
     
     if (data) {
-      setInvitedIds(new Set(data.map((inv: any) => inv.professional_id)));
+      setInvitedIds(new Set(data.map((inv) => inv.professional_id)));
     }
   };
 
@@ -115,11 +117,11 @@ const InviteProfessionalsModal = ({
         description: t("shifts.invitations.sentDesc", { name: professional.full_name }),
       });
       onSuccess?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setInviting(null);

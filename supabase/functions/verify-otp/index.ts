@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { getErrorMessage } from "../_shared/errors";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -140,10 +142,10 @@ const handler = async (req: Request): Promise<Response> => {
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in verify-otp function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

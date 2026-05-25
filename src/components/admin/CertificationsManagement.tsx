@@ -25,6 +25,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { InlineEmptyState } from "@/components/ui/empty-state";
+import { getErrorMessage } from "@/lib/errors";
+
 
 interface Certification {
   id: string;
@@ -69,11 +71,11 @@ const CertificationsManagement = () => {
 
       if (error) throw error;
       setCertifications(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsLoading(false);
@@ -135,11 +137,11 @@ const CertificationsManagement = () => {
 
       setIsDialogOpen(false);
       fetchCertifications();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsSubmitting(false);
@@ -158,11 +160,11 @@ const CertificationsManagement = () => {
       if (error) throw error;
       toast({ title: t("admin.config.certificationDeleted") });
       fetchCertifications();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     }
   };
@@ -176,11 +178,11 @@ const CertificationsManagement = () => {
 
       if (error) throw error;
       fetchCertifications();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     }
   };

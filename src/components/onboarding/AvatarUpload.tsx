@@ -5,6 +5,8 @@ import { Camera, Loader2, User, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import { getErrorMessage } from "@/lib/errors";
+
 
 interface AvatarUploadProps {
   userId: string;
@@ -86,11 +88,11 @@ const AvatarUpload = ({
         title: t("profile.photoUploaded"),
         description: t("profile.photoUploadedDesc"),
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("documents.uploadFailed"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
       setPreviewUrl(null);
     } finally {

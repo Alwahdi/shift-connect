@@ -26,6 +26,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { InlineEmptyState } from "@/components/ui/empty-state";
+import { getErrorMessage } from "@/lib/errors";
+
 
 interface JobRole {
   id: string;
@@ -69,11 +71,11 @@ const JobRolesManagement = () => {
 
       if (error) throw error;
       setRoles(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsLoading(false);
@@ -138,11 +140,11 @@ const JobRolesManagement = () => {
 
       setIsDialogOpen(false);
       fetchRoles();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsSubmitting(false);
@@ -161,11 +163,11 @@ const JobRolesManagement = () => {
       if (error) throw error;
       toast({ title: t("admin.config.roleDeleted") });
       fetchRoles();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     }
   };
@@ -179,11 +181,11 @@ const JobRolesManagement = () => {
 
       if (error) throw error;
       fetchRoles();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     }
   };

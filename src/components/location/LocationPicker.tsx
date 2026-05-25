@@ -40,6 +40,14 @@ interface SearchResult {
   lon: string;
 }
 
+interface OpenMeteoResult {
+  name: string;
+  admin1?: string;
+  country?: string;
+  latitude: number;
+  longitude: number;
+}
+
 const FALLBACK_LOCATION_SUGGESTIONS: SearchResult[] = [
   { display_name: "Sana'a, Yemen", lat: "15.3694", lon: "44.1910" },
   { display_name: "Aden, Yemen", lat: "12.7855", lon: "45.0187" },
@@ -73,7 +81,7 @@ const searchWithOpenMeteo = async (query: string): Promise<SearchResult[]> => {
   const data = await response.json();
   if (!Array.isArray(data?.results)) return [];
 
-  return data.results.map((item: any) => ({
+  return (data.results as OpenMeteoResult[]).map((item) => ({
     display_name: [item.name, item.admin1, item.country].filter(Boolean).join(", "),
     lat: String(item.latitude),
     lon: String(item.longitude),

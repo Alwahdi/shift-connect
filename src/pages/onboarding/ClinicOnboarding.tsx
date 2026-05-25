@@ -28,6 +28,8 @@ import AvatarUpload from "@/components/onboarding/AvatarUpload";
 import LocationPicker from "@/components/location/LocationPicker";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
+import { getErrorMessage } from "@/lib/errors";
+
 
 type Step = "organization" | "location" | "documents" | "complete";
 
@@ -43,6 +45,11 @@ interface DocumentUpload {
   rejectionReason?: string;
 }
 
+interface ExistingDocument {
+  id: string;
+  document_type: string;
+}
+
 const ClinicOnboarding = () => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
@@ -53,7 +60,7 @@ const ClinicOnboarding = () => {
   const [currentStep, setCurrentStep] = useState<Step>("organization");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [clinicId, setClinicId] = useState<string | null>(null);
-  const [existingDocs, setExistingDocs] = useState<any[]>([]);
+  const [existingDocs, setExistingDocs] = useState<ExistingDocument[]>([]);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   
   const [orgData, setOrgData] = useState({
@@ -112,7 +119,7 @@ const ClinicOnboarding = () => {
           address: data.address || "",
           location_lat: data.location_lat,
           location_lng: data.location_lng,
-          website: (data.settings as any)?.website || "",
+          website: data.settings?.website || "",
         });
         
         if (data.onboarding_completed) {
@@ -205,13 +212,13 @@ const ClinicOnboarding = () => {
         title: t("documents.documentUploaded"),
         description: t("documents.documentUploadedDesc", { name: t(doc.nameKey) }),
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       newDocs[index] = { ...newDocs[index], uploading: false };
       setDocuments(newDocs);
       toast({
         variant: "destructive",
         title: t("documents.uploadFailed"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     }
   };
@@ -261,11 +268,11 @@ const ClinicOnboarding = () => {
 
       if (error) throw error;
       setCurrentStep("location");
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsSubmitting(false);
@@ -303,11 +310,11 @@ const ClinicOnboarding = () => {
 
       if (error) throw error;
       setCurrentStep("documents");
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsSubmitting(false);
@@ -340,11 +347,11 @@ const ClinicOnboarding = () => {
       
       await refreshOnboardingStatus();
       setCurrentStep("complete");
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsSubmitting(false);

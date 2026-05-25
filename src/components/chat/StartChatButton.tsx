@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getErrorMessage } from "@/lib/errors";
+
 
 interface StartChatButtonProps {
   targetType: "professional" | "clinic";
@@ -68,12 +70,12 @@ export const StartChatButton = ({
 
       // Navigate to messages page with conversation ID
       navigate(`/messages?conversation=${conversationId}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error starting chat:", error);
       toast({
         variant: "destructive",
         title: t("chat.startError"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setLoading(false);

@@ -30,6 +30,8 @@ import LocationPicker from "@/components/location/LocationPicker";
 import TaxonomyPicker from "@/components/onboarding/TaxonomyPicker";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
+import { getErrorMessage } from "@/lib/errors";
+
 
 type Step = "profile" | "qualifications" | "documents" | "complete";
 
@@ -45,6 +47,11 @@ interface DocumentUpload {
   rejectionReason?: string;
 }
 
+interface ExistingDocument {
+  id: string;
+  document_type: string;
+}
+
 const ProfessionalOnboarding = () => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
@@ -55,7 +62,7 @@ const ProfessionalOnboarding = () => {
   const [currentStep, setCurrentStep] = useState<Step>("profile");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profileId, setProfileId] = useState<string | null>(null);
-  const [existingDocs, setExistingDocs] = useState<any[]>([]);
+  const [existingDocs, setExistingDocs] = useState<ExistingDocument[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   
   const [profileData, setProfileData] = useState({
@@ -211,13 +218,13 @@ const ProfessionalOnboarding = () => {
         title: t("documents.documentUploaded"),
         description: t("documents.documentUploadedDesc", { name: t(doc.nameKey) }),
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       newDocs[index] = { ...newDocs[index], uploading: false };
       setDocuments(newDocs);
       toast({
         variant: "destructive",
         title: t("documents.uploadFailed"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     }
   };
@@ -283,11 +290,11 @@ const ProfessionalOnboarding = () => {
 
       if (error) throw error;
       setCurrentStep("qualifications");
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsSubmitting(false);
@@ -309,11 +316,11 @@ const ProfessionalOnboarding = () => {
 
       if (error) throw error;
       setCurrentStep("documents");
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsSubmitting(false);
@@ -346,11 +353,11 @@ const ProfessionalOnboarding = () => {
       
       await refreshOnboardingStatus();
       setCurrentStep("complete");
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsSubmitting(false);

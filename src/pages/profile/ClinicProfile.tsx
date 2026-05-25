@@ -31,6 +31,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import DocumentUploadCard from "@/components/onboarding/DocumentUploadCard";
 import { useTranslation } from "react-i18next";
+import { getErrorMessage } from "@/lib/errors";
+
 
 interface Clinic {
   id: string;
@@ -44,7 +46,7 @@ interface Clinic {
   verification_status: string;
   logo_url: string | null;
   onboarding_completed: boolean;
-  settings: any;
+  settings: { website?: string | null } | null;
 }
 
 interface Document {
@@ -130,7 +132,7 @@ const ClinicProfile = () => {
           description: clinicData.description || "",
           address: clinicData.address || "",
           tax_id: clinicData.tax_id || "",
-          website: (clinicData.settings as any)?.website || "",
+          website: clinicData.settings?.website || "",
         });
       }
 
@@ -189,11 +191,11 @@ const ClinicProfile = () => {
 
       setIsEditing(false);
       fetchClinicData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsSaving(false);
@@ -232,11 +234,11 @@ const ClinicProfile = () => {
       });
 
       fetchClinicData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("documents.uploadFailed"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsUploadingLogo(false);
@@ -301,13 +303,13 @@ const ClinicProfile = () => {
       });
 
       fetchClinicData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       newDocs[index] = { ...newDocs[index], uploading: false };
       setDocumentUploads(newDocs);
       toast({
         variant: "destructive",
         title: t("documents.uploadFailed"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     }
   };
@@ -483,7 +485,7 @@ const ClinicProfile = () => {
                         description: clinic?.description || "",
                         address: clinic?.address || "",
                         tax_id: clinic?.tax_id || "",
-                        website: (clinic?.settings as any)?.website || "",
+                        website: clinic?.settings?.website || "",
                       });
                     }}>
                       <X className="w-4 h-4 mr-2" />

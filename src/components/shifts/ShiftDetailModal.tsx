@@ -20,6 +20,8 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import { getErrorMessage } from "@/lib/errors";
+
 
 interface Shift {
   id: string;
@@ -141,11 +143,11 @@ const ShiftDetailModal = ({
 
       setHasApplied(true);
       onApplicationSuccess?.();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("shifts.applyError"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsApplying(false);

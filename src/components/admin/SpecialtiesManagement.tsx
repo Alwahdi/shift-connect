@@ -13,6 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { InlineEmptyState } from "@/components/ui/empty-state";
+import { getErrorMessage } from "@/lib/errors";
+
 
 interface Specialty {
   id: string;
@@ -48,13 +50,13 @@ const SpecialtiesManagement = () => {
   const fetchItems = async () => {
     setIsLoading(true);
     const { data, error } = await supabase
-      .from("specialties" as any)
+      .from("specialties")
       .select("*")
       .order("display_order", { ascending: true });
     if (error) {
-      toast({ variant: "destructive", title: t("common.error"), description: error.message });
+      toast({ variant: "destructive", title: t("common.error"), description: getErrorMessage(error) });
     } else {
-      setItems((data as any) || []);
+      setItems(data || []);
     }
     setIsLoading(false);
   };
@@ -82,18 +84,18 @@ const SpecialtiesManagement = () => {
         is_active: formData.is_active,
       };
       if (editing) {
-        const { error } = await supabase.from("specialties" as any).update(payload).eq("id", editing.id);
+        const { error } = await supabase.from("specialties").update(payload).eq("id", editing.id);
         if (error) throw error;
         toast({ title: t("admin.config.specialtyUpdated") });
       } else {
-        const { error } = await supabase.from("specialties" as any).insert({ ...payload, display_order: items.length });
+        const { error } = await supabase.from("specialties").insert({ ...payload, display_order: items.length });
         if (error) throw error;
         toast({ title: t("admin.config.specialtyCreated") });
       }
       setIsDialogOpen(false);
       fetchItems();
-    } catch (err: any) {
-      toast({ variant: "destructive", title: t("common.error"), description: err.message });
+    } catch (err: unknown) {
+      toast({ variant: "destructive", title: t("common.error"), description: getErrorMessage(err) });
     } finally {
       setIsSubmitting(false);
     }
@@ -101,9 +103,9 @@ const SpecialtiesManagement = () => {
 
   const handleDelete = async (s: Specialty) => {
     if (!confirm(t("admin.config.confirmDeleteSpecialty"))) return;
-    const { error } = await supabase.from("specialties" as any).delete().eq("id", s.id);
+    const { error } = await supabase.from("specialties").delete().eq("id", s.id);
     if (error) {
-      toast({ variant: "destructive", title: t("common.error"), description: error.message });
+      toast({ variant: "destructive", title: t("common.error"), description: getErrorMessage(error) });
     } else {
       toast({ title: t("admin.config.specialtyDeleted") });
       fetchItems();
@@ -111,7 +113,7 @@ const SpecialtiesManagement = () => {
   };
 
   const handleToggleActive = async (s: Specialty) => {
-    await supabase.from("specialties" as any).update({ is_active: !s.is_active }).eq("id", s.id);
+    await supabase.from("specialties").update({ is_active: !s.is_active }).eq("id", s.id);
     fetchItems();
   };
 

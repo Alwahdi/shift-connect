@@ -69,6 +69,39 @@ interface Document {
   status: string;
 }
 
+interface BookingWithShift {
+  shift: {
+    start_time: string;
+    end_time: string;
+    hourly_rate: number;
+  } | null;
+}
+
+interface ShiftInvitation {
+  id: string;
+  shift_id: string;
+  clinic_id: string;
+  professional_id: string;
+  status: string;
+  message: string | null;
+  created_at: string;
+  shift?: {
+    id: string;
+    title: string;
+    role_required: string;
+    shift_date: string;
+    start_time: string;
+    end_time: string;
+    hourly_rate: number;
+    location_address: string | null;
+  } | null;
+  clinic?: {
+    id: string;
+    name: string;
+    logo_url: string | null;
+  } | null;
+}
+
 interface Filters {
   role: string;
   minRate: string;
@@ -100,7 +133,7 @@ const ProfessionalDashboard = () => {
   const [filters, setFilters] = useState<Filters>({ role: "All Roles", minRate: "", dateRange: "all" });
   const [monthlyEarnings, setMonthlyEarnings] = useState(0);
   const [completedShifts, setCompletedShifts] = useState(0);
-  const [invitations, setInvitations] = useState<any[]>([]);
+  const [invitations, setInvitations] = useState<ShiftInvitation[]>([]);
   const { user, userRole, isLoading: authLoading, isOnboardingComplete } = useAuth();
   const navigate = useNavigate();
 
@@ -153,7 +186,7 @@ const ProfessionalDashboard = () => {
             
             // Calculate earnings
             let earnings = 0;
-            bookingsData.forEach((booking: any) => {
+            (bookingsData as BookingWithShift[]).forEach((booking) => {
               if (booking.shift) {
                 const [startH, startM] = booking.shift.start_time.split(":").map(Number);
                 const [endH, endM] = booking.shift.end_time.split(":").map(Number);
@@ -202,7 +235,7 @@ const ProfessionalDashboard = () => {
 
     if (data) {
       const enriched = await Promise.all(
-        data.map(async (inv: any) => {
+        data.map(async (inv) => {
           const { data: shift } = await supabase
             .from("shifts")
             .select("id, title, role_required, shift_date, start_time, end_time, hourly_rate, location_address")

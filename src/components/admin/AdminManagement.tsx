@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { getErrorMessage } from "@/lib/errors";
 import { 
   UserPlus, 
   Shield, 
@@ -21,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import PermissionsEditor from "./PermissionsEditor";
 import { InlineEmptyState } from "@/components/ui/empty-state";
+
 
 interface AdminUser {
   id: string;
@@ -141,11 +143,11 @@ const AdminManagement = () => {
 
       setNewAdminEmail("");
       setIsAddDialogOpen(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsAddingAdmin(false);
@@ -190,11 +192,11 @@ const AdminManagement = () => {
       });
 
       fetchAdmins();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     }
   };
@@ -224,11 +226,11 @@ const AdminManagement = () => {
       fetchAdmins();
       setIsManageDialogOpen(false);
       setSelectedAdmin(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     }
   };

@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import syndeoCareLogo from "@/assets/syndeocare-logo.png";
+import { getErrorMessage } from "@/lib/errors";
+
 
 const EmailVerification = () => {
   const { t } = useTranslation();
@@ -45,11 +47,11 @@ const EmailVerification = () => {
         title: t("auth.verification.emailResent"),
         description: t("auth.verification.checkInbox"),
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsResending(false);

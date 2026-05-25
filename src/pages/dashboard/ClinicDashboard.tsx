@@ -57,6 +57,14 @@ interface Document {
   status: string;
 }
 
+interface BookingWithShift {
+  shift: {
+    start_time: string;
+    end_time: string;
+    hourly_rate: number;
+  } | null;
+}
+
 const ClinicDashboard = () => {
   const { t } = useTranslation();
   const [shifts, setShifts] = useState<Shift[]>([]);
@@ -142,7 +150,7 @@ const ClinicDashboard = () => {
 
           if (bookingsData) {
             let totalSpend = 0;
-            bookingsData.forEach((booking: any) => {
+            (bookingsData as BookingWithShift[]).forEach((booking) => {
               if (booking.shift) {
                 const [startH, startM] = booking.shift.start_time.split(":").map(Number);
                 const [endH, endM] = booking.shift.end_time.split(":").map(Number);

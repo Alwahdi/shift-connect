@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getErrorMessage } from "../_shared/errors";
+
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const APP_URL = Deno.env.get("APP_URL") || "https://syndeocare.ai";
@@ -26,7 +28,11 @@ interface EmailNotificationRequest {
   };
 }
 
-const getEmailTemplate = (type: string, data: any, recipientName: string) => {
+const getEmailTemplate = (
+  type: EmailNotificationRequest["type"],
+  data: EmailNotificationRequest["data"],
+  recipientName: string,
+) => {
   const baseStyle = `
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     max-width: 600px;
@@ -273,10 +279,10 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({ success: true, data: emailData }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error sending email notification:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: getErrorMessage(error) }),
       { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }

@@ -9,6 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import syndeoCareLogo from "@/assets/syndeocare-logo.png";
+import { getErrorMessage } from "@/lib/errors";
+
 
 interface LocationState {
   email: string;
@@ -156,9 +158,9 @@ const VerifyOTP = () => {
           navigate("/auth", { state: { emailVerified: true, email } });
         }, 1500);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Verification error:", err);
-      setError(err.message || t("common.error"));
+      setError(getErrorMessage(err) || t("common.error"));
     } finally {
       setIsVerifying(false);
     }
@@ -185,11 +187,11 @@ const VerifyOTP = () => {
       setResendCountdown(60);
       setCanResend(false);
       setOtp("");
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (err.message?.includes("wait")) {
         setError(t("auth.otp.waitToResend"));
       } else {
-        setError(err.message || t("common.error"));
+        setError(getErrorMessage(err) || t("common.error"));
       }
     } finally {
       setIsResending(false);

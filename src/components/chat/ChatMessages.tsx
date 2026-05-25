@@ -21,9 +21,16 @@ import { ChatMediaGallery } from "./ChatMediaGallery";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getErrorMessage } from "@/lib/errors";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
 interface Message {
@@ -44,6 +51,17 @@ interface ConversationDetails {
   id: string;
   professional: { id: string; full_name: string; avatar_url: string | null; };
   clinic: { id: string; name: string; logo_url: string | null; };
+}
+
+interface MessageInsert {
+  conversation_id: string;
+  sender_id: string;
+  sender_type: string;
+  content: string;
+  file_url?: string | null;
+  file_type?: string | null;
+  file_name?: string | null;
+  file_size?: number | null;
 }
 
 interface ChatMessagesProps {
@@ -177,7 +195,7 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
 
     try {
-      const messageData: any = {
+      const messageData: MessageInsert = {
         conversation_id: conversationId,
         sender_id: profileId,
         sender_type: userType,
@@ -195,8 +213,8 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
       setNewMessage("");
       setPendingMedia(null);
       scrollToBottom();
-    } catch (error: any) {
-      toast({ variant: "destructive", title: t("chat.sendError"), description: error.message });
+    } catch (error: unknown) {
+      toast({ variant: "destructive", title: t("chat.sendError"), description: getErrorMessage(error) });
     } finally {
       setSending(false);
     }
@@ -209,8 +227,8 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
       if (error) throw error;
       setMessages(prev => prev.filter(m => m.id !== deleteMessageId));
       toast({ title: t("chat.messageDeleted") });
-    } catch (error: any) {
-      toast({ variant: "destructive", title: t("common.error"), description: error.message });
+    } catch (error: unknown) {
+      toast({ variant: "destructive", title: t("common.error"), description: getErrorMessage(error) });
     } finally {
       setDeleteMessageId(null);
     }
@@ -224,8 +242,8 @@ export const ChatMessages = ({ conversationId, userType, profileId, onBack }: Ch
       if (error) throw error;
       toast({ title: t("chat.conversationDeleted") });
       onBack?.();
-    } catch (error: any) {
-      toast({ variant: "destructive", title: t("common.error"), description: error.message });
+    } catch (error: unknown) {
+      toast({ variant: "destructive", title: t("common.error"), description: getErrorMessage(error) });
     } finally {
       setDeleteConversationOpen(false);
     }

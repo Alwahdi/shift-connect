@@ -25,6 +25,8 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import { getErrorMessage } from "@/lib/errors";
+
 
 interface CreateShiftModalProps {
   open: boolean;
@@ -158,11 +160,11 @@ const CreateShiftModal = ({ open, onOpenChange, clinicId, onSuccess }: CreateShi
 
       onOpenChange(false);
       onSuccess();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsSubmitting(false);

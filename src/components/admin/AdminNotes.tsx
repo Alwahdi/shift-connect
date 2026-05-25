@@ -15,6 +15,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import { getErrorMessage } from "@/lib/errors";
+
 
 interface Note {
   id: string;
@@ -90,11 +92,11 @@ const AdminNotes = ({ targetUserId, targetType }: AdminNotesProps) => {
 
       setNewNote("");
       fetchNotes();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t('common.error'),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     } finally {
       setIsSubmitting(false);
@@ -118,11 +120,11 @@ const AdminNotes = ({ targetUserId, targetType }: AdminNotesProps) => {
       });
 
       fetchNotes();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: t('common.error'),
-        description: error.message,
+        description: getErrorMessage(error),
       });
     }
   };

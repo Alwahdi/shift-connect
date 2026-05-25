@@ -6,6 +6,8 @@ import { Calendar, Clock, DollarSign, Building2, Check, X, Loader2, MapPin } fro
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import { getErrorMessage } from "@/lib/errors";
+
 
 interface ShiftInvitation {
   id: string;
@@ -89,8 +91,8 @@ const ShiftInvitationCard = ({ invitation, onRespond }: ShiftInvitationCardProps
         description: t("shifts.invitations.acceptedDesc"),
       });
       onRespond?.();
-    } catch (error: any) {
-      toast({ variant: "destructive", title: t("common.error"), description: error.message });
+    } catch (error: unknown) {
+      toast({ variant: "destructive", title: t("common.error"), description: getErrorMessage(error) });
     } finally {
       setIsAccepting(false);
     }
@@ -111,8 +113,8 @@ const ShiftInvitationCard = ({ invitation, onRespond }: ShiftInvitationCardProps
         description: t("shifts.invitations.declinedDesc"),
       });
       onRespond?.();
-    } catch (error: any) {
-      toast({ variant: "destructive", title: t("common.error"), description: error.message });
+    } catch (error: unknown) {
+      toast({ variant: "destructive", title: t("common.error"), description: getErrorMessage(error) });
     } finally {
       setIsDeclining(false);
     }
