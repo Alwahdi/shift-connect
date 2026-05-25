@@ -5,6 +5,7 @@ import { Heart, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
+import { fetchPrimaryUserRole, isAdminRole } from "@/lib/auth";
 
 const VerifyCallback = () => {
   const { t } = useTranslation();
@@ -23,18 +24,16 @@ const VerifyCallback = () => {
           setStatus("success");
           
           // Fetch user role to determine redirect
-          const { data: roleData } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", session.user.id)
-            .single();
+          const role = await fetchPrimaryUserRole(session.user.id);
 
           // Redirect after showing success message
           setTimeout(() => {
-            if (roleData?.role === "professional") {
+            if (role === "professional") {
               navigate("/onboarding/professional");
-            } else if (roleData?.role === "clinic") {
+            } else if (role === "clinic") {
               navigate("/onboarding/clinic");
+            } else if (isAdminRole(role)) {
+              navigate("/admin");
             } else {
               navigate("/");
             }

@@ -8,6 +8,7 @@ import HowItWorksSection from "@/components/home/HowItWorksSection";
 import CTASection from "@/components/home/CTASection";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
+import { isAdminRole } from "@/lib/auth";
 
 const Index = () => {
   const { user, userRole, isOnboardingComplete, isLoading } = useAuth();
@@ -18,7 +19,7 @@ const Index = () => {
       // Redirect logged-in users to their appropriate dashboard
       if (!isOnboardingComplete) {
         navigate(userRole === "clinic" ? "/onboarding/clinic" : "/onboarding/professional");
-      } else if (userRole === "admin") {
+      } else if (isAdminRole(userRole)) {
         navigate("/admin");
       } else if (userRole === "clinic") {
         navigate("/dashboard/clinic");

@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import { fetchPrimaryUserRole, isAdminRole } from "@/lib/auth";
 
 /**
  * OAuth Callback Handler
@@ -42,15 +43,11 @@ const AuthCallback = () => {
           });
 
           // Check user role and redirect accordingly
-          const { data: roleData } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", data.session.user.id)
-            .single();
+          const role = await fetchPrimaryUserRole(data.session.user.id);
 
-          if (roleData?.role) {
+          if (role) {
             // Check if onboarding is complete
-            if (roleData.role === "professional") {
+            if (role === "professional") {
               const { data: profileData } = await supabase
                 .from("profiles")
                 .select("onboarding_completed")
@@ -62,7 +59,7 @@ const AuthCallback = () => {
               } else {
                 navigate("/onboarding/professional");
               }
-            } else if (roleData.role === "clinic") {
+            } else if (role === "clinic") {
               const { data: clinicData } = await supabase
                 .from("clinics")
                 .select("onboarding_completed")
@@ -74,7 +71,7 @@ const AuthCallback = () => {
               } else {
                 navigate("/onboarding/clinic");
               }
-            } else if (roleData.role === "admin" || roleData.role === "super_admin") {
+            } else if (isAdminRole(role)) {
               navigate("/admin");
             } else {
               navigate("/");
