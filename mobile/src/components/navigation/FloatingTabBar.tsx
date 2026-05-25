@@ -83,6 +83,17 @@ type TabItemProps = {
   onLongPress: () => void;
 };
 
+function shouldShowBadge(badge: number | string | undefined): boolean {
+  if (badge == null) return false;
+  if (typeof badge === 'number') return badge > 0;
+  return badge.length > 0;
+}
+
+function formatBadge(badge: number | string): string {
+  if (typeof badge === 'number' && badge > 99) return '99+';
+  return String(badge);
+}
+
 function TabItem({ focused, label, icon, badge, onPress, onLongPress }: TabItemProps) {
   const scale = useSharedValue(1);
 
@@ -98,7 +109,7 @@ function TabItem({ focused, label, icon, badge, onPress, onLongPress }: TabItemP
   };
 
   const iconColor = focused ? theme.colors.primary : theme.colors.muted;
-  const hasBadge = badge != null && (typeof badge === 'number' ? badge > 0 : String(badge).length > 0);
+  const hasBadge = shouldShowBadge(badge);
 
   return (
     <Pressable
@@ -114,9 +125,7 @@ function TabItem({ focused, label, icon, badge, onPress, onLongPress }: TabItemP
           {icon?.({ focused, color: iconColor, size: 23 })}
           {hasBadge ? (
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>
-                {typeof badge === 'number' && badge > 99 ? '99+' : String(badge)}
-              </Text>
+              <Text style={styles.badgeText}>{formatBadge(badge!)}</Text>
             </View>
           ) : null}
         </View>
