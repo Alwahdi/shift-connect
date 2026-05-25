@@ -72,6 +72,11 @@ export default function ClinicDashboardScreen() {
           <Link href="/(clinic)/shifts" style={styles.link}>View all</Link>
         </View>
 
+        <View style={styles.sectionRow}>
+          <Text style={styles.sectionTitle}>All bookings</Text>
+          <Link href="/(clinic)/bookings" style={styles.link}>Manage →</Link>
+        </View>
+
         <View style={styles.list}>
           {shifts.length ? shifts.map((shift) => <ShiftCard key={shift.id} shift={shift} clinicName={clinic.name} />) : <EmptyState title="No shifts yet" description="Post your first shift to start receiving professional applications." />}
         </View>

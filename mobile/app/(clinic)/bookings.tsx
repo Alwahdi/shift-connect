@@ -16,30 +16,39 @@ import { useExistingRating } from '@/src/hooks/useRatings';
 import { supabase } from '@/src/lib/supabase';
 import type { Booking } from '@/src/types';
 
+type Tab = 'active' | 'completed' | 'all';
+const TABS: Tab[] = ['active', 'completed', 'all'];
+
 type RatingTarget = { bookingId: string; revieweeId: string; revieweeName: string };
 
-function RatingButtonWrapper({
+function RateBookingCard({
   booking,
   reviewerId,
+  onDecline,
 }: {
   booking: Booking;
   reviewerId: string;
+  onDecline: (booking: Booking) => void;
 }) {
   const [ratingTarget, setRatingTarget] = useState<RatingTarget | null>(null);
   const existingRating = useExistingRating({ bookingId: booking.id, reviewerId });
-
-  if (existingRating.data) return null;
 
   return (
     <>
       <BookingCard
         booking={booking}
-        onRate={() =>
-          setRatingTarget({
-            bookingId: booking.id,
-            revieweeId: booking.clinic_id,
-            revieweeName: booking.clinic?.name ?? 'Clinic',
-          })
+        onRate={
+          !existingRating.data && ['completed', 'checked_out'].includes(String(booking.status))
+            ? () =>
+                setRatingTarget({
+                  bookingId: booking.id,
+                  revieweeId: booking.professional_id,
+                  revieweeName: booking.professional?.full_name ?? 'Professional',
+                })
+            : undefined
+        }
+        onCancel={
+          ['requested', 'confirmed'].includes(String(booking.status)) ? () => onDecline(booking) : undefined
         }
       />
       {ratingTarget ? (
@@ -56,57 +65,39 @@ function RatingButtonWrapper({
   );
 }
 
-export default function ProfessionalBookingsScreen() {
-  const { profile } = useAuth();
-  const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
-  const query = useBookings({ role: 'professional', entityId: profile?.id });
+export default function ClinicBookingsScreen() {
+  const { clinic } = useAuth();
+  const [tab, setTab] = useState<Tab>('active');
+  const query = useBookings({ role: 'clinic', entityId: clinic?.id });
 
   const bookings = query.data ?? [];
-  const visible = useMemo(
-    () =>
-      bookings.filter((booking) =>
-        tab === 'upcoming'
-          ? ['requested', 'confirmed', 'checked_in'].includes(String(booking.status))
-          : ['completed', 'checked_out', 'cancelled', 'declined'].includes(String(booking.status)),
-      ),
-    [bookings, tab],
-  );
 
-  const updateStatus = async (booking: Booking, status: 'checked_in' | 'checked_out') => {
-    try {
-      const payload =
-        status === 'checked_in'
-          ? { status, check_in_time: new Date().toISOString() }
-          : { status, check_out_time: new Date().toISOString() };
-      const { error } = await supabase.from('bookings').update(payload).eq('id', booking.id);
-      if (error) throw error;
-      Alert.alert(status === 'checked_in' ? 'Checked in' : 'Checked out', 'Booking status updated.');
-      query.refetch().catch(() => undefined);
-    } catch (error) {
-      Alert.alert('Unable to update booking', error instanceof Error ? error.message : 'Please try again.');
-    }
-  };
+  const visible = useMemo(() => {
+    if (tab === 'active') return bookings.filter((b) => ['requested', 'confirmed', 'checked_in'].includes(String(b.status)));
+    if (tab === 'completed') return bookings.filter((b) => ['completed', 'checked_out', 'cancelled', 'declined'].includes(String(b.status)));
+    return bookings;
+  }, [bookings, tab]);
 
-  const cancelBooking = (booking: Booking) => {
+  const declineBooking = (booking: Booking) => {
     Alert.alert(
-      'Cancel booking',
-      'Are you sure you want to cancel this booking? This cannot be undone.',
+      'Decline applicant',
+      `Decline ${booking.professional?.full_name ?? 'this applicant'}? This cannot be undone.`,
       [
-        { text: 'Keep booking', style: 'cancel' },
+        { text: 'Keep', style: 'cancel' },
         {
-          text: 'Cancel booking',
+          text: 'Decline',
           style: 'destructive',
           onPress: async () => {
             try {
               const { error } = await supabase
                 .from('bookings')
-                .update({ status: 'cancelled', cancellation_reason: 'Cancelled by professional' })
+                .update({ status: 'declined' })
                 .eq('id', booking.id);
               if (error) throw error;
-              Alert.alert('Booking cancelled', 'Your booking has been cancelled.');
+              Alert.alert('Applicant declined', 'The booking has been declined.');
               query.refetch().catch(() => undefined);
             } catch (error) {
-              Alert.alert('Unable to cancel', error instanceof Error ? error.message : 'Please try again.');
+              Alert.alert('Unable to decline', error instanceof Error ? error.message : 'Please try again.');
             }
           },
         },
@@ -116,7 +107,7 @@ export default function ProfessionalBookingsScreen() {
 
   const onRefresh = useCallback(() => { query.refetch().catch(() => undefined); }, [query]);
 
-  if (!profile || query.isLoading) {
+  if (!clinic || query.isLoading) {
     return <LoadingSpinner fullScreen label="Loading bookings..." />;
   }
 
@@ -135,10 +126,18 @@ export default function ProfessionalBookingsScreen() {
         }
         ListHeaderComponent={
           <View style={styles.header}>
-            <Text style={styles.title}>Your bookings</Text>
+            <Text style={styles.title}>All bookings</Text>
+            <Text style={styles.description}>Track every application, confirmed staff, and completed shift in one place.</Text>
             <View style={styles.tabs}>
-              <Button title="Upcoming" variant={tab === 'upcoming' ? 'primary' : 'outline'} size="sm" onPress={() => setTab('upcoming')} />
-              <Button title="Past" variant={tab === 'past' ? 'primary' : 'outline'} size="sm" onPress={() => setTab('past')} />
+              {TABS.map((t) => (
+                <Button
+                  key={t}
+                  title={t[0].toUpperCase() + t.slice(1)}
+                  variant={tab === t ? 'primary' : 'outline'}
+                  size="sm"
+                  onPress={() => setTab(t)}
+                />
+              ))}
             </View>
             {query.isError ? <ErrorState onRetry={onRefresh} /> : null}
           </View>
@@ -146,27 +145,18 @@ export default function ProfessionalBookingsScreen() {
         ListEmptyComponent={
           !query.isError ? (
             <EmptyState
-              title="Nothing here yet"
-              description="Your bookings will appear here once you apply or complete a shift."
+              title="No bookings found"
+              description="Bookings will appear here once professionals apply to your shifts."
             />
           ) : null
         }
-        renderItem={({ item: booking }) => {
-          const isPast = ['completed', 'checked_out'].includes(String(booking.status));
-          if (isPast && profile) {
-            return (
-              <RatingButtonWrapper booking={booking} reviewerId={profile.id} />
-            );
-          }
-          return (
-            <BookingCard
-              booking={booking}
-              onCheckIn={booking.status === 'confirmed' ? () => updateStatus(booking, 'checked_in') : undefined}
-              onCheckOut={booking.status === 'checked_in' ? () => updateStatus(booking, 'checked_out') : undefined}
-              onCancel={tab === 'upcoming' ? () => cancelBooking(booking) : undefined}
-            />
-          );
-        }}
+        renderItem={({ item: booking }) => (
+          <RateBookingCard
+            booking={booking}
+            reviewerId={clinic.id}
+            onDecline={declineBooking}
+          />
+        )}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
     </SafeAreaView>
@@ -178,6 +168,7 @@ const styles = StyleSheet.create({
   container: { padding: theme.spacing.lg, gap: theme.spacing.md, paddingBottom: FLOATING_TAB_BOTTOM_INSET },
   header: { gap: theme.spacing.md, marginBottom: theme.spacing.sm },
   title: { color: theme.colors.text, fontWeight: '800', fontSize: theme.typography.sizes.xxl },
-  tabs: { flexDirection: 'row', gap: theme.spacing.sm },
+  description: { color: theme.colors.muted, marginTop: 4, lineHeight: 20 },
+  tabs: { flexDirection: 'row', gap: theme.spacing.sm, flexWrap: 'wrap' },
   separator: { height: theme.spacing.md },
 });

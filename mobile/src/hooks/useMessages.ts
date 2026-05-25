@@ -5,6 +5,36 @@ import { supabase } from '@/src/lib/supabase';
 import type { Clinic, Conversation, Message, Profile } from '@/src/types';
 
 export function useConversations({ role, entityId }: { role: 'clinic' | 'professional'; entityId?: string }) {
+  const queryClient = useQueryClient();
+
+  // Real-time: keep the conversations list fresh whenever a message arrives.
+  useEffect(() => {
+    if (!entityId) return;
+
+    const column = role === 'clinic' ? 'clinic_id' : 'professional_id';
+    const channel = supabase
+      .channel(`conversations-list-${role}-${entityId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'messages' },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['conversations', role, entityId] });
+        },
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'conversations', filter: `${column}=eq.${entityId}` },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['conversations', role, entityId] });
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [entityId, role, queryClient]);
+
   return useQuery<Array<Conversation & { unreadCount: number }>>({
     queryKey: ['conversations', role, entityId],
     enabled: Boolean(entityId),

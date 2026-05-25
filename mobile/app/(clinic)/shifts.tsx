@@ -12,6 +12,7 @@ import { EmptyState } from '@/src/components/common/EmptyState';
 import { ErrorState } from '@/src/components/common/ErrorState';
 import { LoadingSpinner } from '@/src/components/common/LoadingSpinner';
 import { CreateShiftSheet } from '@/src/components/shifts/CreateShiftSheet';
+import { EditShiftSheet } from '@/src/components/shifts/EditShiftSheet';
 import { ShiftCard } from '@/src/components/shifts/ShiftCard';
 import { FLOATING_TAB_BOTTOM_INSET } from '@/src/components/navigation/FloatingTabBar';
 import { theme } from '@/src/constants/theme';
@@ -30,6 +31,7 @@ export default function ClinicShiftsScreen() {
   const [filter, setFilter] = useState<Filter>('all');
   const [createVisible, setCreateVisible] = useState(false);
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
+  const [editTarget, setEditTarget] = useState<Shift | null>(null);
   const [applicants, setApplicants] = useState<Array<Booking & { professional: Profile | null }>>([]);
   const query = useShifts({ mode: 'clinic', clinicId: clinic?.id, filter });
 
@@ -83,6 +85,31 @@ export default function ClinicShiftsScreen() {
               queryClient.invalidateQueries({ queryKey: ['shifts'] });
             } catch (error) {
               Alert.alert('Unable to fill shift', error instanceof Error ? error.message : 'Please try again.');
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const deleteShift = (shift: Shift) => {
+    Alert.alert(
+      'Delete shift',
+      `Delete "${shift.title}"? This cannot be undone and all pending applications will be lost.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const { error } = await supabase.from('shifts').delete().eq('id', shift.id);
+              if (error) throw error;
+              setSelectedShift(null);
+              queryClient.invalidateQueries({ queryKey: ['shifts'] });
+              Alert.alert('Shift deleted', 'The shift has been removed.');
+            } catch (error) {
+              Alert.alert('Unable to delete shift', error instanceof Error ? error.message : 'Please try again.');
             }
           },
         },
@@ -165,6 +192,27 @@ export default function ClinicShiftsScreen() {
               <Button title="Close" variant="ghost" onPress={() => setSelectedShift(null)} />
             </View>
             <ScrollView contentContainerStyle={styles.modalContent}>
+              <View style={styles.shiftActions}>
+                <Button
+                  title="Edit"
+                  variant="outline"
+                  size="sm"
+                  leftIcon={<Ionicons name="pencil-outline" size={15} color={theme.colors.primary} />}
+                  onPress={() => {
+                    if (selectedShift) {
+                      setSelectedShift(null);
+                      setEditTarget(selectedShift);
+                    }
+                  }}
+                />
+                <Button
+                  title="Delete"
+                  variant="danger"
+                  size="sm"
+                  leftIcon={<Ionicons name="trash-outline" size={15} color={theme.colors.white} />}
+                  onPress={() => selectedShift && deleteShift(selectedShift)}
+                />
+              </View>
               <Text style={styles.modalSubtitle}>Applicants ({applicants.length})</Text>
               {applicants.length ? (
                 applicants.map((applicant) => (

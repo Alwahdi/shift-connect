@@ -23,18 +23,32 @@ const getBadgeVariant = (status: string | null | undefined) => {
   }
 };
 
+const formatTime = (iso: string | null) => {
+  if (!iso) return null;
+  try {
+    return format(new Date(iso), 'MMM d, h:mm a');
+  } catch {
+    return null;
+  }
+};
+
 export function BookingCard({
   booking,
   onCheckIn,
   onCheckOut,
   onCancel,
+  onRate,
 }: {
   booking: Booking;
   onCheckIn?: () => void;
   onCheckOut?: () => void;
   onCancel?: () => void;
+  onRate?: () => void;
 }) {
   const dateLabel = booking.shift?.shift_date ? format(new Date(booking.shift.shift_date), 'EEE, MMM d') : 'Date unavailable';
+  const checkInLabel = formatTime(booking.check_in_time);
+  const checkOutLabel = formatTime(booking.check_out_time);
+
   return (
     <Card style={styles.card}>
       <View style={styles.header}>
@@ -45,13 +59,19 @@ export function BookingCard({
         <Badge label={(booking.status ?? 'pending').replace('_', ' ')} variant={getBadgeVariant(booking.status)} />
       </View>
 
-      <Text style={styles.meta}>{dateLabel} • {booking.shift?.start_time?.slice(0, 5)} - {booking.shift?.end_time?.slice(0, 5)}</Text>
+      <Text style={styles.meta}>{dateLabel} • {booking.shift?.start_time?.slice(0, 5)} – {booking.shift?.end_time?.slice(0, 5)}</Text>
+
+      {checkInLabel ? <Text style={styles.timeInfo}>✔ Checked in: {checkInLabel}</Text> : null}
+      {checkOutLabel ? <Text style={styles.timeInfo}>✔ Checked out: {checkOutLabel}</Text> : null}
 
       <View style={styles.actions}>
         {booking.status === 'confirmed' ? <Button title="Check In" variant="secondary" onPress={onCheckIn} /> : null}
         {booking.status === 'checked_in' ? <Button title="Check Out" onPress={onCheckOut} /> : null}
         {onCancel && ['requested', 'confirmed'].includes(String(booking.status)) ? (
           <Button title="Cancel" variant="danger" onPress={onCancel} />
+        ) : null}
+        {onRate && ['completed', 'checked_out'].includes(String(booking.status)) ? (
+          <Button title="Rate" variant="outline" onPress={onRate} />
         ) : null}
       </View>
     </Card>
@@ -80,6 +100,10 @@ const styles = StyleSheet.create({
   },
   meta: {
     color: theme.colors.text,
+  },
+  timeInfo: {
+    color: theme.colors.success,
+    fontSize: theme.typography.sizes.sm,
   },
   actions: {
     flexDirection: 'row',
